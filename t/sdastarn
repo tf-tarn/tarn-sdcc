@@ -1,0 +1,8 @@
+#!/bin/bash -x
+
+filename=$2
+
+echo 'assembler was passed:' "$@"
+echo '--BEGIN ASM--'
+cat $filename
+echo '--END ASM--'

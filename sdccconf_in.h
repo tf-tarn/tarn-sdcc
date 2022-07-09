@@ -158,6 +158,9 @@
 #undef OPT_DISABLE_PIC16
 
 /* XXX */
+#undef OPT_DISABLE_TARN
+
+/* XXX */
 #undef OPT_DISABLE_R2K
 
 /* XXX */

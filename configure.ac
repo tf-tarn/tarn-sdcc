@@ -142,7 +142,7 @@ AC_DEFUN([sdcc_IS_SUNPRO],
     [sdcc_cv_[]_AC_LANG_ABBREV[]_compiler_sunpro=no])
 ])])
 
-# sdcc_IS_VALID_OPTION macro checks if the current compiler, selected by 
+# sdcc_IS_VALID_OPTION macro checks if the current compiler, selected by
 # AC_LANG, supports option specified as the 1st parameter. The test fails if
 # the compiler returns an error or in case something is writeen to stderr.
 # For example: sdcc_VALID_OPT(-fPIC)
@@ -154,7 +154,7 @@ sdcc_save_[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
 AC_CACHE_CHECK(whether _AC_LANG accepts $1, sdcc_cv_[]_AC_LANG_ABBREV[]_$arg1,
   [sdcc_save_[]_AC_LANG_ABBREV[]_werror_flag=$ac_[]_AC_LANG_ABBREV[]_werror_flag
    ac_[]_AC_LANG_ABBREV[]_werror_flag=yes
-   
+
    []_AC_LANG_PREFIX[]FLAGS="$1"
    AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
      [eval sdcc_cv_[]_AC_LANG_ABBREV[]_$arg1=yes],
@@ -804,6 +804,7 @@ AC_DO_PORT(pdk13,    pdk,    PDK13,    [Excludes the PDK13 port])
 AC_DO_PORT(pdk14,    pdk,    PDK14,    [Excludes the PDK14 port])
 AC_DO_PORT(pdk15,    pdk,    PDK15,    [Excludes the PDK15 port])
 AC_DO_PORT_ENABLER(pdk16,    pdk,    PDK16,    [Includes the PDK16 port])
+AC_DO_PORT(tarn,    tarn,    TARN,    [Excludes the TARN port])
 AC_DO_PORT(mos6502,  mos6502,MOS6502,  [Excludes the MOS6502 port])
 AC_DO_PORT_ENABLER(mos65c02, mos6502,MOS65C02, [Includes the MOS65C02 port])
 
@@ -968,6 +969,13 @@ if test $OPT_DISABLE_PDK16 = 0; then
   AC_CONFIG_FILES([sdas/aspdk16/Makefile])
 fi
 
+if test $OPT_DISABLE_TARN = 0; then
+    AC_CONFIG_FILES([src/pdk/Makefile])
+    # Doesn't really exist
+    # AC_CONFIG_FILES([sdas/astarn/Makefile])
+    # What is that device/lib stuff?
+fi
+
 
 test $OPT_DISABLE_DEVICE_LIB = 0 && AC_CONFIG_FILES([device/lib/Makefile])
 test $OPT_DISABLE_DEVICE_LIB = 0 && test $OPT_DISABLE_NON_FREE = 0 && AC_CONFIG_FILES([device/non-free/lib/Makefile])
@@ -1052,6 +1060,7 @@ sdcc ${VERSION} is now configured for
     pdk14               ${enable_pdk14_port}
     pdk15               ${enable_pdk15_port}
     pdk16               ${enable_pdk16_port}
+    tarn                ${enable_tarn_port}
     mos6502             ${enable_mos6502_port}
     mos65c02            ${enable_mos65c02_port}
 

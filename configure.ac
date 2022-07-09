@@ -970,7 +970,7 @@ if test $OPT_DISABLE_PDK16 = 0; then
 fi
 
 if test $OPT_DISABLE_TARN = 0; then
-    AC_CONFIG_FILES([src/pdk/Makefile])
+    AC_CONFIG_FILES([src/tarn/Makefile])
     # Doesn't really exist
     # AC_CONFIG_FILES([sdas/astarn/Makefile])
     # What is that device/lib stuff?

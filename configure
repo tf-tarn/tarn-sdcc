@@ -669,6 +669,7 @@ OPT_DISABLE_UCSIM
 OPT_DISABLE_AVR
 OPT_DISABLE_MOS65C02
 OPT_DISABLE_MOS6502
+OPT_DISABLE_TARN
 OPT_DISABLE_PDK16
 OPT_DISABLE_PDK15
 OPT_DISABLE_PDK14
@@ -813,6 +814,7 @@ enable_pdk13_port
 enable_pdk14_port
 enable_pdk15_port
 enable_pdk16_port
+enable_tarn_port
 enable_mos6502_port
 enable_mos65c02_port
 enable_ucsim
@@ -1501,6 +1503,7 @@ Optional Features:
   --disable-pdk14-port    Excludes the PDK14 port
   --disable-pdk15-port    Excludes the PDK15 port
   --enable-pdk16-port     Includes the PDK16 port
+  --disable-tarn-port     Excludes the TARN port
   --disable-mos6502-port  Excludes the MOS6502 port
   --enable-mos65c02-port  Includes the MOS65C02 port
   --disable-ucsim         Disables configuring and building of ucsim
@@ -8566,6 +8569,31 @@ printf "%s\n" "#define OPT_DISABLE_PDK16 $OPT_DISABLE_PDK16" >>confdefs.h
   fi
 
 
+  # Check whether --enable-tarn-port was given.
+if test ${enable_tarn_port+y}
+then :
+  enableval=$enable_tarn_port;
+fi
+
+
+  if test "$enable_tarn_port" = "no"; then
+    OPT_DISABLE_TARN=1
+  else
+    enable_tarn_port="yes"
+    OPT_DISABLE_TARN=0
+  fi
+
+
+printf "%s\n" "#define OPT_DISABLE_TARN $OPT_DISABLE_TARN" >>confdefs.h
+
+
+
+  echo tarn >>ports.all
+  if test $OPT_DISABLE_TARN = 0; then
+    echo tarn >>ports.build
+  fi
+
+
   # Check whether --enable-mos6502-port was given.
 if test ${enable_mos6502_port+y}
 then :
@@ -9284,6 +9312,14 @@ fi
 if test $OPT_DISABLE_PDK16 = 0; then
   ac_config_files="$ac_config_files sdas/aspdk16/Makefile"
 
+fi
+
+if test $OPT_DISABLE_TARN = 0; then
+    ac_config_files="$ac_config_files src/tarn/Makefile"
+
+    # Doesn't really exist
+    # AC_CONFIG_FILES([sdas/astarn/Makefile])
+    # What is that device/lib stuff?
 fi
 
 
@@ -10036,6 +10072,7 @@ do
     "device/lib/pdk15/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/pdk15/Makefile" ;;
     "device/lib/pdk15-stack-auto/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/pdk15-stack-auto/Makefile" ;;
     "sdas/aspdk16/Makefile") CONFIG_FILES="$CONFIG_FILES sdas/aspdk16/Makefile" ;;
+    "src/tarn/Makefile") CONFIG_FILES="$CONFIG_FILES src/tarn/Makefile" ;;
     "device/lib/Makefile") CONFIG_FILES="$CONFIG_FILES device/lib/Makefile" ;;
     "device/non-free/lib/Makefile") CONFIG_FILES="$CONFIG_FILES device/non-free/lib/Makefile" ;;
     "main.mk") CONFIG_FILES="$CONFIG_FILES main.mk:main_in.mk" ;;
@@ -11038,6 +11075,7 @@ sdcc ${VERSION} is now configured for
     pdk14               ${enable_pdk14_port}
     pdk15               ${enable_pdk15_port}
     pdk16               ${enable_pdk16_port}
+    tarn                ${enable_tarn_port}
     mos6502             ${enable_mos6502_port}
     mos65c02            ${enable_mos65c02_port}
 
@@ -11117,6 +11155,7 @@ sdcc ${VERSION} is now configured for
     pdk14               ${enable_pdk14_port}
     pdk15               ${enable_pdk15_port}
     pdk16               ${enable_pdk16_port}
+    tarn                ${enable_tarn_port}
     mos6502             ${enable_mos6502_port}
     mos65c02            ${enable_mos65c02_port}
 

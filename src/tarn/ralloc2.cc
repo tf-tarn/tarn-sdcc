@@ -35,7 +35,7 @@ template <class I_t>
 static void add_operand_conflicts_in_node(const cfg_node &n, I_t &I)
 {
   const iCode *ic = n.ic;
-  
+
   const operand *result = IC_RESULT(ic);
   const operand *left = IC_LEFT(ic);
   const operand *right = IC_RIGHT(ic);
@@ -48,13 +48,13 @@ static void add_operand_conflicts_in_node(const cfg_node &n, I_t &I)
     ic->op == '^' || ic->op == '|' || ic->op == BITWISEAND))
     return;
 
-  operand_map_t::const_iterator oir, oir_end, oirs; 
+  operand_map_t::const_iterator oir, oir_end, oirs;
   boost::tie(oir, oir_end) = n.operands.equal_range(OP_SYMBOL_CONST(result)->key);
   if(oir == oir_end)
     return;
-    
+
   operand_map_t::const_iterator oio, oio_end;
-  
+
   if(left && IS_SYMOP(left))
     for(boost::tie(oio, oio_end) = n.operands.equal_range(OP_SYMBOL_CONST(left)->key); oio != oio_end; ++oio)
       for(oirs = oir; oirs != oir_end; ++oirs)
@@ -64,7 +64,7 @@ static void add_operand_conflicts_in_node(const cfg_node &n, I_t &I)
           if(I[rvar].byte < I[ovar].byte)
             boost::add_edge(rvar, ovar, I);
         }
-        
+
   if(right && IS_SYMOP(right))
     for(boost::tie(oio, oio_end) = n.operands.equal_range(OP_SYMBOL_CONST(right)->key); oio != oio_end; ++oio)
       for(oirs = oir; oirs != oir_end; ++oirs)
@@ -299,8 +299,8 @@ static void assign_operand_for_cost(operand *o, const assignment &a, unsigned sh
     {
       var_t v = oi->second;
       if(a.global[v] >= 0)
-        { 
-          sym->regs[I[v].byte] = pdk_regs + a.global[v];   
+        {
+          sym->regs[I[v].byte] = pdk_regs + a.global[v];
           sym->nRegs = I[v].size;
         }
       else
@@ -315,7 +315,7 @@ template <class G_t, class I_t>
 static void assign_operands_for_cost(const assignment &a, unsigned short int i, const G_t &G, const I_t &I)
 {
   const iCode *ic = G[i].ic;
-  
+
   if(ic->op == IFX)
     assign_operand_for_cost(IC_COND(ic), a, i, G, I);
   else if(ic->op == JUMPTABLE)
@@ -326,7 +326,7 @@ static void assign_operands_for_cost(const assignment &a, unsigned short int i, 
       assign_operand_for_cost(IC_RIGHT(ic), a, i, G, I);
       assign_operand_for_cost(IC_RESULT(ic), a, i, G, I);
     }
-    
+
   if(ic->op == SEND && ic->builtinSEND)
     assign_operands_for_cost(a, (unsigned short)*(adjacent_vertices(i, G).first), G, I);
 }
@@ -337,13 +337,13 @@ static bool operand_sane(const operand *o, const assignment &a, unsigned short i
 {
   if(!o || !IS_SYMOP(o))
     return(true);
- 
+
   operand_map_t::const_iterator oi, oi_end;
   boost::tie(oi, oi_end) = G[i].operands.equal_range(OP_SYMBOL_CONST(o)->key);
-  
+
   if(oi == oi_end)
     return(true);
-  
+
   // In registers.
   if(std::binary_search(a.local.begin(), a.local.end(), oi->second))
     {
@@ -357,7 +357,7 @@ static bool operand_sane(const operand *o, const assignment &a, unsigned short i
         if(std::binary_search(a.local.begin(), a.local.end(), oi->second))
           return(false);
     }
- 
+
   return(true);
 }
 
@@ -376,7 +376,7 @@ static float instruction_cost(const assignment &a, unsigned short int i, const G
   iCode *ic = G[i].ic;
   float c;
 
-  wassert(TARGET_PDK_LIKE);
+  wassert(TARGET_IS_TARN);
   wassert(ic);
 
   if(!inst_sane(a, i, G, I))
@@ -462,7 +462,7 @@ static float instruction_cost(const assignment &a, unsigned short int i, const G
       c = dryPdkiCode(ic);
 
       if (IC_RESULT (ic) && IS_ITEMP (IC_RESULT(ic)) && !OP_SYMBOL_CONST(IC_RESULT(ic))->remat && // Nudge towards saving RAM space. TODO: Do this in a better way, so it works for all backends!
-        !operand_in_reg(IC_RESULT(ic), REG_A, a.i_assignment, i, G) && !operand_in_reg(IC_RESULT(ic), REG_P, a.i_assignment, i, G)) 
+        !operand_in_reg(IC_RESULT(ic), REG_A, a.i_assignment, i, G) && !operand_in_reg(IC_RESULT(ic), REG_P, a.i_assignment, i, G))
         c += 0.0001;
 
       ic->generated = false;
@@ -621,7 +621,7 @@ static bool tree_dec_ralloc(T_t &T, G_t &G, const I_t &I, SI_t &SI)
       bool spilt = false;
 
       if(winner.global[v] >= 0)
-        sym->regs[I[v].byte] = pdk_regs + winner.global[v];   
+        sym->regs[I[v].byte] = pdk_regs + winner.global[v];
       else
         {
           sym->regs[I[v].byte] = 0;
@@ -697,4 +697,3 @@ iCode *pdk_ralloc2_cc(ebbIndex *ebbi)
 
   return(ic);
 }
-

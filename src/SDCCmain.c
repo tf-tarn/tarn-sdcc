@@ -388,6 +388,9 @@ static PORT *_ports[] = {
 #if !OPT_DISABLE_MOS65C02
   &mos65c02_port,
 #endif
+#if !OPT_DISABLE_TARN
+  &tarn_port,
+#endif
 };
 
 #define NUM_PORTS (sizeof(_ports)/sizeof(_ports[0]))
@@ -2771,4 +2774,3 @@ main (int argc, char **argv, char **envp)
 
   return 0;
 }
-

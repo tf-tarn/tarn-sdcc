@@ -34,6 +34,7 @@
 #define TARGET_ID_R2KA     24
 #define TARGET_ID_MOS6502  25
 #define TARGET_ID_MOS65C02 26
+#define TARGET_ID_TARN    27
 
 /* Macro to test the target we are compiling for.
    Can only be used after SDCCmain has defined the port
@@ -62,6 +63,7 @@
 #define TARGET_IS_PDK16    (port->id == TARGET_ID_PDK16)
 #define TARGET_IS_MOS6502  (port->id == TARGET_ID_MOS6502)
 #define TARGET_IS_MOS65C02 (port->id == TARGET_ID_MOS65C02)
+#define TARGET_IS_TARN    (port->id == TARGET_ID_TARN)
 
 #define TARGET_MCS51_LIKE  (TARGET_IS_MCS51 || TARGET_IS_DS390 || TARGET_IS_DS400)
 #define TARGET_Z80_LIKE    (TARGET_IS_Z80 || TARGET_IS_Z180 || TARGET_IS_SM83 || TARGET_IS_R2K || TARGET_IS_R2KA || TARGET_IS_R3KA || TARGET_IS_TLCS90 || TARGET_IS_EZ80_Z80 || TARGET_IS_Z80N)
@@ -500,6 +502,9 @@ extern PORT mos6502_port;
 #endif
 #if !OPT_DISABLE_MOS65C02
 extern PORT mos65c02_port;
+#endif
+#if !OPT_DISABLE_TARN
+extern PORT tarn_port;
 #endif
 
 #endif /* PORT_INCLUDE */

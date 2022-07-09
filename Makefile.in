@@ -73,8 +73,9 @@ SDCC_LD        += sdcc-ldpdk
 endif
 
 ifeq ($(OPT_DISABLE_TARN), 0)
-SDCC_AS        += sdas/astarn
-SDCC_LD        += sdcc-ldtarn
+# don't exist
+# SDCC_AS        += sdas/astarn
+# SDCC_LD        += sdcc-ldtarn
 endif
 
 ifeq ($(OPT_DISABLE_PDK14), 0)

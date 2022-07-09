@@ -24,7 +24,7 @@ extern "C"
 {
   #include "ralloc.h"
   #include "gen.h"
-  float dryPdkiCode (iCode *ic);
+  float dryTarniCode (iCode *ic);
   bool pdk_assignment_optimal;
 }
 
@@ -459,7 +459,7 @@ static float instruction_cost(const assignment &a, unsigned short int i, const G
     case SWAP:
       assign_operands_for_cost(a, i, G, I);
       set_surviving_regs(a, i, G, I);
-      c = dryPdkiCode(ic);
+      c = dryTarniCode(ic);
 
       if (IC_RESULT (ic) && IS_ITEMP (IC_RESULT(ic)) && !OP_SYMBOL_CONST(IC_RESULT(ic))->remat && // Nudge towards saving RAM space. TODO: Do this in a better way, so it works for all backends!
         !operand_in_reg(IC_RESULT(ic), REG_A, a.i_assignment, i, G) && !operand_in_reg(IC_RESULT(ic), REG_P, a.i_assignment, i, G))

@@ -183,7 +183,7 @@ packRegsForAssign (iCode *ic, eBBlock *ebp)
 
   if (!IS_ITEMP (IC_RIGHT (ic)) || OP_SYMBOL (IC_RIGHT (ic))->isind || OP_LIVETO (IC_RIGHT (ic)) > ic->seq)
     return 0;
-  
+
   /* Avoid having multiple named address spaces in one iCode. */
   if (IS_SYMOP (IC_RESULT (ic)) && SPEC_ADDRSPACE (OP_SYMBOL (IC_RESULT (ic))->etype))
     return 0;
@@ -356,7 +356,7 @@ packRegsForOneuse (iCode *ic, operand **opp, eBBlock *ebp)
 
       if (!OP_SYMBOL (IC_RESULT (ic)) || !IN_REGSP (SPEC_OCLS (OP_SYMBOL (IC_RESULT (ic))->etype)))
         return 0;
-  
+
       if (OP_SYMBOL (IC_RIGHT (dic))->key != OP_SYMBOL (IC_RESULT (ic))->key)
         return 0;
 
@@ -393,7 +393,7 @@ packRegsForOneuse (iCode *ic, operand **opp, eBBlock *ebp)
   /* Optimize out the assignment */
   *opp = operandFromOperand (IC_RIGHT(dic));
   (*opp)->isaddr = true;
-  
+
   bitVectUnSetBit (OP_SYMBOL (op)->defs, dic->key);
   bitVectUnSetBit (OP_SYMBOL (op)->uses, ic->key);
 
@@ -403,13 +403,13 @@ packRegsForOneuse (iCode *ic, operand **opp, eBBlock *ebp)
   /* delete from liverange table also
      delete from all the points in between and the new
      one */
-  for (iCode *nic = dic; nic != ic; nic = nic->next) 
+  for (iCode *nic = dic; nic != ic; nic = nic->next)
     bitVectUnSetBit (nic->rlive, op->key);
 
   remiCodeFromeBBlock (ebp, dic);
 
   hTabDeleteItem (&iCodehTab, dic->key, ic, DELETE_ITEM, NULL);
-  
+
   return 1;
 }
 
@@ -447,7 +447,7 @@ packRegisters (eBBlock * ebp)
       /* Safe: address of a true sym is always constant. */
       /* if this is an itemp & result of a address of a true sym
          then mark this as rematerialisable   */
-      if (ic->op == ADDRESS_OF && 
+      if (ic->op == ADDRESS_OF &&
         IS_ITEMP (IC_RESULT (ic)) && bitVectnBitsOn (OP_DEFS (IC_RESULT (ic))) == 1 && !IS_PARM (IC_RESULT (ic)) /* The receiving of the parameter is not accounted for in DEFS */ &&
         IS_TRUE_SYMOP (IC_LEFT (ic)) /*&& !OP_SYMBOL (IC_LEFT (ic))->onStack*/)
         {
@@ -717,7 +717,7 @@ pdkRegFix (eBBlock ** ebbs, int count)
 /* assignRegisters - assigns registers to each live range as need  */
 /*-----------------------------------------------------------------*/
 void
-pdk_assignRegisters (ebbIndex *ebbi)
+tarn_assignRegisters (ebbIndex *ebbi)
 {
   eBBlock **ebbs = ebbi->bbOrder;
   int count = ebbi->count;
@@ -753,6 +753,5 @@ pdk_assignRegisters (ebbIndex *ebbi)
       dumpLiveRanges (DUMP_LRANGE, liveRanges);
     }
 
-  genPdkCode (ic);
+  genTarnCode (ic);
 }
-

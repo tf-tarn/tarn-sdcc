@@ -1,1 +1,3 @@
 *.o
+support/
+sim/

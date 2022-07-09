@@ -74,7 +74,7 @@ tarn_genIVT(struct dbuf_s *oBuf, symbol **intTable, int intCount)
 static void
 tarn_genInitStartup (FILE *of)
 {
-  fprintf (of, "tarn_genInitStartup\n");
+  fprintf (of, ";; tarn_genInitStartup\n");
 }
 
 static void

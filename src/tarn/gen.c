@@ -108,36 +108,157 @@ static bool resultRemat (const iCode *ic)
 /* gen*                                                                  */
 /*-----------------------------------------------------------------------*/
 
-static void genAddrOf      (const iCode *ic)                   { emit2("genAddrOf      ", ""); }
-static void genAnd         (const iCode *ic, iCode *ifx)       { emit2("genAnd         ", ""); }
-static void genAssign      (const iCode *ic)                   { emit2("genAssign      ", ""); }
-static void genCall        (const iCode *ic)                   { emit2("genCall        ", ""); }
-static void genCast        (const iCode *ic)                   { emit2("genCast        ", ""); }
-static void genCmp         (const iCode *ic, iCode *ifx)       { emit2("genCmp         ", ""); }
-static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       { emit2("genCmpEQorNE   ", ""); }
-static void genCpl         (const iCode *ic)                   { emit2("genCpl         ", ""); }
-static void genDummyRead   (const iCode *ic)                   { emit2("genDummyRead   ", ""); }
-static void genEndFunction (const iCode *ic)                   { emit2("genEndFunction ", ""); }
-static void genFunction    (const iCode *ic)                   { emit2("genFunction    ", ""); }
-static void genGetByte     (const iCode *ic)                   { emit2("genGetByte     ", ""); }
-static void genGoto        (const iCode *ic)                   { emit2("genGoto        ", ""); }
-static void genIfx         (const iCode *ic)                   { emit2("genIfx         ", ""); }
-static void genIpush       (const iCode *ic)                   { emit2("genIpush       ", ""); }
-static void genJumpTab     (const iCode *ic)                   { emit2("genJumpTab     ", ""); }
-static void genLabel       (const iCode *ic)                   { emit2("genLabel       ", ""); }
-static void genLeftShift   (const iCode *ic)                   { emit2("genLeftShift   ", ""); }
-static void genMinus       (const iCode *ic, const iCode *ifx) { emit2("genMinus       ", ""); }
-static void genMult        (const iCode *ic)                   { emit2("genMult        ", ""); }
-static void genNot         (const iCode *ic)                   { emit2("genNot         ", ""); }
-static void genOr          (const iCode *ic)                   { emit2("genOr          ", ""); }
-static void genPlus        (const iCode *ic)                   { emit2("genPlus        ", ""); }
-static void genPointerGet  (const iCode *ic)                   { emit2("genPointerGet  ", ""); }
-static void genPointerSet  (const iCode *ic)                   { emit2("genPointerSet  ", ""); }
-static void genReturn      (const iCode *ic)                   { emit2("genReturn      ", ""); }
-static void genRightShift  (const iCode *ic)                   { emit2("genRightShift  ", ""); }
-static void genSwap        (const iCode *ic)                   { emit2("genSwap        ", ""); }
-static void genUminus      (const iCode *ic)                   { emit2("genUminus      ", ""); }
-static void genXor         (const iCode *ic)                   { emit2("genXor         ", ""); }
+static void genAddrOf      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genAddrOf       = "); piCode (ic, stderr); } emit2(";; genAddrOf      ", ""); }
+static void genAnd         (const iCode *ic, iCode *ifx)       { if (!regalloc_dry_run) { fprintf(stderr, "genAnd          = "); piCode (ic, stderr); } emit2(";; genAnd         ", ""); }
+static void genAssign      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genAssign       = "); piCode (ic, stderr); } emit2(";; genAssign      ", ""); }
+static void genCall        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genCall         = "); piCode (ic, stderr); } emit2(";; genCall        ", ""); }
+static void genCast        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genCast         = "); piCode (ic, stderr); } emit2(";; genCast        ", ""); }
+static void genCmp         (const iCode *ic, iCode *ifx)       { if (!regalloc_dry_run) { fprintf(stderr, "genCmp          = "); piCode (ic, stderr); } emit2(";; genCmp         ", ""); }
+/* static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       { if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); } emit2(";; genCmpEQorNE   ", ""); } */
+static void genCpl         (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genCpl          = "); piCode (ic, stderr); } emit2(";; genCpl         ", ""); }
+static void genDummyRead   (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genDummyRead    = "); piCode (ic, stderr); } emit2(";; genDummyRead   ", ""); }
+static void genEndFunction (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genEndFunction  = "); piCode (ic, stderr); } emit2(";; genEndFunction ", ""); }
+static void genFunction    (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genFunction     = "); piCode (ic, stderr); } emit2(";; genFunction    ", ""); }
+static void genGetByte     (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genGetByte      = "); piCode (ic, stderr); } emit2(";; genGetByte     ", ""); }
+static void genGoto        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genGoto         = "); piCode (ic, stderr); } emit2(";; genGoto        ", ""); }
+/* static void genIfx         (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genIfx          = "); piCode (ic, stderr); } emit2(";; genIfx         ", ""); } */
+static void genIpush       (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genIpush        = "); piCode (ic, stderr); } emit2(";; genIpush       ", ""); }
+static void genJumpTab     (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genJumpTab      = "); piCode (ic, stderr); } emit2(";; genJumpTab     ", ""); }
+static void genLabel       (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genLabel        = "); piCode (ic, stderr); } emit2(";; genLabel       ", ""); }
+static void genLeftShift   (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genLeftShift    = "); piCode (ic, stderr); } emit2(";; genLeftShift   ", ""); }
+static void genMinus       (const iCode *ic, const iCode *ifx) { if (!regalloc_dry_run) { fprintf(stderr, "genMinus        = "); piCode (ic, stderr); } emit2(";; genMinus       ", ""); }
+static void genMult        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genMult         = "); piCode (ic, stderr); } emit2(";; genMult        ", ""); }
+static void genNot         (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genNot          = "); piCode (ic, stderr); } emit2(";; genNot         ", ""); }
+static void genOr          (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genOr           = "); piCode (ic, stderr); } emit2(";; genOr          ", ""); }
+static void genPlus        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genPlus         = "); piCode (ic, stderr); } emit2(";; genPlus        ", ""); }
+static void genPointerGet  (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genPointerGet   = "); piCode (ic, stderr); } emit2(";; genPointerGet  ", ""); }
+static void genPointerSet  (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genPointerSet   = "); piCode (ic, stderr); } emit2(";; genPointerSet  ", ""); }
+static void genReturn      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genReturn       = "); piCode (ic, stderr); } emit2(";; genReturn      ", ""); }
+static void genRightShift  (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genRightShift   = "); piCode (ic, stderr); } emit2(";; genRightShift  ", ""); }
+static void genSwap        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genSwap         = "); piCode (ic, stderr); } emit2(";; genSwap        ", ""); }
+static void genUminus      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genUminus       = "); piCode (ic, stderr); } emit2(";; genUminus      ", ""); }
+static void genXor         (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genXor          = "); piCode (ic, stderr); } emit2(";; genXor         ", ""); }
+
+void write_reg(const char *reg, operand *op) {
+    if (regalloc_dry_run) {
+        return;
+    }
+
+    if (IS_OP_LITERAL (op)) {
+        emit2("mov", "%s il ,%d", reg, byteOfVal(OP_VALUE(op), 0));
+        return;
+    }
+
+    if (op->type == SYMBOL) {
+        if (op->isParm) {
+            // parameters are addresses by default
+            // but really we want to pass them on the stack...
+            emit2("; symbol is parameter", "");
+            emit2("mov", "adh hi8(%s) ,0", OP_SYMBOL(op)->rname);
+            emit2("mov", "adl lo8(%s) ,0", OP_SYMBOL(op)->rname);
+            emit2("mov", "%s mem ,0", reg);
+            return;
+        }
+
+        emit2("", "; symbol has %d regs", OP_SYMBOL(op)->nRegs);
+        // if (OP_SYMBOL(op)->nRegs)
+
+        // something else?
+        if (op->isaddr) {
+            emit2("; symbol is addr", "");
+        }
+        if (op->isPtr) {
+            emit2("; symbol is pointer", "");
+        }
+        emit2("mov", "%s %s ,0", reg, OP_SYMBOL(op)->rname);
+        return;
+    }
+
+    emit2("; write_reg: op not suppoted", "");
+}
+
+void read_reg(const char *reg, operand *op) {
+    if (regalloc_dry_run) {
+        return;
+    }
+
+    if (IS_OP_LITERAL (op)) {
+        emit2("; error:", "can't assign literal = %s", reg);
+        return;
+    }
+
+    if (op->type == SYMBOL) {
+        if (OP_SYMBOL(op)->nRegs == 1) {
+            emit2("; ", "symbol is in reg %s", OP_SYMBOL(op)->regs[0]->name);
+            emit2("mov", "%s %s ,0", OP_SYMBOL(op)->regs[0]->name, reg);
+            return;
+        }
+
+        emit2("mov", "%s %s ,0", OP_SYMBOL(op)->rname, reg);
+        return;
+    }
+
+    emit2("; read_reg: op not suppoted", "");
+}
+
+static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
+  operand *left, *right, *result;
+
+  result = IC_RESULT (ic);
+  left = IC_LEFT (ic);
+  right = IC_RIGHT (ic);
+
+  emit2("; compare", "");
+  // TODO set alus too
+  write_reg("alua", IC_LEFT(ic));
+  write_reg("alub", IC_RIGHT(ic));
+
+  // read_reg("aluc", IC_RESULT(ic));
+
+    if (!regalloc_dry_run) {
+        fprintf(stderr, "compare ((");
+        printOperand (IC_LEFT (ic), stderr);
+        fprintf(stderr, ")) with ((");
+        printOperand (IC_RIGHT (ic), stderr);
+        fprintf(stderr, ")) and store in (( ");
+        printOperand (IC_RESULT (ic), stderr);
+        fprintf(stderr, "))\n");
+    }
+}
+
+/*-----------------------------------------------------------------*/
+/* genIfx - generate code for Ifx statement                        */
+/*-----------------------------------------------------------------*/
+static void genIfx (const iCode *ic)
+{
+    if (regalloc_dry_run) {
+        return;
+    }
+    operand *const cond = IC_COND (ic);
+    operand *const t = IC_TRUE (ic);
+    operand *const f = IC_FALSE (ic);
+
+
+    if (IS_OP_LITERAL (cond)) {
+        emit2("; genIfx: op is literal", "");
+        return;
+    }
+
+    if (IS_SYMOP (cond)) {
+        emit2("; genIfx: op is symbol", "");
+        emit2("; symbol is", "%s", OP_SYMBOL(cond)->rname);
+        if (OP_SYMBOL(cond)->nRegs == 1) {
+            emit2("; ", "symbol is in reg %s", OP_SYMBOL(cond)->regs[0]->name);
+            emit2("mov", "test %s ,0", OP_SYMBOL(cond)->regs[0]->name);
+            return;
+        }
+
+        emit2("mov", "test %s ,0", OP_SYMBOL(cond)->rname);
+        return;
+    }
+
+    emit2("; genIfx: op is unknown", "");
+}
 
 
 /*-----------------------------------------------------------------------*/

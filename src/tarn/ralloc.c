@@ -2,12 +2,11 @@
 #include "gen.h"
 #include "dbuf_string.h"
 
-reg_info pdk_regs[] =
+reg_info tarn_regs[] =
 {
-  {REG_GPR, A_IDX,   "a"},
-  {REG_GPR, P_IDX,   "p"},
-  {REG_CND, C_IDX,   "f.c"},
-  {0, SP_IDX,        "sp"},
+  {REG_GPR, R_IDX,   "r"},
+  {REG_GPR, X_IDX,   "x"},
+  {REG_CND, ALUC_IDX,   "aluc"},
 };
 
 /* Flags to turn on debugging code.
@@ -67,7 +66,7 @@ createStackSpil (symbol *sym)
 /* spillThis - spils a specific operand                            */
 /*-----------------------------------------------------------------*/
 void
-pdkSpillThis (symbol * sym)
+tarnSpillThis (symbol * sym)
 {
   int i;
   /* if this is rematerializable or has a spillLocation
@@ -621,7 +620,7 @@ serialRegMark (eBBlock **ebbs, int count)
               if (sym->nRegs > 2 && ic->op == CALL) // To be allocated to stack due to the way (long) long return values are handled via a hidden pointer.
                 {
                   sym->for_newralloc = 0;
-                  pdkSpillThis (sym);
+                  tarnSpillThis (sym);
                 }
               else if (max_alloc_bytes >= sym->nRegs)
                 {
@@ -630,7 +629,7 @@ serialRegMark (eBBlock **ebbs, int count)
                 }
               else if (!sym->for_newralloc)
                 {
-                  pdkSpillThis (sym);
+                  tarnSpillThis (sym);
                   printf ("Spilt %s due to byte limit.\n", sym->name);
                 }
             }
@@ -673,11 +672,11 @@ verifyRegsAssigned (operand * op, iCode * ic)
   if (completely_in_regs)
     return;
 
-  pdkSpillThis (sym);
+  tarnSpillThis (sym);
 }
 
 void
-pdkRegFix (eBBlock ** ebbs, int count)
+tarnRegFix (eBBlock ** ebbs, int count)
 {
   int i;
 
@@ -745,7 +744,7 @@ tarn_assignRegisters (ebbIndex *ebbi)
   serialRegMark (ebbs, count);
 
   /* Invoke optimal register allocator */
-  ic = pdk_ralloc2_cc (ebbi);
+  ic = tarn_ralloc2_cc (ebbi);
 
   if (options.dump_i_code)
     {

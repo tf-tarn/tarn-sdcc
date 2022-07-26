@@ -30,10 +30,9 @@
 
 enum
 {
-  A_IDX = 0, // The accumulator
-  P_IDX,     // A memory location used as pseudoregister
-  C_IDX,     // Implicit condition operand.
-  SP_IDX     // SP - for use with debug info.
+  R_IDX = 0, // R
+  X_IDX,     // X
+  ALUC_IDX,  // ALU output (conditional register)
 };
 
 enum
@@ -51,13 +50,13 @@ typedef struct reg_info
   char *name;                   /* name */
 } reg_info;
 
-extern reg_info pdk_regs[];
+extern reg_info tarn_regs[];
 
 void tarn_assignRegisters (ebbIndex *);
 
-void pdkSpillThis (symbol *sym);
-iCode *pdk_ralloc2_cc(ebbIndex *ebbi);
+void tarnSpillThis (symbol *sym);
+iCode *tarn_ralloc2_cc(ebbIndex *ebbi);
 
-void pdkRegFix (eBBlock **ebbs, int count);
+void tarnRegFix (eBBlock **ebbs, int count);
 
 #endif

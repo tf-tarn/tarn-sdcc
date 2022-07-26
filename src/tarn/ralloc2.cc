@@ -25,11 +25,11 @@ extern "C"
   #include "ralloc.h"
   #include "gen.h"
   float dryTarniCode (iCode *ic);
-  bool pdk_assignment_optimal;
+  bool tarn_assignment_optimal;
 }
 
-#define REG_A 0
-#define REG_P 1
+#define REG_R 0
+#define REG_X 1
 
 template <class I_t>
 static void add_operand_conflicts_in_node(const cfg_node &n, I_t &I)
@@ -117,8 +117,8 @@ static bool Ainst_ok(const assignment &a, unsigned short int i, const G_t &G, co
   const iCode *ic = G[i].ic;
   const i_assignment_t &ia = a.i_assignment;
 
-  if(ia.registers[REG_A][1] < 0)
-    return(true);       // Register a not in use.
+  if(ia.registers[REG_R][1] < 0)
+    return(true);       // Register R not in use.
 
   if(ic->op == GOTO || ic->op == LABEL)
     return(true);
@@ -127,13 +127,13 @@ static bool Ainst_ok(const assignment &a, unsigned short int i, const G_t &G, co
   const operand *right = IC_RIGHT(ic);
   const operand *result = IC_RESULT(ic);
 
-  bool result_in_A = operand_in_reg(result, REG_A, ia, i, G);
-  bool left_in_A = operand_in_reg(left, REG_A, ia, i, G);
-  bool right_in_A = operand_in_reg(right, REG_A, ia, i, G);
+  bool result_in_A = operand_in_reg(result, REG_R, ia, i, G);
+  bool left_in_A = operand_in_reg(left, REG_R, ia, i, G);
+  bool right_in_A = operand_in_reg(right, REG_R, ia, i, G);
 
   const cfg_dying_t &dying = G[i].dying;
 
-  bool dying_A = result_in_A || dying.find(ia.registers[REG_A][1]) != dying.end() || dying.find(ia.registers[REG_A][0]) != dying.end();
+  bool dying_A = result_in_A || dying.find(ia.registers[REG_R][1]) != dying.end() || dying.find(ia.registers[REG_R][0]) != dying.end();
 
   bool result_dir = IS_TRUE_SYMOP (result) || IS_ITEMP (result) && !(options.stackAuto || reentrant) && !result_in_A;
   bool left_dir = IS_TRUE_SYMOP (left) || IS_ITEMP (left) && !(options.stackAuto || reentrant) && !left_in_A;
@@ -143,7 +143,7 @@ static bool Ainst_ok(const assignment &a, unsigned short int i, const G_t &G, co
   if (ic->op == GETBYTE || ic->op == '=' || ic->op == DUMMY_READ_VOLATILE || ic->op == CAST || ic->op == GET_VALUE_AT_ADDRESS || ic->op == SET_VALUE_AT_ADDRESS || ic->op == '~' || ic->op == '|' || ic->op == '^' || ic->op == BITWISEAND && !ifxForOp (result, ic))
     return(true);
 
-  if(result && IS_ITEMP(result) && OP_SYMBOL_CONST(result)->remat && !operand_in_reg(result, REG_A, ia, i, G) && !operand_in_reg(result, REG_P, ia, i, G))
+  if(result && IS_ITEMP(result) && OP_SYMBOL_CONST(result)->remat && !operand_in_reg(result, REG_R, ia, i, G) && !operand_in_reg(result, REG_X, ia, i, G))
     return(true);
 
   if ((ic->op == EQ_OP || ic->op == NE_OP) && dying_A &&
@@ -159,12 +159,12 @@ static bool Ainst_ok(const assignment &a, unsigned short int i, const G_t &G, co
     return (true);
 
   if (ic->op == '<' && IS_OP_LITERAL(right) && !ullFromVal(OP_VALUE_CONST (right)) &&
-    (operand_byte_in_reg(left, getSize(operandType(left)) - 1, REG_A, a, i, G) || operand_byte_in_reg(left, getSize(operandType(left)) - 1, REG_P, a, i, G)))
+    (operand_byte_in_reg(left, getSize(operandType(left)) - 1, REG_R, a, i, G) || operand_byte_in_reg(left, getSize(operandType(left)) - 1, REG_X, a, i, G)))
     return (true);
 
   if (ic->op == SET_VALUE_AT_ADDRESS && getSize(operandType(right)) == 1 && left_dir && right_in_A)
     return (true);
-  if (ic->op == SET_VALUE_AT_ADDRESS && IS_ITEMP(left) && OP_SYMBOL_CONST(left)->remat && !operand_in_reg(left, REG_A, ia, i, G))
+  if (ic->op == SET_VALUE_AT_ADDRESS && IS_ITEMP(left) && OP_SYMBOL_CONST(left)->remat && !operand_in_reg(left, REG_R, ia, i, G))
     return (true);
 
   if ((ic->op == '+' || ic->op == '-' || ic->op == UNARYMINUS) && (!left_in_A && !right_in_A || getSize(operandType(result)) == 1))
@@ -181,7 +181,7 @@ static bool Ainst_ok(const assignment &a, unsigned short int i, const G_t &G, co
     return(true);
 
   if (ic->op == CAST &&
-    (getSize(operandType(result)) == 1 || getSize(operandType(result)) == 2 && SPEC_USIGN (getSpec(operandType(right))) && operand_byte_in_reg(result, 1, REG_P, a, i, G)) &&
+    (getSize(operandType(result)) == 1 || getSize(operandType(result)) == 2 && SPEC_USIGN (getSpec(operandType(right))) && operand_byte_in_reg(result, 1, REG_X, a, i, G)) &&
     right_in_A && (result_dir || dying_A))
     return (true);
 
@@ -194,13 +194,13 @@ static bool Ainst_ok(const assignment &a, unsigned short int i, const G_t &G, co
     return(IS_OP_LITERAL(right) || right_in_A && !result_in_A);
 
   if (ic->op == '^' &&
-    (operand_byte_in_reg(result, 0, REG_A, a, i, G) && (operand_byte_in_reg(left, 0, REG_A, a, i, G) || operand_byte_in_reg(right, 0, REG_A, a, i, G)) ||
-    operand_byte_in_reg(result, 1, REG_A, a, i, G) && (operand_byte_in_reg(left, 1, REG_A, a, i, G) || operand_byte_in_reg(right, 1, REG_A, a, i, G))))
+    (operand_byte_in_reg(result, 0, REG_R, a, i, G) && (operand_byte_in_reg(left, 0, REG_R, a, i, G) || operand_byte_in_reg(right, 0, REG_R, a, i, G)) ||
+    operand_byte_in_reg(result, 1, REG_R, a, i, G) && (operand_byte_in_reg(left, 1, REG_R, a, i, G) || operand_byte_in_reg(right, 1, REG_R, a, i, G))))
     return (true);
 
   // For most operations only allow lower byte in a for now (upper byte for result).
-  if (left_in_A && !operand_byte_in_reg(left, 0, REG_A, a, i, G) || right_in_A && !operand_byte_in_reg(right, 0, REG_A, a, i, G) ||
-    ic->op != '+' && ic->op != '-' && ic->op != UNARYMINUS && result_in_A && !operand_byte_in_reg(result, getSize(operandType(result)) - 1, REG_A, a, i, G))
+  if (left_in_A && !operand_byte_in_reg(left, 0, REG_R, a, i, G) || right_in_A && !operand_byte_in_reg(right, 0, REG_R, a, i, G) ||
+    ic->op != '+' && ic->op != '-' && ic->op != UNARYMINUS && result_in_A && !operand_byte_in_reg(result, getSize(operandType(result)) - 1, REG_R, a, i, G))
     return(false);
 
   if(dying_A)
@@ -215,24 +215,24 @@ static bool Pinst_ok(const assignment &a, unsigned short int i, const G_t &G, co
   const iCode *ic = G[i].ic;
   const i_assignment_t &ia = a.i_assignment;
 
-  if(ia.registers[REG_P][1] < 0)
+  if(ia.registers[REG_X][1] < 0)
     return(true);       // Pseudoregister p not in use.
 
   const operand *left = IC_LEFT(ic);
   const operand *right = IC_RIGHT(ic);
   const operand *result = IC_RESULT(ic);
 
-  bool left_in_P = operand_in_reg(left, REG_P, ia, i, G);
-  bool right_in_P = operand_in_reg(right, REG_P, ia, i, G);
-  bool result_in_P = operand_in_reg(result, REG_P, ia, i, G);
+  bool left_in_P = operand_in_reg(left, REG_X, ia, i, G);
+  bool right_in_P = operand_in_reg(right, REG_X, ia, i, G);
+  bool result_in_P = operand_in_reg(result, REG_X, ia, i, G);
 
-  bool left_in_A = operand_in_reg(left, REG_A, ia, i, G);
-  bool right_in_A = operand_in_reg(right, REG_A, ia, i, G);
-  bool result_in_A = operand_in_reg(result, REG_A, ia, i, G);
+  bool left_in_A = operand_in_reg(left, REG_R, ia, i, G);
+  bool right_in_A = operand_in_reg(right, REG_R, ia, i, G);
+  bool result_in_A = operand_in_reg(result, REG_R, ia, i, G);
 
   const cfg_dying_t &dying = G[i].dying;
 
-  bool dying_P = result_in_P || dying.find(ia.registers[REG_P][1]) != dying.end() || dying.find(ia.registers[REG_P][0]) != dying.end();
+  bool dying_P = result_in_P || dying.find(ia.registers[REG_X][1]) != dying.end() || dying.find(ia.registers[REG_X][0]) != dying.end();
 
   bool left_stack = (IS_ITEMP (left) || IS_PARM (left)) && (options.stackAuto || reentrant) && !left_in_A && !left_in_P;
   bool right_stack = (IS_ITEMP (right) || IS_PARM (right)) && (options.stackAuto || reentrant) && !right_in_A && !right_in_P;
@@ -300,7 +300,7 @@ static void assign_operand_for_cost(operand *o, const assignment &a, unsigned sh
       var_t v = oi->second;
       if(a.global[v] >= 0)
         {
-          sym->regs[I[v].byte] = pdk_regs + a.global[v];
+          sym->regs[I[v].byte] = tarn_regs + a.global[v];
           sym->nRegs = I[v].size;
         }
       else
@@ -462,13 +462,11 @@ static float instruction_cost(const assignment &a, unsigned short int i, const G
       c = dryTarniCode(ic);
 
       if (IC_RESULT (ic) && IS_ITEMP (IC_RESULT(ic)) && !OP_SYMBOL_CONST(IC_RESULT(ic))->remat && // Nudge towards saving RAM space. TODO: Do this in a better way, so it works for all backends!
-        !operand_in_reg(IC_RESULT(ic), REG_A, a.i_assignment, i, G) && !operand_in_reg(IC_RESULT(ic), REG_P, a.i_assignment, i, G))
+        !operand_in_reg(IC_RESULT(ic), REG_R, a.i_assignment, i, G) && !operand_in_reg(IC_RESULT(ic), REG_X, a.i_assignment, i, G))
         c += 0.0001;
 
       ic->generated = false;
-#if 0
       std::cout << "Got cost " << c << "\n";
-#endif
       return(c);
     default:
       return(0.0f);
@@ -501,7 +499,7 @@ static float rough_cost_estimate(const assignment &a, unsigned short int i, cons
   const i_assignment_t &ia = a.i_assignment;
   float c = 0.0f;
 
-  if(ia.registers[REG_A][1] < 0)
+  if(ia.registers[REG_R][1] < 0)
     c += 0.05f;
 
   varset_t::const_iterator v, v_end;
@@ -575,31 +573,31 @@ cnd:
 }
 
 template <class T_t, class G_t, class I_t, class SI_t>
-static bool tree_dec_ralloc(T_t &T, G_t &G, const I_t &I, SI_t &SI)
+static bool tree_dec_ralloc(T_t &tree_decomposition, G_t &control_flow_graph, const I_t &conflict_graph, SI_t &spilt_conflict_graph)
 {
   bool assignment_optimal;
 
-  con2_t I2(boost::num_vertices(I));
-  for(unsigned int i = 0; i < boost::num_vertices(I); i++)
+  con2_t I2(boost::num_vertices(conflict_graph));
+  for(unsigned int i = 0; i < boost::num_vertices(conflict_graph); i++)
     {
-      I2[i].v = I[i].v;
-      I2[i].byte = I[i].byte;
-      I2[i].size = I[i].size;
-      I2[i].name = I[i].name;
+      I2[i].v = conflict_graph[i].v;
+      I2[i].byte = conflict_graph[i].byte;
+      I2[i].size = conflict_graph[i].size;
+      I2[i].name = conflict_graph[i].name;
     }
   typename boost::graph_traits<I_t>::edge_iterator e, e_end;
-  for(boost::tie(e, e_end) = boost::edges(I); e != e_end; ++e)
-    add_edge(boost::source(*e, I), boost::target(*e, I), I2);
+  for(boost::tie(e, e_end) = boost::edges(conflict_graph); e != e_end; ++e)
+    add_edge(boost::source(*e, conflict_graph), boost::target(*e, conflict_graph), I2);
 
   assignment ac;
   assignment_optimal = true;
-  tree_dec_ralloc_nodes(T, find_root(T), G, I2, ac, &assignment_optimal);
+  tree_dec_ralloc_nodes(tree_decomposition, find_root(tree_decomposition), control_flow_graph, I2, ac, &assignment_optimal);
 
-  const assignment &winner = *(T[find_root(T)].assignments.begin());
+  const assignment &winner = *(tree_decomposition[find_root(tree_decomposition)].assignments.begin());
 
 #ifdef DEBUG_RALLOC_DEC
   std::cout << "Winner: ";
-  for(unsigned int i = 0; i < boost::num_vertices(I); i++)
+  for(unsigned int i = 0; i < boost::num_vertices(conflict_graph); i++)
     {
       std::cout << "(" << i << ", " << int(winner.global[i]) << ") ";
     }
@@ -609,40 +607,40 @@ static bool tree_dec_ralloc(T_t &T, G_t &G, const I_t &I, SI_t &SI)
 #endif
 
   // Todo: Make this an assertion
-  if(winner.global.size() != boost::num_vertices(I))
+  if(winner.global.size() != boost::num_vertices(conflict_graph))
     {
       std::cerr << "ERROR: No Assignments at root\n";
       exit(-1);
     }
 
-  for(unsigned int v = 0; v < boost::num_vertices(I); v++)
+  for(unsigned int v = 0; v < boost::num_vertices(conflict_graph); v++)
     {
-      symbol *sym = (symbol *)(hTabItemWithKey(liveRanges, I[v].v));
+      symbol *sym = (symbol *)(hTabItemWithKey(liveRanges, conflict_graph[v].v));
       bool spilt = false;
 
       if(winner.global[v] >= 0)
-        sym->regs[I[v].byte] = pdk_regs + winner.global[v];
+        sym->regs[conflict_graph[v].byte] = tarn_regs + winner.global[v];
       else
         {
-          sym->regs[I[v].byte] = 0;
+          sym->regs[conflict_graph[v].byte] = 0;
           spilt = true;
         }
 
       if(spilt)
-        pdkSpillThis(sym);
+        tarnSpillThis(sym);
 
-      sym->nRegs = I[v].size;
+      sym->nRegs = conflict_graph[v].size;
     }
 
-  for(unsigned int i = 0; i < boost::num_vertices(G); i++)
-    set_surviving_regs(winner, i, G, I);
+  for(unsigned int i = 0; i < boost::num_vertices(control_flow_graph); i++)
+    set_surviving_regs(winner, i, control_flow_graph, conflict_graph);
 
-  set_spilt(G, I, SI);
+  set_spilt(control_flow_graph, conflict_graph, spilt_conflict_graph);
 
   return(!assignment_optimal);
 }
 
-iCode *pdk_ralloc2_cc(ebbIndex *ebbi)
+iCode *tarn_ralloc2_cc(ebbIndex *ebbi)
 {
   eBBlock **const ebbs = ebbi->bbOrder;
   const int count = ebbi->count;
@@ -681,9 +679,9 @@ iCode *pdk_ralloc2_cc(ebbIndex *ebbi)
 
   scon_t spilt_conflict_graph;
 
-  pdk_assignment_optimal = !tree_dec_ralloc(tree_decomposition, control_flow_graph, conflict_graph, spilt_conflict_graph);
+  tarn_assignment_optimal = !tree_dec_ralloc(tree_decomposition, control_flow_graph, conflict_graph, spilt_conflict_graph);
 
-  pdkRegFix (ebbs, count);
+  tarnRegFix (ebbs, count);
 
   if (reentrant)
     {

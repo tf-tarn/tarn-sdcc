@@ -110,7 +110,7 @@ static bool resultRemat (const iCode *ic)
 
 static void genAddrOf      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genAddrOf       = "); piCode (ic, stderr); } emit2(";; genAddrOf      ", ""); }
 static void genAnd         (const iCode *ic, iCode *ifx)       { if (!regalloc_dry_run) { fprintf(stderr, "genAnd          = "); piCode (ic, stderr); } emit2(";; genAnd         ", ""); }
-static void genAssign      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genAssign       = "); piCode (ic, stderr); } emit2(";; genAssign      ", ""); }
+/* static void genAssign      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genAssign       = "); piCode (ic, stderr); } emit2(";; genAssign      ", ""); } */
 static void genCall        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genCall         = "); piCode (ic, stderr); } emit2(";; genCall        ", ""); }
 static void genCast        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genCast         = "); piCode (ic, stderr); } emit2(";; genCast        ", ""); }
 static void genCmp         (const iCode *ic, iCode *ifx)       { if (!regalloc_dry_run) { fprintf(stderr, "genCmp          = "); piCode (ic, stderr); } emit2(";; genCmp         ", ""); }
@@ -124,7 +124,7 @@ static void genGoto        (const iCode *ic)                   { if (!regalloc_d
 /* static void genIfx         (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genIfx          = "); piCode (ic, stderr); } emit2(";; genIfx         ", ""); } */
 static void genIpush       (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genIpush        = "); piCode (ic, stderr); } emit2(";; genIpush       ", ""); }
 static void genJumpTab     (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genJumpTab      = "); piCode (ic, stderr); } emit2(";; genJumpTab     ", ""); }
-static void genLabel       (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genLabel        = "); piCode (ic, stderr); } emit2(";; genLabel       ", ""); }
+/* static void genLabel       (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genLabel        = "); piCode (ic, stderr); } emit2(";; genLabel       ", ""); } */
 static void genLeftShift   (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genLeftShift    = "); piCode (ic, stderr); } emit2(";; genLeftShift   ", ""); }
 static void genMinus       (const iCode *ic, const iCode *ifx) { if (!regalloc_dry_run) { fprintf(stderr, "genMinus        = "); piCode (ic, stderr); } emit2(";; genMinus       ", ""); }
 static void genMult        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genMult         = "); piCode (ic, stderr); } emit2(";; genMult        ", ""); }
@@ -138,6 +138,40 @@ static void genRightShift  (const iCode *ic)                   { if (!regalloc_d
 static void genSwap        (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genSwap         = "); piCode (ic, stderr); } emit2(";; genSwap        ", ""); }
 static void genUminus      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genUminus       = "); piCode (ic, stderr); } emit2(";; genUminus      ", ""); }
 static void genXor         (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genXor          = "); piCode (ic, stderr); } emit2(";; genXor         ", ""); }
+
+static void genAssign (const iCode *ic) {
+    if (!regalloc_dry_run) { fprintf(stderr, "genAssign       = "); piCode (ic, stderr); } emit2(";; genAssign      ", "");
+}
+
+
+    if (IS_OP_LITERAL (op)) {
+        emit2("mov", "%s il ,%d", reg, byteOfVal(OP_VALUE(op), 0));
+        return;
+    }
+
+
+/*-----------------------------------------------------------------*/
+/* genLabel - generates a label                                    */
+/*-----------------------------------------------------------------*/
+static void
+genLabel (const iCode *ic)
+{
+    // emit2 ("; genLabel", "");
+
+    /* special case never generate */
+    if (IC_LABEL (ic) == entryLabel)
+        return;
+
+    if (options.debug /*&& !regalloc_dry_run*/)
+        debugFile->writeLabel (IC_LABEL (ic), ic);
+
+    printf("Hello, there should be a label here.\n");
+
+    emit2("", "L_%d:", (IC_LABEL(ic)->key + 100));
+
+    // G.p.type = AOP_INVALID;
+}
+
 
 void write_reg(const char *reg, operand *op) {
     if (regalloc_dry_run) {
@@ -153,7 +187,7 @@ void write_reg(const char *reg, operand *op) {
         if (op->isParm) {
             // parameters are addresses by default
             // but really we want to pass them on the stack...
-            emit2("; symbol is parameter", "");
+            /* emit2("; symbol is parameter", ""); */
             emit2("mov", "adh hi8(%s) ,0", OP_SYMBOL(op)->rname);
             emit2("mov", "adl lo8(%s) ,0", OP_SYMBOL(op)->rname);
             emit2("mov", "%s mem ,0", reg);
@@ -189,7 +223,7 @@ void read_reg(const char *reg, operand *op) {
 
     if (op->type == SYMBOL) {
         if (OP_SYMBOL(op)->nRegs == 1) {
-            emit2("; ", "symbol is in reg %s", OP_SYMBOL(op)->regs[0]->name);
+            /* emit2("; ", "symbol is in reg %s", OP_SYMBOL(op)->regs[0]->name); */
             emit2("mov", "%s %s ,0", OP_SYMBOL(op)->regs[0]->name, reg);
             return;
         }
@@ -202,28 +236,18 @@ void read_reg(const char *reg, operand *op) {
 }
 
 static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
-  operand *left, *right, *result;
+    emit2(";; genCmpEQorNE", "%p", ifx);
+    // TODO set alus too
+    write_reg("alua", IC_LEFT(ic));
+    write_reg("alub", IC_RIGHT(ic));
+    read_reg("aluc", IC_RESULT(ic));
+}
 
-  result = IC_RESULT (ic);
-  left = IC_LEFT (ic);
-  right = IC_RIGHT (ic);
-
-  emit2("; compare", "");
-  // TODO set alus too
-  write_reg("alua", IC_LEFT(ic));
-  write_reg("alub", IC_RIGHT(ic));
-
-  // read_reg("aluc", IC_RESULT(ic));
-
-    if (!regalloc_dry_run) {
-        fprintf(stderr, "compare ((");
-        printOperand (IC_LEFT (ic), stderr);
-        fprintf(stderr, ")) with ((");
-        printOperand (IC_RIGHT (ic), stderr);
-        fprintf(stderr, ")) and store in (( ");
-        printOperand (IC_RESULT (ic), stderr);
-        fprintf(stderr, "))\n");
-    }
+static void
+emitJP(const symbol *target)
+{
+  if (!regalloc_dry_run)
+    emit2 ("jnz", "L_%05d", labelKey2num (target->key));
 }
 
 /*-----------------------------------------------------------------*/
@@ -234,10 +258,13 @@ static void genIfx (const iCode *ic)
     if (regalloc_dry_run) {
         return;
     }
+
+
     operand *const cond = IC_COND (ic);
     operand *const t = IC_TRUE (ic);
     operand *const f = IC_FALSE (ic);
 
+    emit2(";; genIfx", "%p", ic);
 
     if (IS_OP_LITERAL (cond)) {
         emit2("; genIfx: op is literal", "");
@@ -245,15 +272,38 @@ static void genIfx (const iCode *ic)
     }
 
     if (IS_SYMOP (cond)) {
-        emit2("; genIfx: op is symbol", "");
-        emit2("; symbol is", "%s", OP_SYMBOL(cond)->rname);
+        /* emit2("; genIfx: op is symbol", ""); */
+        /* emit2("; symbol is", "%s", OP_SYMBOL(cond)->rname); */
         if (OP_SYMBOL(cond)->nRegs == 1) {
-            emit2("; ", "symbol is in reg %s", OP_SYMBOL(cond)->regs[0]->name);
-            emit2("mov", "test %s ,0", OP_SYMBOL(cond)->regs[0]->name);
-            return;
+            /* emit2("; ", "symbol is in reg %s", OP_SYMBOL(cond)->regs[0]->name); */
+            // no need to copy test to itself
+            if (OP_SYMBOL(cond)->regs[0]->rIdx != TEST_IDX) {
+                emit2("mov", "test %s ,0", OP_SYMBOL(cond)->regs[0]->name);
+            }
+        } else {
+            emit2("mov", "test %s ,0", OP_SYMBOL(cond)->rname);
         }
+    }
 
-        emit2("mov", "test %s ,0", OP_SYMBOL(cond)->rname);
+    /* Description of IFX:
+
+       Conditional jump. If true label is present then jump to true
+       label if condition is true else jump to false label if
+       condition is false
+
+       if (IC_COND) goto IC_TRUE;
+       Or
+       If (!IC_COND) goto IC_FALSE;
+    */
+
+    if (t) {
+        emitJP(t);
+        return;
+    }
+
+    if (f) {
+        emit2("", "; TODO: REVERSE THIS!");
+        emitJP(t);
         return;
     }
 

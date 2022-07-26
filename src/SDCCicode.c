@@ -164,6 +164,7 @@ dbuf_printOperand (operand * op, struct dbuf_s *dbuf)
   switch (op->type)
     {
     case VALUE:
+        dbuf_printf(dbuf, "value ");
       opetype = getSpec (operandType (op));
       if (IS_FLOAT (opetype))
         dbuf_printf (dbuf, "%g {", SPEC_CVAL (opetype).v_float);
@@ -178,97 +179,86 @@ dbuf_printOperand (operand * op, struct dbuf_s *dbuf)
       break;
 
     case SYMBOL:
+        dbuf_printf(dbuf, "symbol ");
 #define REGA 1
-//#if REGA      /* { */
-      if (REGA && !getenv ("PRINT_SHORT_OPERANDS"))
-        {
-          dbuf_printf (dbuf, "%s [k%d lr%d:%d so:%d]{ ia%d a2p%d re%d rm%d nos%d ru%d dp%d}",   /*{ar%d rm%d ru%d p%d a%d u%d i%d au%d k%d ks%d}"  , */
-                       (OP_SYMBOL (op)->rname[0] ? OP_SYMBOL (op)->rname : OP_SYMBOL (op)->name),
-                       op->key,
-                       OP_LIVEFROM (op), OP_LIVETO (op),
-                       OP_SYMBOL (op)->stack,
-                       op->isaddr, op->aggr2ptr, OP_SYMBOL (op)->isreqv,
-                       OP_SYMBOL (op)->remat, OP_SYMBOL (op)->noSpilLoc, OP_SYMBOL (op)->ruonly, OP_SYMBOL (op)->dptr);
-          {
-            dbuf_append_char (dbuf, '{');
-            dbuf_printTypeChain (operandType (op), dbuf);
-            if (SPIL_LOC (op) && IS_ITEMP (op))
-              dbuf_printf (dbuf, "}{ sir@ %s", SPIL_LOC (op)->rname);
-            dbuf_append_char (dbuf, '}');
-          }
-
-          /* if assigned to registers */
-          if (OP_SYMBOL (op)->nRegs)
+        //#if REGA      /* { */
+        if (REGA && !getenv ("PRINT_SHORT_OPERANDS")) {
+            dbuf_printf (dbuf, "%s [k%d lr%d:%d so:%d]{ ia%d a2p%d re%d rm%d nos%d ru%d dp%d}",   /*{ar%d rm%d ru%d p%d a%d u%d i%d au%d k%d ks%d}"  , */
+                         (OP_SYMBOL (op)->rname[0] ? OP_SYMBOL (op)->rname : OP_SYMBOL (op)->name),
+                         op->key,
+                         OP_LIVEFROM (op), OP_LIVETO (op),
+                         OP_SYMBOL (op)->stack,
+                         op->isaddr, op->aggr2ptr, OP_SYMBOL (op)->isreqv,
+                         OP_SYMBOL (op)->remat, OP_SYMBOL (op)->noSpilLoc, OP_SYMBOL (op)->ruonly, OP_SYMBOL (op)->dptr);
             {
-              if (OP_SYMBOL (op)->isspilt)
-                {
-                  if (!OP_SYMBOL (op)->remat)
-                    if (OP_SYMBOL (op)->usl.spillLoc)
-                      dbuf_printf (dbuf, "[%s]", (OP_SYMBOL (op)->usl.spillLoc->rname[0] ?
-                                                  OP_SYMBOL (op)->usl.spillLoc->rname : OP_SYMBOL (op)->usl.spillLoc->name));
+                dbuf_append_char (dbuf, '{');
+                dbuf_printTypeChain (operandType (op), dbuf);
+                if (SPIL_LOC (op) && IS_ITEMP (op))
+                    dbuf_printf (dbuf, "}{ sir@ %s", SPIL_LOC (op)->rname);
+                dbuf_append_char (dbuf, '}');
+            }
+
+            /* if assigned to registers */
+            if (OP_SYMBOL (op)->nRegs) {
+                if (OP_SYMBOL (op)->isspilt) {
+                    if (!OP_SYMBOL (op)->remat)
+                        if (OP_SYMBOL (op)->usl.spillLoc)
+                            dbuf_printf (dbuf, "[%s]", (OP_SYMBOL (op)->usl.spillLoc->rname[0] ?
+                                                        OP_SYMBOL (op)->usl.spillLoc->rname : OP_SYMBOL (op)->usl.spillLoc->name));
+                        else
+                            dbuf_append_str (dbuf, "[err]");
                     else
-                      dbuf_append_str (dbuf, "[err]");
-                  else
-                    dbuf_append_str (dbuf, "[remat]");
-                }
-              else
-                {
-                  int i;
-                  dbuf_append_char (dbuf, '[');
-                  for (i = 0; i < OP_SYMBOL (op)->nRegs; i++)
-                    dbuf_printf (dbuf, "%s ", port->getRegName (OP_SYMBOL (op)->regs[i]));
-                  dbuf_append_char (dbuf, ']');
+                        dbuf_append_str (dbuf, "[remat]");
+                } else {
+                    int i;
+                    dbuf_append_char (dbuf, '[');
+                    for (i = 0; i < OP_SYMBOL (op)->nRegs; i++)
+                        dbuf_printf (dbuf, "%s ", port->getRegName (OP_SYMBOL (op)->regs[i]));
+                    dbuf_append_char (dbuf, ']');
                 }
             }
-//#else         /* } else { */
-        }
-      else
-        {
-          /* (getenv("PRINT_SHORT_OPERANDS") != NULL) */
-          dbuf_printf (dbuf, "%s ", (OP_SYMBOL (op)->rname[0] ? OP_SYMBOL (op)->rname : OP_SYMBOL (op)->name));
+            //#else         /* } else { */
+        } else {
+            /* (getenv("PRINT_SHORT_OPERANDS") != NULL) */
+            dbuf_printf (dbuf, "%s ", (OP_SYMBOL (op)->rname[0] ? OP_SYMBOL (op)->rname : OP_SYMBOL (op)->name));
 
-          if (getenv ("PRINT_SHORT_OPERANDS")[0] < '1')
-            {
-              dbuf_printf (dbuf, "[lr%d:%d so:%d]", OP_LIVEFROM (op), OP_LIVETO (op), OP_SYMBOL (op)->stack);
+            if (getenv ("PRINT_SHORT_OPERANDS")[0] < '1') {
+                dbuf_printf (dbuf, "[lr%d:%d so:%d]", OP_LIVEFROM (op), OP_LIVETO (op), OP_SYMBOL (op)->stack);
             }
 
-          if (getenv ("PRINT_SHORT_OPERANDS")[0] < '2')
-            {
-              dbuf_append_char (dbuf, '{');
-              dbuf_printTypeChain (operandType (op), dbuf);
-              if (SPIL_LOC (op) && IS_ITEMP (op))
-                dbuf_printf (dbuf, "}{ sir@ %s", SPIL_LOC (op)->rname);
-              dbuf_append_char (dbuf, '}');
+            if (getenv ("PRINT_SHORT_OPERANDS")[0] < '2') {
+                dbuf_append_char (dbuf, '{');
+                dbuf_printTypeChain (operandType (op), dbuf);
+                if (SPIL_LOC (op) && IS_ITEMP (op))
+                    dbuf_printf (dbuf, "}{ sir@ %s", SPIL_LOC (op)->rname);
+                dbuf_append_char (dbuf, '}');
             }
 
-          /* if assigned to registers */
-          if (OP_SYMBOL (op)->nRegs)
-            {
-              if (OP_SYMBOL (op)->isspilt)
-                {
-                  if (!OP_SYMBOL (op)->remat)
-                    if (OP_SYMBOL (op)->usl.spillLoc)
-                      dbuf_printf (dbuf, "[%s]", (OP_SYMBOL (op)->usl.spillLoc->rname[0] ?
-                                                  OP_SYMBOL (op)->usl.spillLoc->rname : OP_SYMBOL (op)->usl.spillLoc->name));
+            /* if assigned to registers */
+            if (OP_SYMBOL (op)->nRegs) {
+                if (OP_SYMBOL (op)->isspilt) {
+                    if (!OP_SYMBOL (op)->remat)
+                        if (OP_SYMBOL (op)->usl.spillLoc)
+                            dbuf_printf (dbuf, "[%s]", (OP_SYMBOL (op)->usl.spillLoc->rname[0] ?
+                                                        OP_SYMBOL (op)->usl.spillLoc->rname : OP_SYMBOL (op)->usl.spillLoc->name));
+                        else
+                            dbuf_append_str (dbuf, "[err]");
                     else
-                      dbuf_append_str (dbuf, "[err]");
-                  else
-                    dbuf_append_str (dbuf, "[remat]");
-                }
-              else
-                {
-                  int i;
-                  dbuf_append_char (dbuf, '[');
-                  for (i = 0; i < OP_SYMBOL (op)->nRegs; i++)
-                    dbuf_printf (dbuf, "%s ", port->getRegName (OP_SYMBOL (op)->regs[i]));
-                  dbuf_append_char (dbuf, ']');
+                        dbuf_append_str (dbuf, "[remat]");
+                } else {
+                    int i;
+                    dbuf_append_char (dbuf, '[');
+                    for (i = 0; i < OP_SYMBOL (op)->nRegs; i++)
+                        dbuf_printf (dbuf, "%s ", port->getRegName (OP_SYMBOL (op)->regs[i]));
+                    dbuf_append_char (dbuf, ']');
                 }
             }
-//#endif                /* } */
+            //#endif                /* } */
         }
-      break;
+        break;
 
     case TYPE:
+        dbuf_printf(dbuf, "type ");
       dbuf_append_char (dbuf, '(');
       dbuf_printTypeChain (OP_TYPE (op), dbuf);
       dbuf_append_char (dbuf, ')');
@@ -285,6 +275,7 @@ dbuf_printOperand (operand * op, struct dbuf_s *dbuf)
 PRINTFUNC (picGetValueAtAddr)
 {
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "getValAtAddr ");
   dbuf_printOperand (IC_RESULT (ic), dbuf);
   dbuf_append_str (dbuf, " = ");
   dbuf_append_str (dbuf, "@[");
@@ -300,7 +291,7 @@ PRINTFUNC (picGetValueAtAddr)
 PRINTFUNC (picSetValueAtAddr)
 {
   dbuf_append_char (dbuf, '\t');
-  dbuf_append_str (dbuf, "*[");
+  dbuf_append_str (dbuf, "setValAtAddr *[");
   dbuf_printOperand (IC_LEFT (ic), dbuf);
   dbuf_append_str (dbuf, "] = ");
   dbuf_printOperand (IC_RIGHT (ic), dbuf);
@@ -310,6 +301,7 @@ PRINTFUNC (picSetValueAtAddr)
 PRINTFUNC (picAddrOf)
 {
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "addrOf ");
   dbuf_printOperand (IC_RESULT (ic), dbuf);
   if (IS_ITEMP (IC_LEFT (ic)))
     dbuf_append_str (dbuf, " = ");
@@ -335,6 +327,7 @@ PRINTFUNC (picJumpTable)
   symbol *sym;
 
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "jumpTable ");
   dbuf_printf (dbuf, "%s\t", s);
   dbuf_printOperand (IC_JTCOND (ic), dbuf);
   for (sym = setFirstItem (IC_JTLABELS (ic)); sym; sym = setNextItem (IC_JTLABELS (ic)))
@@ -345,6 +338,7 @@ PRINTFUNC (picJumpTable)
 PRINTFUNC (picGeneric)
 {
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "generic ");
   dbuf_printOperand (IC_RESULT (ic), dbuf);
   dbuf_append_str (dbuf, " = ");
   dbuf_printOperand (IC_LEFT (ic), dbuf);
@@ -356,6 +350,7 @@ PRINTFUNC (picGeneric)
 PRINTFUNC (picGenericOne)
 {
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "generic1 ");
   if (IC_RESULT (ic))
     {
       dbuf_printOperand (IC_RESULT (ic), dbuf);
@@ -385,6 +380,7 @@ PRINTFUNC (picGenericOne)
 PRINTFUNC (picCast)
 {
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "cast ");
   dbuf_printOperand (IC_RESULT (ic), dbuf);
   dbuf_append_str (dbuf, " = ");
   dbuf_printOperand (IC_LEFT (ic), dbuf);
@@ -396,6 +392,7 @@ PRINTFUNC (picCast)
 PRINTFUNC (picAssign)
 {
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "assign ");
 
   if (IC_RESULT (ic)->isaddr && IS_ITEMP (IC_RESULT (ic)))
     dbuf_append_str (dbuf, "*(");
@@ -413,7 +410,7 @@ PRINTFUNC (picAssign)
 
 PRINTFUNC (picLabel)
 {
-  dbuf_printf (dbuf, " %s($%d) :\n", IC_LABEL (ic)->name, IC_LABEL (ic)->key);
+  dbuf_printf (dbuf, "label %s($%d) :\n", IC_LABEL (ic)->name, IC_LABEL (ic)->key);
 }
 
 PRINTFUNC (picGoto)
@@ -441,12 +438,14 @@ PRINTFUNC (picIfx)
 
 PRINTFUNC (picInline)
 {
+  dbuf_append_str (dbuf, "inline ");
   dbuf_append_str (dbuf, IC_INLINE (ic));
 }
 
 PRINTFUNC (picReceive)
 {
   dbuf_printOperand (IC_RESULT (ic), dbuf);
+  dbuf_append_str (dbuf, "receive ");
   dbuf_printf (dbuf, " = %s ", s);
   dbuf_printOperand (IC_LEFT (ic), dbuf);
   dbuf_append_char (dbuf, '\n');
@@ -455,6 +454,7 @@ PRINTFUNC (picReceive)
 PRINTFUNC (picDummyRead)
 {
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "dummyRead ");
   dbuf_printf (dbuf, "%s ", s);
   dbuf_printOperand (IC_RIGHT (ic), dbuf);
   dbuf_append_char (dbuf, '\n');
@@ -463,6 +463,7 @@ PRINTFUNC (picDummyRead)
 PRINTFUNC (picCritical)
 {
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "critical ");
   if (IC_RESULT (ic))
     dbuf_printOperand (IC_RESULT (ic), dbuf);
   else
@@ -474,6 +475,7 @@ PRINTFUNC (picCritical)
 PRINTFUNC (picEndCritical)
 {
   dbuf_append_char (dbuf, '\t');
+  dbuf_append_str (dbuf, "endCritical ");
   dbuf_printf (dbuf, "%s = ", s);
   if (IC_RIGHT (ic))
     dbuf_printOperand (IC_RIGHT (ic), dbuf);
@@ -496,7 +498,7 @@ piCode (void *item, FILE * of)
     of = stdout;
 
   icTab = getTableEntry (ic->op);
-  fprintf (of, "%s(%d:%d:%d:%d:%d:%d)\t", ic->filename, ic->lineno, ic->seq, ic->key, ic->depth, ic->supportRtn, ic->block);
+  fprintf (of, "file=%s(line=%d:seq=%d:key=%d:depth=%d:supportRtn=%d:block=%d)\t", ic->filename, ic->lineno, ic->seq, ic->key, ic->depth, ic->supportRtn, ic->block);
   dbuf_init (&dbuf, 1024);
   icTab->iCodePrint (&dbuf, ic, icTab->printName);
   dbuf_write_and_destroy (&dbuf, of);
@@ -1097,7 +1099,7 @@ operand *
 detachiCodeOperand (operand **opp, iCode *ic)
 {
   operand * op = *opp;
-  
+
   if (IS_SYMOP (op))
     {
       if ((ic->op == IFX) || (ic->op == JUMPTABLE))
@@ -1144,7 +1146,7 @@ attachiCodeOperand (operand *newop, operand **opp, iCode *ic)
 
   /* Insert new operand */
   *opp = newop;
-  
+
   /* Update defs/uses for new operand */
   if (IS_SYMOP (newop))
     {
@@ -2251,7 +2253,7 @@ geniCodeDivision (operand *left, operand *right, RESULT_TYPE resultType, bool pt
    make it a right shift.
    For pointer division, there can be no remainder, so we can make
    it a right shift, too. */
-   
+
   if (IS_LITERAL (retype) &&
       (!IS_FLOAT (letype) && !IS_FIXED (letype) && IS_UNSIGNED (letype) || ptrdiffdiv) &&
       ((p2 = powof2 ((TYPE_TARGET_ULONG) ulFromVal (OP_VALUE (right)))) > 0))
@@ -2280,7 +2282,7 @@ geniCodeDivision (operand *left, operand *right, RESULT_TYPE resultType, bool pt
       geniCodeLabel (label);
       return (geniCodeCast (resType, geniCodeRightShift (tmp, operandFromLit (p2)), TRUE));
     }
-  
+
   else
     {
       ic = newiCode ('/', left, right); /* normal division */
@@ -3785,7 +3787,7 @@ geniCodeReturn (operand * op)
 {
   iCode *ic;
 
-  /* return in _Noreturn function */ 
+  /* return in _Noreturn function */
   if (currFunc && IFFUNC_ISNORETURN (currFunc->type))
     werror (W_NORETURNRETURN);
 
@@ -4350,7 +4352,7 @@ ast2iCode (ast * tree, int lvl)
           addLvaluereq (lvl);
           if ((!IS_ADDRESS_OF_OP (tree) && IS_ARRAY_OP (tree->left) && IS_ARRAY_OP (tree->left->left) &&
                tree->left->left->ftype && IS_ARRAY (tree->left->left->ftype) &&
-               tree->left->left->ftype->next && IS_ARRAY (tree->left->left->ftype->next)) || 
+               tree->left->left->ftype->next && IS_ARRAY (tree->left->left->ftype->next)) ||
               (IS_DEREF_OP (tree) && IS_ARRAY_OP (tree->left)))
             clearLvaluereq ();
 

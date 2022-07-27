@@ -482,27 +482,7 @@ genReturn (const iCode *ic)
     emit2("mov", "jmpl stack");
     emit2("mov", "jmph stack");
 
-    if (IS_OP_LITERAL (left)) {
-        emit2("mov", "stack %d", byteOfVal(OP_VALUE(left), 0));
-    } else {
-
-        if (left->type == SYMBOL) {
-            if (left->isParm) {
-                // parameters are addresses by default
-                // but really we want to pass them on the stack...
-                /* emit2("; symbol is parameter", ""); */
-                load_address_16(OP_SYMBOL(left)->rname);
-                /* emit2("mov", "adh hi8(%s) ,0", OP_SYMBOL(left)->rname); */
-                /* emit2("mov", "adl lo8(%s) ,0", OP_SYMBOL(left)->rname); */
-                emit2("mov", "stack mem");
-            } else {
-                // test if has reg...
-                emit2("mov", "stack %s", OP_SYMBOL(left)->regs[0]->name);
-            }
-        } else {
-            emit2("; error:", "can't return");
-        }
-    }
+    load_reg("stack", left);
 
     emit2("jump", "");
 }

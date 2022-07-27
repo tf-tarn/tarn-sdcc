@@ -195,7 +195,7 @@ __sdcc_program_startup:
 	;; genReturn
 	mov	jmpl stack
 	mov	jmph stack
-	mov	stack 0
+	mov	stack il ,0
 	jump
 	L_101:
 ;	t/tests/2.c: 22: }

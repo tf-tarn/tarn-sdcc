@@ -33,6 +33,7 @@ enum
   R_IDX = 0, // R
   X_IDX,     // X
   ALUC_IDX,  // ALU output (conditional register)
+  TEST_IDX,  // Test register
 };
 
 enum

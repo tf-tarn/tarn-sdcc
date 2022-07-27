@@ -84,10 +84,10 @@ typedef struct asmop
 }
 asmop;
 
-void genPdkCode (iCode *);
+void genTarnCode (iCode *);
 void tarn_emitDebuggerSymbol (const char *);
 
-extern bool pdk_assignment_optimal;
+extern bool tarn_assignment_optimal;
 void tarn_init_asmops (void);
 
 #endif

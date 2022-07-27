@@ -8,7 +8,13 @@ int multiply_or_divide(int which, int a, int b) {
         return a / b;
     }
 
-    return 0;
+    if (a) {
+        a = 4;
+    } else {
+        a = b;
+    }
+
+    return a;
 }
 
 int main (int argc, char **argv) {

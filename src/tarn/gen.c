@@ -305,84 +305,8 @@ const char *to_string_op(unsigned int op) {
 }
 
 void print_ic_intelligibly(const iCode *ic) {
-    printf("intelligible IC:\n\t%s (%d)\n", to_string_op(ic->op), ic->op);
+    /* printf("intelligible IC:\n\t%s (%d)\n", to_string_op(ic->op), ic->op); */
 }
-/*     typedef struct iCode */
-/* { */
-/*   unsigned int op;              /\* operation defined *\/ */
-/*   int key;                      /\* running key for this iCode *\/ */
-/*   int seq;                      /\* sequence number within routine *\/ */
-/*   int seqPoint;                 /\* sequence point *\/ */
-/*   short depth;                  /\* loop depth of this iCode *\/ */
-/*   long level;                   /\* scope level *\/ */
-/*   short block;                  /\* sequential block number *\/ */
-/*   unsigned nosupdate:1;         /\* don't update spillocation with this *\/ */
-/*   unsigned generated:1;         /\* code generated for this one *\/ */
-/*   unsigned parmPush:1;          /\* parameter push Vs spill push *\/ */
-/*   unsigned supportRtn:1;        /\* will cause a call to a support routine *\/ */
-/*   unsigned regsSaved:1;         /\* registers have been saved *\/ */
-/*   unsigned bankSaved:1;         /\* register bank has been saved *\/ */
-/*   unsigned builtinSEND:1;       /\* SEND for parameter of builtin function *\/ */
-/*   bool localEscapeAlive:1;      /\* At this iCode, a local variable, a pointer to which has escaped (e.g. by having been stored in a global variable, cast to integer, passed to function) might be alive. *\/ */
-/*   bool parmEscapeAlive:1;       /\* At this iCode, a stack parameter, a pointer to which has escaped (e.g. by having been stored in a global variable, cast to integer, passed to function) might be alive. *\/ */
-/*   unsigned inlined:1;           /\* from an inlined function *\/ */
-
-/*   struct iCode *next;           /\* next in chain *\/ */
-/*   struct iCode *prev;           /\* previous in chain *\/ */
-/*   set *movedFrom;               /\* if this iCode gets moved to another block *\/ */
-/*   bitVect *rlive;               /\* ranges that are live at this point *\/ */
-/*   int defKey;                   /\* key for the operand being defined  *\/ */
-/*   bitVect *uses;                /\* vector of key of used symbols      *\/ */
-/*   bitVect *rUsed;               /\* registers used by this instruction *\/ */
-/*   bitVect *rMask;               /\* registers in use during this instruction *\/ */
-/*   bitVect *rSurv;               /\* registers that survive this instruction (i.e. they are in use, it is not their last use and they are not in the return) *\/ */
-/*   union */
-/*   { */
-/*     struct */
-/*     { */
-/*       operand *left;            /\* left if any   *\/ */
-/*       operand *right;           /\* right if any  *\/ */
-/*       operand *result;          /\* result of this op *\/ */
-/*     } */
-/*     lrr; */
-
-/*     struct */
-/*     { */
-/*       operand *condition;       /\* if this is a conditional *\/ */
-/*       symbol *trueLabel;        /\* true for conditional     *\/ */
-/*       symbol *falseLabel;       /\* false for conditional    *\/ */
-/*     } */
-/*     cnd; */
-
-/*     struct */
-/*     { */
-/*       operand *condition;       /\* condition for the jump *\/ */
-/*       set *labels;              /\* ordered set of labels  *\/ */
-/*     } */
-/*     jmpTab; */
-
-/*   } */
-/*   ulrrcnd; */
-
-/*   symbol *label;                /\* for a goto statement     *\/ */
-
-/*   const char *inlineAsm;        /\* pointer to inline assembler code *\/ */
-/*   literalList *arrayInitList;   /\* point to array initializer list. *\/ */
-
-/*   int lineno;                   /\* file & lineno for debug information *\/ */
-/*   char *filename; */
-
-/*   int parmBytes;                /\* if call/pcall, count of parameter bytes */
-/*                                    on stack *\/ */
-/*   int argreg;                   /\* argument regno for SEND/RECEIVE *\/ */
-/*   int eBBlockNum;               /\* belongs to which eBBlock *\/ */
-/*   char riu;                     /\* after ralloc, the registers in use *\/ */
-/*   float count;                  /\* An execution count or probability *\/ */
-/*   float pcount;                 /\* For propagation of count *\/ */
-
-/*   struct ast *tree;             /\* ast node for this iCode (if not NULL) *\/ */
-/* } */
-/* iCode; */
 
 
 void load_address_16(const char *sym_name) {
@@ -407,42 +331,7 @@ genCall (const iCode *ic)
 
   operand *left = IC_LEFT (ic);
 
-  /* const bool bigreturn = (getSize (ftype->next) > 2) || IS_STRUCT (ftype->next); */
-  /* const bool SomethingReturned = (IS_ITEMP (IC_RESULT (ic)) && */
-  /*                      (OP_SYMBOL (IC_RESULT (ic))->nRegs || OP_SYMBOL (IC_RESULT (ic))->spildir)) */
-  /*                      || IS_TRUE_SYMOP (IC_RESULT (ic)); */
-
-  /* D (emit2 ("; genCall", "")); */
-
-  /* aopOp (left, ic); */
-  /* if (SomethingReturned && !bigreturn) */
-  /*   aopOp (IC_RESULT (ic), ic); */
-
-  /* if (bigreturn) */
-  /*   { */
-  /*     wassertl (IC_RESULT (ic), "Unused return value in call to function returning large type."); */
-
-  /*     const symbol *rsym = OP_SYMBOL_CONST (IC_RESULT (ic)); */
-  /*     if (rsym->usl.spillLoc) */
-  /*       rsym = rsym->usl.spillLoc; */
-
-  /*     if (rsym->onStack || rsym->isspilt && regalloc_dry_run && (options.stackAuto || reentrant)) */
-  /*       { */
-  /*         emit2 ("mov.io", "a, sp"); */
-  /*         emit2 ("add", "a, #0x%02x", (rsym->stack + (rsym->stack < 0 ? G.stack.param_offset : 0) - G.stack.pushed) & 0xff); */
-  /*       } */
-  /*     else */
-  /*       { */
-  /*         emit2 ("mov", "a, #%s", rsym->rname); */
-  /*         cost (1, 1); */
-  /*       } */
-  /*     pushAF (); */
-  /*   } */
-
-  /* bool jump = !ic->parmBytes && IFFUNC_ISNORETURN (ftype); */
-
-
-  emit2(";; genCall", "");
+  D2(emit2(";; genCall", ""));
   if (ic->op == PCALL) {
       emit2("; What is a PCALL?", "");
   } else {
@@ -476,7 +365,7 @@ genReturn (const iCode *ic)
 
     operand *left = IC_LEFT (ic);
 
-    emit2("\n\t;; genReturn", "");
+    D2(emit2("\n\t;; genReturn", ""));
     piCode(ic, stderr);
 
     emit2("mov", "jmpl stack");
@@ -540,13 +429,13 @@ genAssign (const iCode *ic)
 }
 
 
-static void genALUOp_impl(int op, const operand *left, const operand *right, iCode *ifx) {
+static void genALUOp_impl(int op, const operand *left, const operand *right, const operand *result, iCode *ifx) {
     emit2("", ";; genALUOp %d", op);
     emit2("mov", "alus il ,%d", op);
 
     load_reg("alua", left);
     load_reg("alub", right);
-
+    // read_reg("aluc", result);
 
     /* if (IS_OP_LITERAL(left)) { */
     /*     emit2("mov", "alua il ,%d", byteOfVal(OP_VALUE(left), 0)); */
@@ -603,7 +492,7 @@ static void genALUOp(int op, const iCode *ic, iCode *ifx)
     operand *left = IC_LEFT (ic);
     operand *right = IC_RIGHT (ic);
 
-    genALUOp_impl(op, left, right, ifx);
+    genALUOp_impl(op, left, right, result, ifx);
 }
 
 #define ALUS_AND  0
@@ -634,7 +523,7 @@ genLeftShift (const iCode *ic)
   if (IS_OP_LITERAL(right)) {
       if (byteOfVal(OP_VALUE(right), 0) == 1) {
           // one bit, multiply by two, ie. add self to self.
-          genALUOp_impl(ALUS_PLUS, left, left, NULL);
+          genALUOp_impl(ALUS_PLUS, left, left, result, NULL);
       } else {
           wassertl(0, "Left shift by more than one not implemented.");
       }
@@ -669,7 +558,7 @@ static void genIfx (const iCode *ic)
     operand *const t = IC_TRUE (ic);
     operand *const f = IC_FALSE (ic);
 
-    emit2("\n\t;; genIfx", "");
+    D2(emit2("\n\t;; genIfx", ""));
 
     if (IS_OP_LITERAL (cond)) {
         emit2("; genIfx: op is literal", "");
@@ -722,8 +611,8 @@ static void genIfx (const iCode *ic)
 static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
-    emit2("\n\t;; genCmpEQorNE", "");
-    emit2("", ";; TODO: set alus!");
+    D2(emit2("\n\t;; genCmpEQorNE", ""));
+    D2(emit2("", ";; TODO: set alus!"));
 
     if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) {
         load_reg("alua", IC_LEFT(ic));
@@ -742,8 +631,8 @@ static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
 static void genCmp   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
-    emit2("\n\t;; genCmp", "");
-    emit2("", ";; TODO: set alus!");
+    D2(emit2("\n\t;; genCmp", ""));
+    D2(emit2("", ";; TODO: set alus!"));
 
     if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) {
         load_reg("alua", IC_LEFT(ic));
@@ -773,8 +662,6 @@ static void genLabel (const iCode *ic)
 
     if (options.debug /*&& !regalloc_dry_run*/)
         debugFile->writeLabel (IC_LABEL (ic), ic);
-
-    printf("Hello, there should be a label here.\n");
 
     emit2("", "\rL_%d:", (IC_LABEL(ic)->key + 100));
 

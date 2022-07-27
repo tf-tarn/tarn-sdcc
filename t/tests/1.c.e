@@ -83,7 +83,3 @@ __sdcc_program_startup:
 	.section CONST
 	.section CABS (ABS)
 --END ASM--
-Got cost 0
-intelligible IC:
-	(unknown) (346)
-Hello, there should be a label here.

@@ -84,7 +84,7 @@ __sdcc_program_startup:
 	;; genCmpEQorNE
 ;; TODO: set alus!
 	lad	_multiply_or_divide_PARM_1
-	mov	alua mem ,0
+	mov	alua mem
 	mov	alub il ,0
 	mov	test aluc ,0
 
@@ -94,7 +94,7 @@ __sdcc_program_startup:
 	;; genCmpEQorNE
 ;; TODO: set alus!
 	lad	_multiply_or_divide_PARM_1
-	mov	alua mem ,0
+	mov	alua mem
 	mov	alub il ,1
 	mov	test aluc ,0
 

@@ -85,8 +85,7 @@ __sdcc_program_startup:
 
 	;; genCmp
 ;; TODO: set alus!
-; symbol has 2 regs
-	mov	alua iTemp10 ,0
+	mov	alua _crc8_one_sloc0_1_0
 	mov	alub il ,8
 	mov	test aluc ,0
 

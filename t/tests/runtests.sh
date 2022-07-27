@@ -20,7 +20,7 @@ for srcfile in $(find t/tests/ -type f -name "*.c"); do
         set -x
         PRINT_SHORT_OPERANDS=2 bin/sdcc $srcfile > $output
     ) >> $LOGFILE 2>&1 || true
-    diff -U1 $expectfile $output
+    diff -U1 $expectfile $output || true
 done
 echo log written to $LOGFILE
 

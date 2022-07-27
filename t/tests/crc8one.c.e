@@ -83,14 +83,14 @@ __sdcc_program_startup:
 	mov	mem il ,0
 	L_106:
 
-	;; genCmp	0x558de531f5b0
+	;; genCmp
 ;; TODO: set alus!
 ; symbol has 2 regs
 	mov	alua iTemp10 ,0
 	mov	alub il ,8
 	mov	test aluc ,0
 
-	;; genIfx	0x558de531f5b0
+	;; genIfx
 ; TODO: REVERSE THIS!
 	gotonz	L_00104
 ;	t/tests/crc8one.c: 10: if (crc & 0x80)
@@ -102,20 +102,16 @@ __sdcc_program_startup:
 	mov	mem stack ,0
 ;; genALUOp 0
 	mov	alus il ,0
-; symbol has 1 regs
-	mov	alua iTemp2 ,0
+	mov	alua x
 	mov	alub il ,128
 ;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;; genALUOp 4
 	mov	alus il ,4
-; symbol has 1 regs
-	mov	alua iTemp2 ,0
-; symbol has 1 regs
-	mov	alub iTemp2 ,0
+	mov	alua x
+	mov	alub x
 ;; genALUOp 2
 	mov	alus il ,2
-; symbol has 1 regs
-	mov	alua iTemp5 ,0
+	mov	alua r
 	mov	alub il ,7
 
 	;; genGoto
@@ -124,16 +120,13 @@ __sdcc_program_startup:
 ;	t/tests/crc8one.c: 16: crc <<= 1;
 ;; genALUOp 4
 	mov	alus il ,4
-; symbol has 1 regs
-	mov	alua iTemp2 ,0
-; symbol has 1 regs
-	mov	alub iTemp2 ,0
+	mov	alua x
+	mov	alub x
 	L_107:
 ;	t/tests/crc8one.c: 8: for (int i = 0; i < 8; i++)
 ;; genALUOp 4
 	mov	alus il ,4
-; symbol has 2 regs
-	mov	alua iTemp10 ,0
+	mov	alua _crc8_one_sloc0_1_0
 	mov	alub il ,1
 
 	;; genGoto

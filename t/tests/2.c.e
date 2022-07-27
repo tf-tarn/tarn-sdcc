@@ -81,24 +81,24 @@ __sdcc_program_startup:
 	_multiply_or_divide:
 ;	t/tests/2.c: 4: switch(which) {
 
-	;; genCmpEQorNE	0x55e74a0ebcf0
+	;; genCmpEQorNE
 ;; TODO: set alus!
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem ,0
 	mov	alub il ,0
 	mov	test aluc ,0
 
-	;; genIfx	0x55e74a0ebcf0
+	;; genIfx
 	gotonz	L_00101
 
-	;; genCmpEQorNE	0x55e74a0eca70
+	;; genCmpEQorNE
 ;; TODO: set alus!
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem ,0
 	mov	alub il ,1
 	mov	test aluc ,0
 
-	;; genIfx	0x55e74a0eca70
+	;; genIfx
 	gotonz	L_00102
 
 	;; genGoto
@@ -153,7 +153,7 @@ __sdcc_program_startup:
 	L_103:
 ;	t/tests/2.c: 11: if (a) {
 
-	;; genIfx	0x55e74a0ee2e0
+	;; genIfx
 	mov	test _multiply_or_divide_PARM_2 ,0
 ; TODO: REVERSE THIS!
 	gotonz	L_00105

@@ -140,7 +140,7 @@ static void genSwap        (const iCode *ic)                   { if (!regalloc_d
 static void genUminus      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genUminus       = "); piCode (ic, stderr); } emit2(";; genUminus      ", ""); }
 /* static void genXor         (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genXor          = "); piCode (ic, stderr); } emit2(";; genXor         ", ""); } */
 
-void write_reg(const char *reg, operand *op) {
+void load_reg(const char *reg, operand *op) {
     if (regalloc_dry_run) {
         return;
     }
@@ -154,27 +154,46 @@ void write_reg(const char *reg, operand *op) {
         if (op->isParm) {
             // parameters are addresses by default
             // but really we want to pass them on the stack...
-            /* emit2("; symbol is parameter", ""); */
             load_address_16(OP_SYMBOL(op)->rname);
-            emit2("mov", "%s mem ,0", reg);
-            return;
+            emit2("mov", "%s mem", reg);
+        } else {
+            // test if has reg...
+            if (OP_SYMBOL(op)->isspilt) {
+                emit2("mov", "%s %s", reg, OP_SYMBOL(op)->usl.spillLoc->rname);
+            } else {
+                emit2("mov", "%s %s", reg, OP_SYMBOL(op)->regs[0]->name);
+            }
         }
-
-        emit2("", "; symbol has %d regs", OP_SYMBOL(op)->nRegs);
-        // if (OP_SYMBOL(op)->nRegs)
-
-        // something else?
-        if (op->isaddr) {
-            emit2("; symbol is addr", "");
-        }
-        if (op->isPtr) {
-            emit2("; symbol is pointer", "");
-        }
-        emit2("mov", "%s %s ,0", reg, OP_SYMBOL(op)->rname);
         return;
+    } else {
+        emit2("", ";; genALUOp %d bad op", op);
     }
 
-    emit2("; write_reg: op not suppoted", "");
+    /* if (op->type == SYMBOL) { */
+    /*     if (op->isParm) { */
+    /*         // parameters are addresses by default */
+    /*         // but really we want to pass them on the stack... */
+    /*         /\* emit2("; symbol is parameter", ""); *\/ */
+    /*         load_address_16(OP_SYMBOL(op)->rname); */
+    /*         emit2("mov", "%s mem ,0", reg); */
+    /*         return; */
+    /*     } */
+
+    /*     emit2("", "; symbol has %d regs", OP_SYMBOL(op)->nRegs); */
+    /*     // if (OP_SYMBOL(op)->nRegs) */
+
+    /*     // something else? */
+    /*     if (op->isaddr) { */
+    /*         emit2("; symbol is addr", ""); */
+    /*     } */
+    /*     if (op->isPtr) { */
+    /*         emit2("; symbol is pointer", ""); */
+    /*     } */
+    /*     emit2("mov", "%s %s ,0", reg, OP_SYMBOL(op)->rname); */
+    /*     return; */
+    /* } */
+
+    emit2("; load_reg: op not suppoted", "");
 }
 
 void read_reg(const char *reg, operand *op) {
@@ -545,49 +564,53 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, iCo
     emit2("", ";; genALUOp %d", op);
     emit2("mov", "alus il ,%d", op);
 
-    if (IS_OP_LITERAL(left)) {
-        emit2("mov", "alua il ,%d", byteOfVal(OP_VALUE(left), 0));
-        if (IS_OP_LITERAL(right)) {
-            emit2("mov", "alub il ,%d", byteOfVal(OP_VALUE(right), 0));
-        } else {
-            emit2("", ";; genALUOp %d bad right", op);
-        }
-    } else if (left->type == SYMBOL) {
-        if (left->isParm) {
-            // parameters are addresses by default
-            // but really we want to pass them on the stack...
-            load_address_16(OP_SYMBOL(left)->rname);
-            emit2("mov", "alua mem", byteOfVal(OP_VALUE(left), 0));
-        } else {
-            // test if has reg...
-            if (OP_SYMBOL(left)->isspilt) {
-                emit2("mov", "alua %s", OP_SYMBOL(left)->usl.spillLoc->rname);
-            } else {
-                emit2("mov", "alua %s", OP_SYMBOL(left)->regs[0]->name);
-            }
-        }
+    load_reg("alua", left);
+    load_reg("alub", right);
 
-        if (IS_OP_LITERAL(right)) {
-            emit2("mov", "alub il ,%d", byteOfVal(OP_VALUE(right), 0));
-        } else if (right->type == SYMBOL) {
-            if (right->isParm) {
-                // parameters are addresses by default
-                // but really we want to pass them on the stack...
-                load_address_16(OP_SYMBOL(right)->rname);
-                emit2("mov", "alub mem", byteOfVal(OP_VALUE(right), 0));
-            } else {
-                // test if has reg...
-                if (OP_SYMBOL(right)->isspilt) {
-                    emit2("mov", "alub %s", OP_SYMBOL(right)->usl.spillLoc->rname);
-                } else {
-                    emit2("mov", "alub %s", OP_SYMBOL(right)->regs[0]->name);
-                }
-            }
-        } else
-            emit2("", ";; genALUOp %d bad right", op);
-    } else {
-        emit2("", ";; genALUOp %d bad left", op);
-    }
+
+    /* if (IS_OP_LITERAL(left)) { */
+    /*     emit2("mov", "alua il ,%d", byteOfVal(OP_VALUE(left), 0)); */
+    /*     if (IS_OP_LITERAL(right)) { */
+    /*         emit2("mov", "alub il ,%d", byteOfVal(OP_VALUE(right), 0)); */
+    /*     } else { */
+    /*         emit2("", ";; genALUOp %d bad right", op); */
+    /*     } */
+    /* } else if (left->type == SYMBOL) { */
+    /*     if (left->isParm) { */
+    /*         // parameters are addresses by default */
+    /*         // but really we want to pass them on the stack... */
+    /*         load_address_16(OP_SYMBOL(left)->rname); */
+    /*         emit2("mov", "alua mem", byteOfVal(OP_VALUE(left), 0)); */
+    /*     } else { */
+    /*         // test if has reg... */
+    /*         if (OP_SYMBOL(left)->isspilt) { */
+    /*             emit2("mov", "alua %s", OP_SYMBOL(left)->usl.spillLoc->rname); */
+    /*         } else { */
+    /*             emit2("mov", "alua %s", OP_SYMBOL(left)->regs[0]->name); */
+    /*         } */
+    /*     } */
+
+    /*     if (IS_OP_LITERAL(right)) { */
+    /*         emit2("mov", "alub il ,%d", byteOfVal(OP_VALUE(right), 0)); */
+    /*     } else if (right->type == SYMBOL) { */
+    /*         if (right->isParm) { */
+    /*             // parameters are addresses by default */
+    /*             // but really we want to pass them on the stack... */
+    /*             load_address_16(OP_SYMBOL(right)->rname); */
+    /*             emit2("mov", "alub mem", byteOfVal(OP_VALUE(right), 0)); */
+    /*         } else { */
+    /*             // test if has reg... */
+    /*             if (OP_SYMBOL(right)->isspilt) { */
+    /*                 emit2("mov", "alub %s", OP_SYMBOL(right)->usl.spillLoc->rname); */
+    /*             } else { */
+    /*                 emit2("mov", "alub %s", OP_SYMBOL(right)->regs[0]->name); */
+    /*             } */
+    /*         } */
+    /*     } else */
+    /*         emit2("", ";; genALUOp %d bad right", op); */
+    /* } else { */
+    /*     emit2("", ";; genALUOp %d bad left", op); */
+    /* } */
 }
 
 static void genALUOp(int op, const iCode *ic, iCode *ifx)
@@ -666,7 +689,7 @@ static void genIfx (const iCode *ic)
     operand *const t = IC_TRUE (ic);
     operand *const f = IC_FALSE (ic);
 
-    emit2("\n\t;; genIfx", "%p", ic);
+    emit2("\n\t;; genIfx", "");
 
     if (IS_OP_LITERAL (cond)) {
         emit2("; genIfx: op is literal", "");
@@ -719,16 +742,16 @@ static void genIfx (const iCode *ic)
 static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
-    emit2("\n\t;; genCmpEQorNE", "%p", ifx);
+    emit2("\n\t;; genCmpEQorNE", "");
     emit2("", ";; TODO: set alus!");
 
     if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) {
-        write_reg("alua", IC_LEFT(ic));
-        write_reg("alub", IC_RIGHT(ic));
+        load_reg("alua", IC_LEFT(ic));
+        load_reg("alub", IC_RIGHT(ic));
         /* read_reg("aluc", IC_RESULT(ic)); */
         emit2("mov", "test aluc ,0");
     } else {
-        emit2(";; TODO: genCmpEQorNE non-conditional case", "%p", ifx);
+        emit2(";; TODO: genCmpEQorNE non-conditional case", "");
     }
 
     if (ifx) {
@@ -739,16 +762,16 @@ static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
 static void genCmp   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
-    emit2("\n\t;; genCmp", "%p", ifx);
+    emit2("\n\t;; genCmp", "");
     emit2("", ";; TODO: set alus!");
 
     if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) {
-        write_reg("alua", IC_LEFT(ic));
-        write_reg("alub", IC_RIGHT(ic));
+        load_reg("alua", IC_LEFT(ic));
+        load_reg("alub", IC_RIGHT(ic));
         /* read_reg("aluc", IC_RESULT(ic)); */
         emit2("mov", "test aluc ,0");
     } else {
-        emit2(";; TODO: genCmp non-conditional case", "%p", ifx);
+        emit2(";; TODO: genCmp non-conditional case", "");
     }
 
     if (ifx) {

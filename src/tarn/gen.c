@@ -207,13 +207,20 @@ void read_reg(const char *reg, operand *op) {
     }
 
     if (op->type == SYMBOL) {
-        if (OP_SYMBOL(op)->nRegs == 1) {
+        if (op->isParm) {
+            load_address_16(OP_SYMBOL(op)->rname);
+            emit2("mov", "mem %s", reg);
+        } else if (OP_SYMBOL(op)->regType == REG_CND) {
+            emit2("mov", "test %s ,0", reg);
+        } else if (OP_SYMBOL(op)->nRegs == 1) {
             /* emit2("; ", "symbol is in reg %s", OP_SYMBOL(op)->regs[0]->name); */
             emit2("mov", "%s %s ,0", OP_SYMBOL(op)->regs[0]->name, reg);
-            return;
+        } else if (OP_SYMBOL(op)->isspilt) {
+            emit2("mov", "%s %s", reg, OP_SYMBOL(op)->usl.spillLoc->rname);
+        } else {
+            emit2("mov", "%s %s ,0", OP_SYMBOL(op)->rname, reg);
         }
 
-        emit2("mov", "%s %s ,0", OP_SYMBOL(op)->rname, reg);
         return;
     }
 
@@ -435,7 +442,7 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
 
     load_reg("alua", left);
     load_reg("alub", right);
-    // read_reg("aluc", result);
+    read_reg("aluc", result);
 
     /* if (IS_OP_LITERAL(left)) { */
     /*     emit2("mov", "alua il ,%d", byteOfVal(OP_VALUE(left), 0)); */

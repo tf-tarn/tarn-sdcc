@@ -103,15 +103,19 @@ __sdcc_program_startup:
 	mov	alus il ,0
 	mov	alua x
 	mov	alub il ,128
+	mov	test aluc ,0
 ;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;; genALUOp 4
 	mov	alus il ,4
 	mov	alua x
 	mov	alub x
+	mov	r aluc ,0
 ;; genALUOp 2
 	mov	alus il ,2
 	mov	alua r
 	mov	alub il ,7
+	lad	_crc8_one_PARM_1
+	mov	mem aluc
 
 	;; genGoto
 	goto	L_00107
@@ -121,12 +125,15 @@ __sdcc_program_startup:
 	mov	alus il ,4
 	mov	alua x
 	mov	alub x
+	lad	_crc8_one_PARM_1
+	mov	mem aluc
 	L_107:
 ;	t/tests/crc8one.c: 8: for (int i = 0; i < 8; i++)
 ;; genALUOp 4
 	mov	alus il ,4
 	mov	alua _crc8_one_sloc0_1_0
 	mov	alub il ,1
+	mov	aluc _crc8_one_sloc0_1_0
 
 	;; genGoto
 	goto	L_00106

@@ -82,29 +82,29 @@ __sdcc_program_startup:
 ;	t/tests/2.c: 4: switch(which) {
 
 	;; genCmpEQorNE
-;; TODO: set alus!
+	mov	alus il ,10
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
-	mov	alub il ,0
+	mov	alub zero
 	mov	test aluc ,0
 
 	;; genIfx
-	gotonz	L_00101
+	gotonz	L_1
 
 	;; genCmpEQorNE
-;; TODO: set alus!
+	mov	alus il ,10
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub il ,1
 	mov	test aluc ,0
 
 	;; genIfx
-	gotonz	L_00102
+	gotonz	L_2
 
 	;; genGoto
-	goto	L_00103
+	goto	L_3
 ;	t/tests/2.c: 5: case 0:
-	L_101:
+	L_1:
 ;	t/tests/2.c: 6: return a * b;
 
 	;; genAssign      
@@ -127,7 +127,7 @@ __sdcc_program_startup:
 	mov	stack r
 	jump
 ;	t/tests/2.c: 7: case 1:
-	L_102:
+	L_2:
 ;	t/tests/2.c: 8: return a / b;
 
 	;; genAssign      
@@ -150,13 +150,14 @@ __sdcc_program_startup:
 	mov	stack r
 	jump
 ;	t/tests/2.c: 9: }
-	L_103:
+	L_3:
 ;	t/tests/2.c: 11: if (a) {
 
 	;; genIfx
 	mov	test _multiply_or_divide_PARM_2 ,0
-; TODO: REVERSE THIS!
-	gotonz	L_00105
+	gotonz	L_21
+	goto	L_5
+	L_21:
 ;	t/tests/2.c: 12: a = 4;
 
 	;; genAssign      
@@ -164,8 +165,8 @@ __sdcc_program_startup:
 	mov	mem il ,4
 
 	;; genGoto
-	goto	L_00106
-	L_105:
+	goto	L_6
+	L_5:
 ;	t/tests/2.c: 14: a = b;
 
 	;; genAssign      
@@ -173,7 +174,7 @@ __sdcc_program_startup:
 	mov	stack mem ,0
 	lad	_multiply_or_divide_PARM_2
 	mov	mem stack ,0
-	L_106:
+	L_6:
 ;	t/tests/2.c: 17: return a;
 
 	;; genReturn
@@ -182,7 +183,7 @@ __sdcc_program_startup:
 	lad	_multiply_or_divide_PARM_2
 	mov	stack mem
 	jump
-	L_107:
+	L_7:
 ;	t/tests/2.c: 18: }
 ;; genEndFunction 
 ;	t/tests/2.c: 20: int main (int argc, char **argv) {
@@ -195,9 +196,9 @@ __sdcc_program_startup:
 	;; genReturn
 	mov	jmpl stack
 	mov	jmph stack
-	mov	stack il ,0
+	mov	stack zero
 	jump
-	L_101:
+	L_1:
 ;	t/tests/2.c: 22: }
 ;; genEndFunction 
 	.section CODE,"ax"

@@ -67,7 +67,7 @@ static void emit2 (const char *inst, const char *fmt, ...)
 }
 
 /*---------------------------------------------------------------------*/
-/* tarn_emitDebuggerSymbol - associate the current code location        */
+/* tarn_emitDebuggerSymbol - associate the current code location       */
 /*   with a debugger symbol                                            */
 /*---------------------------------------------------------------------*/
 void tarn_emitDebuggerSymbol (const char *debugSym)
@@ -146,7 +146,11 @@ void load_reg(const char *reg, operand *op) {
     }
 
     if (IS_OP_LITERAL (op)) {
-        emit2("mov", "%s il ,%d", reg, byteOfVal(OP_VALUE(op), 0));
+        if (byteOfVal(OP_VALUE(op), 0) == 0) {
+            emit2("mov", "%s zero", reg);
+        } else {
+            emit2("mov", "%s il ,%d", reg, byteOfVal(OP_VALUE(op), 0));
+        }
         return;
     }
 
@@ -236,7 +240,7 @@ static void emit_jump_to_label(const symbol *target, int nz)
         } else {
             instruction = "goto";
         }
-        emit2(instruction, "L_%05d", labelKey2num(target->key));
+        emit2(instruction, "L_%d", target->key);
     }
 }
 
@@ -426,7 +430,11 @@ genAssign (const iCode *ic)
           emit2("mov", "mem stack ,0");
       } else if (IS_OP_LITERAL (right)) {
           load_address_16(OP_SYMBOL(result)->rname);
-          emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
+          if (byteOfVal(OP_VALUE(right), 0) == 0) {
+              emit2("mov", "mem zero");
+          } else {
+              emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
+          }
       } else {
           emit2("; genAssign: can't handle right", "");
       }
@@ -505,7 +513,9 @@ static void genALUOp(int op, const iCode *ic, iCode *ifx)
 #define ALUS_AND  0
 #define ALUS_XOR  2
 #define ALUS_PLUS 4
+#define ALUS_LT   9
 #define ALUS_EQ   10
+#define ALUS_GT   11
 /*-----------------------------------------------------------------*/
 /* genAnd - code for and                                           */
 /*-----------------------------------------------------------------*/
@@ -607,8 +617,13 @@ static void genIfx (const iCode *ic)
     }
 
     if (f) {
-        emit2("", "; TODO: REVERSE THIS!");
-        emit_jump_to_label(f, 1);
+        // We jump to f if the condition is FALSE, so we make a new
+        // label and jump OVER the jnz instruction if the condition is
+        // TRUE.
+        symbol *label = newiTempLabel(NULL);
+        emit_jump_to_label(label, 1);
+        emit_jump_to_label(f, 0);
+        emit2("", "\rL_%d:", label->key);
         return;
     }
 
@@ -619,7 +634,7 @@ static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
     D2(emit2("\n\t;; genCmpEQorNE", ""));
-    D2(emit2("", ";; TODO: set alus!"));
+    emit2("mov", "alus il ,%d", ALUS_EQ);
 
     if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) {
         load_reg("alua", IC_LEFT(ic));
@@ -639,7 +654,11 @@ static void genCmp   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
     D2(emit2("\n\t;; genCmp", ""));
-    D2(emit2("", ";; TODO: set alus!"));
+    if (ic->op == '>') {
+        emit2("mov", "alus il ,%d", ALUS_GT);
+    } else {
+        emit2("mov", "alus il ,%d", ALUS_LT);
+    }
 
     if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) {
         load_reg("alua", IC_LEFT(ic));
@@ -670,7 +689,7 @@ static void genLabel (const iCode *ic)
     if (options.debug /*&& !regalloc_dry_run*/)
         debugFile->writeLabel (IC_LABEL (ic), ic);
 
-    emit2("", "\rL_%d:", (IC_LABEL(ic)->key + 100));
+    emit2("", "\rL_%d:", IC_LABEL(ic)->key);
 
     // G.p.type = AOP_INVALID;
 }

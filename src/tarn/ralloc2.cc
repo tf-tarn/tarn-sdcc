@@ -466,7 +466,7 @@ static float instruction_cost(const assignment &a, unsigned short int i, const G
         c += 0.0001;
 
       ic->generated = false;
-      std::cout << "Got cost " << c << "\n";
+      // std::cout << "Got cost " << c << "\n";
       return(c);
     default:
       return(0.0f);

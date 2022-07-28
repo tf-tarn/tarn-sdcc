@@ -80,18 +80,19 @@ __sdcc_program_startup:
 
 	;; genAssign      
 	lad	iTemp10
-	mov	mem il ,0
-	L_106:
+	mov	mem zero
+	L_6:
 
 	;; genCmp
-;; TODO: set alus!
+	mov	alus il ,9
 	mov	alua _crc8_one_sloc0_1_0
 	mov	alub il ,8
 	mov	test aluc ,0
 
 	;; genIfx
-; TODO: REVERSE THIS!
-	gotonz	L_00104
+	gotonz	L_23
+	goto	L_4
+	L_23:
 ;	t/tests/crc8one.c: 10: if (crc & 0x80)
 
 	;; genAssign      
@@ -118,8 +119,8 @@ __sdcc_program_startup:
 	mov	mem aluc
 
 	;; genGoto
-	goto	L_00107
-	L_102:
+	goto	L_7
+	L_2:
 ;	t/tests/crc8one.c: 16: crc <<= 1;
 ;; genALUOp 4
 	mov	alus il ,4
@@ -127,7 +128,7 @@ __sdcc_program_startup:
 	mov	alub x
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
-	L_107:
+	L_7:
 ;	t/tests/crc8one.c: 8: for (int i = 0; i < 8; i++)
 ;; genALUOp 4
 	mov	alus il ,4
@@ -136,8 +137,8 @@ __sdcc_program_startup:
 	mov	aluc _crc8_one_sloc0_1_0
 
 	;; genGoto
-	goto	L_00106
-	L_104:
+	goto	L_6
+	L_4:
 ;	t/tests/crc8one.c: 20: return crc;
 
 	;; genReturn
@@ -146,7 +147,7 @@ __sdcc_program_startup:
 	lad	_crc8_one_PARM_1
 	mov	stack mem
 	jump
-	L_108:
+	L_8:
 ;	t/tests/crc8one.c: 21: }
 ;; genEndFunction 
 ;	t/tests/crc8one.c: 23: int main(int argc, char **argv) {
@@ -168,7 +169,7 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack r
 	jump
-	L_101:
+	L_1:
 ;	t/tests/crc8one.c: 25: }
 ;; genEndFunction 
 	.section CODE,"ax"

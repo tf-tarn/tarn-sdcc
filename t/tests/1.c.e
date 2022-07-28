@@ -74,9 +74,9 @@ __sdcc_program_startup:
 	;; genReturn
 	mov	jmpl stack
 	mov	jmph stack
-	mov	stack il ,0
+	mov	stack zero
 	jump
-	L_101:
+	L_1:
 ;	t/tests/1.c: 3: }
 ;; genEndFunction 
 	.section CODE,"ax"

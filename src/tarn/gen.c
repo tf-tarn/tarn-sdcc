@@ -219,7 +219,7 @@ void read_reg(const char *reg, operand *op) {
             /* emit2("; ", "symbol is in reg %s", OP_SYMBOL(op)->regs[0]->name); */
             emit2("mov", "%s %s", OP_SYMBOL(op)->regs[0]->name, reg);
         } else if (OP_SYMBOL(op)->isspilt) {
-            emit2("mov", "%s %s", reg, OP_SYMBOL(op)->usl.spillLoc->rname);
+            emit2("mov", "%s %s", OP_SYMBOL(op)->usl.spillLoc->rname, reg);
         } else {
             emit2("mov", "%s %s", OP_SYMBOL(op)->rname, reg);
         }
@@ -516,14 +516,119 @@ genAssign (const iCode *ic)
   }
 }
 
+/*-----------------------------------------------------------------*/
+/* genIfx - generate code for Ifx statement                        */
+/*-----------------------------------------------------------------*/
+static void genIfx (const iCode *ic)
+{
+    if (regalloc_dry_run) {
+        return;
+    }
+
+    if (!regalloc_dry_run) { fprintf(stderr, "genIfx          = "); piCode (ic, stderr); }
+
+    operand *const cond = IC_COND (ic);
+    operand *const t = IC_TRUE (ic);
+    operand *const f = IC_FALSE (ic);
+
+    D2(emit2("\n\t;; genIfx", ""));
+
+    if (IS_OP_LITERAL (cond)) {
+        emit2("; genIfx: op is literal", "");
+        return;
+    }
+
+    if (IS_SYMOP (cond)) {
+        if (OP_SYMBOL(cond)->regType == REG_CND)  {
+            // don't need to do anything; has already been loaded.
+        } else {
+            /* emit2("; genIfx: op is symbol", ""); */
+            /* emit2("; symbol is", "%s", OP_SYMBOL(cond)->rname); */
+            if (OP_SYMBOL(cond)->nRegs == 1) {
+                /* emit2("; ", "symbol is in reg %s", OP_SYMBOL(cond)->regs[0]->name); */
+                if (OP_SYMBOL(cond)->regType != REG_CND && !OP_SYMBOL(cond)->regs[0]) {
+                    emit2(";; ERROR: sanity. conditional in ifx is not conditional?", "");
+                }
+                // no need to copy test to itself
+                // shouldn't really happen
+                if (OP_SYMBOL(cond)->regs[0] && OP_SYMBOL(cond)->regs[0]->rIdx != TEST_IDX) {
+                    emit2("mov", "test %s", OP_SYMBOL(cond)->regs[0]->name);
+                }
+            } else {
+                emit2("mov", "test %s", OP_SYMBOL(cond)->rname);
+            }
+        }
+    }
+
+    /* Description of IFX:
+
+       Conditional jump. If true label is present then jump to true
+       label if condition is true else jump to false label if
+       condition is false
+
+       if (IC_COND) goto IC_TRUE;
+       Or
+       If (!IC_COND) goto IC_FALSE;
+    */
+
+    if (t) {
+        emit_jump_to_label(t, 1);
+        return;
+    }
+
+    if (f) {
+        // We jump to f if the condition is FALSE, so we make a new
+        // label and jump OVER the jnz instruction if the condition is
+        // TRUE.
+        symbol *label = newiTempLabel(NULL);
+        emit_jump_to_label(label, 1);
+        emit_jump_to_label(f, 0);
+        emit2("", "\rL_%d:", label->key);
+        return;
+    }
+
+    emit2("; genIfx: op is unknown", "");
+}
+
+#define ALUS_AND  0
+#define ALUS_XOR  2
+#define ALUS_PLUS 4
+#define ALUS_LT   9
+#define ALUS_EQ   10
+#define ALUS_GT   11
+
+const char *alu_operations = {
+    "and",
+    "?",
+    "xor",
+    "?",
+    "plus",
+
+    "?",
+    "?",
+    "?",
+    "?",
+
+    "less-than",
+    "equal-to",
+    "greater-than",
+
+};
 
 static void genALUOp_impl(int op, const operand *left, const operand *right, const operand *result, iCode *ifx) {
     emit2("", ";; genALUOp %d", op);
+    emit2("", ";; TODO: if we have an ifx, then we must AND and then EQ!", op);
+
     emit2("mov", "alus il ,%d", op);
 
     load_reg("alua", left);
     load_reg("alub", right);
     read_reg("aluc", result);
+
+    if (ifx) {
+        emit2("", ";; ALU op has ifx!", op);
+        genIfx(ifx);
+    }
 
     /* if (IS_OP_LITERAL(left)) { */
     /*     emit2("mov", "alua il ,%d", byteOfVal(OP_VALUE(left), 0)); */
@@ -583,12 +688,7 @@ static void genALUOp(int op, const iCode *ic, iCode *ifx)
     genALUOp_impl(op, left, right, result, ifx);
 }
 
-#define ALUS_AND  0
-#define ALUS_XOR  2
-#define ALUS_PLUS 4
-#define ALUS_LT   9
-#define ALUS_EQ   10
-#define ALUS_GT   11
+
 /*-----------------------------------------------------------------*/
 /* genAnd - code for and                                           */
 /*-----------------------------------------------------------------*/
@@ -634,74 +734,6 @@ genGoto (const iCode *ic)
     emit_jump_to_label (IC_LABEL (ic), 0);
 }
 
-/*-----------------------------------------------------------------*/
-/* genIfx - generate code for Ifx statement                        */
-/*-----------------------------------------------------------------*/
-static void genIfx (const iCode *ic)
-{
-    if (regalloc_dry_run) {
-        return;
-    }
-
-
-    operand *const cond = IC_COND (ic);
-    operand *const t = IC_TRUE (ic);
-    operand *const f = IC_FALSE (ic);
-
-    D2(emit2("\n\t;; genIfx", ""));
-
-    if (IS_OP_LITERAL (cond)) {
-        emit2("; genIfx: op is literal", "");
-        return;
-    }
-
-    if (IS_SYMOP (cond)) {
-        /* emit2("; genIfx: op is symbol", ""); */
-        /* emit2("; symbol is", "%s", OP_SYMBOL(cond)->rname); */
-        if (OP_SYMBOL(cond)->nRegs == 1) {
-            /* emit2("; ", "symbol is in reg %s", OP_SYMBOL(cond)->regs[0]->name); */
-            if (OP_SYMBOL(cond)->regType != REG_CND && !OP_SYMBOL(cond)->regs[0]) {
-                emit2(";; ERROR: sanity. conditional in ifx is not conditional?", "");
-            }
-            // no need to copy test to itself
-            // shouldn't really happen
-            if (OP_SYMBOL(cond)->regs[0] &&  OP_SYMBOL(cond)->regs[0]->rIdx != TEST_IDX) {
-                emit2("mov", "test %s", OP_SYMBOL(cond)->regs[0]->name);
-            }
-        } else {
-            emit2("mov", "test %s", OP_SYMBOL(cond)->rname);
-        }
-    }
-
-    /* Description of IFX:
-
-       Conditional jump. If true label is present then jump to true
-       label if condition is true else jump to false label if
-       condition is false
-
-       if (IC_COND) goto IC_TRUE;
-       Or
-       If (!IC_COND) goto IC_FALSE;
-    */
-
-    if (t) {
-        emit_jump_to_label(t, 1);
-        return;
-    }
-
-    if (f) {
-        // We jump to f if the condition is FALSE, so we make a new
-        // label and jump OVER the jnz instruction if the condition is
-        // TRUE.
-        symbol *label = newiTempLabel(NULL);
-        emit_jump_to_label(label, 1);
-        emit_jump_to_label(f, 0);
-        emit2("", "\rL_%d:", label->key);
-        return;
-    }
-
-    emit2("; genIfx: op is unknown", "");
-}
 
 static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }

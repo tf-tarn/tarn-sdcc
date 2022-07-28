@@ -99,17 +99,26 @@ __sdcc_program_startup:
 	lad	_crc8_one_PARM_1
 	mov	x mem
 ;; genALUOp 0
+;; TODO: if we have an ifx, then we must AND and then EQ!
 	mov	alus il ,0
 	mov	alua x
 	mov	alub il ,128
 	mov	test aluc
+;; ALU op has ifx!
+
+	;; genIfx
+	gotonz	L_24
+	goto	L_2
+	L_24:
 ;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;; genALUOp 4
+;; TODO: if we have an ifx, then we must AND and then EQ!
 	mov	alus il ,4
 	mov	alua x
 	mov	alub x
 	mov	r aluc
 ;; genALUOp 2
+;; TODO: if we have an ifx, then we must AND and then EQ!
 	mov	alus il ,2
 	mov	alua r
 	mov	alub il ,7
@@ -121,6 +130,7 @@ __sdcc_program_startup:
 	L_2:
 ;	t/tests/crc8one.c: 16: crc <<= 1;
 ;; genALUOp 4
+;; TODO: if we have an ifx, then we must AND and then EQ!
 	mov	alus il ,4
 	mov	alua x
 	mov	alub x
@@ -129,10 +139,11 @@ __sdcc_program_startup:
 	L_7:
 ;	t/tests/crc8one.c: 8: for (int i = 0; i < 8; i++)
 ;; genALUOp 4
+;; TODO: if we have an ifx, then we must AND and then EQ!
 	mov	alus il ,4
 	mov	alua _crc8_one_sloc0_1_0
 	mov	alub il ,1
-	mov	aluc _crc8_one_sloc0_1_0
+	mov	_crc8_one_sloc0_1_0 aluc
 
 	;; genGoto
 	goto	L_6

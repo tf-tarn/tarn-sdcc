@@ -1,10 +1,10 @@
-assembler was passed: -plosgffw crc8one.asm
+assembler was passed: -plosgffw crc8.asm
 --BEGIN ASM--
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
-	.file	"crc8one.c"
+	.file	"crc8.c"
 	.optsdcc -mtarn
 	
 ;; tarn_genAssemblerStart
@@ -12,15 +12,26 @@ assembler was passed: -plosgffw crc8one.asm
 ; Public variables in this module
 ;--------------------------------------------------------
 	.globl	_main
+	.globl	_crc8
 	.globl	_crc8_one
 	.globl	_main_PARM_2
 	.globl	_main_PARM_1
+	.globl	_crc8_PARM_2
+	.globl	_crc8_PARM_1
 	.globl	_crc8_one_PARM_1
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
 	.section DATA,"rw"
 _crc8_one_PARM_1:
+	.ds	1
+_crc8_PARM_1:
+	.ds	2
+_crc8_PARM_2:
+	.ds	1
+_crc8_sloc0_1_0:
+	.ds	2
+_crc8_sloc1_1_0:
 	.ds	1
 _main_PARM_1:
 	.ds	1
@@ -68,12 +79,12 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section CODE,"ax"
-;	t/tests/crc8one.c: 5: uint8_t crc8_one(uint8_t crc)
+;	t/tests/crc8.c: 5: uint8_t crc8_one(uint8_t crc)
 ;	-----------------------------------------
 ;	 function crc8_one
 ;	-----------------------------------------
 	_crc8_one:
-;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
+;	t/tests/crc8.c: 8: for (uint8_t i = 0; i < 8; i++)
 
 	;; genAssign      
 	mov	r zero
@@ -89,7 +100,7 @@ __sdcc_program_startup:
 	gotonz	L_26
 	goto	L_4
 	L_26:
-;	t/tests/crc8one.c: 10: if (crc & 0x80)
+;	t/tests/crc8.c: 10: if (crc & 0x80)
 
 	;; genAssign      
 	lad	_crc8_one_PARM_1
@@ -106,7 +117,7 @@ __sdcc_program_startup:
 
 	;; genIfx
 	gotonz	L_2
-;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
+;	t/tests/crc8.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;;	genALUOp plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua x
@@ -122,7 +133,7 @@ __sdcc_program_startup:
 	;; genGoto
 	goto	L_7
 	L_2:
-;	t/tests/crc8one.c: 16: crc <<= 1;
+;	t/tests/crc8.c: 16: crc <<= 1;
 ;;	genALUOp plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua x
@@ -130,7 +141,7 @@ __sdcc_program_startup:
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 	L_7:
-;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
+;	t/tests/crc8.c: 8: for (uint8_t i = 0; i < 8; i++)
 ;;	genALUOp plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua r
@@ -140,7 +151,7 @@ __sdcc_program_startup:
 	;; genGoto
 	goto	L_6
 	L_4:
-;	t/tests/crc8one.c: 20: return crc;
+;	t/tests/crc8.c: 20: return crc;
 
 	;; genReturn
 	mov	jmpl stack
@@ -149,20 +160,93 @@ __sdcc_program_startup:
 	mov	stack mem
 	jump
 	L_8:
-;	t/tests/crc8one.c: 21: }
+;	t/tests/crc8.c: 21: }
 ;; genEndFunction 
-;	t/tests/crc8one.c: 23: uint8_t main(uint8_t argc, char **argv) {
+;	t/tests/crc8.c: 23: uint8_t crc8(const uint8_t *data, uint8_t len)
+;	-----------------------------------------
+;	 function crc8
+;	-----------------------------------------
+	_crc8:
+;	t/tests/crc8.c: 25: uint8_t crc = 0; /* start with 0 so first uint8_t can be 'xored' in */
+
+	;; genAssign      
+	mov	r zero
+;	t/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
+
+	;; genAssign      
+	mov	x zero
+	L_3:
+
+	;; genCmp
+	mov	alus il ,9	; less-than 
+	mov	alua x
+	lad	_crc8_PARM_2
+	mov	alub mem
+	mov	test aluc
+
+	;; genIfx
+	gotonz	L_25
+	goto	L_1
+	L_25:
+;	t/tests/crc8.c: 28: crc ^= data[i]; /* XOR-in the next input uint8_t */
+;;	genALUOp plus (4)
+	mov	alus il ,4	; plus 
+	lad	_crc8_PARM_1
+	mov	alua mem
+	mov	alub x
+	lad	_crc8_sloc0_1_0
+	mov	mem aluc
+;; genPointerGet  
+;;	genALUOp xor (2)
+	mov	alus il ,2	; xor 
+	mov	alua r
+	lad	_crc8_sloc1_1_0
+	mov	alub mem
+	lad	_crc8_one_PARM_1
+	mov	mem aluc
+;	t/tests/crc8.c: 29: crc = crc8_one(crc);
+;; genCall
+	goto	_crc8_one
+
+	;; genAssign      
+	mov	r r
+;	t/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
+;;	genALUOp plus (4)
+	mov	alus il ,4	; plus 
+	mov	alua x
+	mov	alub il ,1
+	mov	x aluc
+
+	;; genGoto
+	goto	L_3
+	L_1:
+;	t/tests/crc8.c: 32: return crc;
+
+	;; genReturn
+	mov	jmpl stack
+	mov	jmph stack
+	mov	stack r
+	jump
+	L_5:
+;	t/tests/crc8.c: 33: }
+;; genEndFunction 
+;	t/tests/crc8.c: 35: uint8_t main(uint8_t argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	t/tests/crc8one.c: 24: return crc8_one(5);
+;	t/tests/crc8.c: 36: return crc8(argv[0], 200);
 
 	;; genAssign      
-	lad	_crc8_one_PARM_1
-	mov	mem il ,5
+	lad	_main_PARM_2
+	mov	r mem
+;; genPointerGet  
+
+	;; genAssign      
+	lad	_crc8_PARM_2
+	mov	mem il ,200
 ;; genCall
-	goto	_crc8_one
+	goto	_crc8
 
 	;; genReturn
 	mov	jmpl stack
@@ -170,7 +254,7 @@ __sdcc_program_startup:
 	mov	stack r
 	jump
 	L_1:
-;	t/tests/crc8one.c: 25: }
+;	t/tests/crc8.c: 37: }
 ;; genEndFunction 
 	.section CODE,"ax"
 	.section CONST

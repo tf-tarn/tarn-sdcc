@@ -653,8 +653,7 @@ const char *alu_operations[] = {
 };
 
 static void genALUOp_impl(int op, const operand *left, const operand *right, const operand *result, iCode *ifx) {
-    emit2("", ";; genALUOp %d", op);
-    emit2("", ";; TODO: if we have an ifx, then we must AND and then EQ!", op);
+    emit2(";;", "genALUOp %s (%d)", alu_operations[op], op);
 
     emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
     cost(1);

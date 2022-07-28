@@ -1,5 +1,4 @@
-#!/bin/bash -x
-
+#!/bin/bash
 filename=$2
 
 echo 'assembler was passed:' "$@"

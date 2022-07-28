@@ -79,7 +79,7 @@ __sdcc_program_startup:
 ;	t/tests/crc8one.c: 8: for (int i = 0; i < 8; i++)
 
 	;; genAssign      
-	lad	iTemp10
+	lad	_crc8_one_sloc0_1_0
 	mov	mem zero
 	L_6:
 
@@ -87,7 +87,7 @@ __sdcc_program_startup:
 	mov	alus il ,9
 	mov	alua _crc8_one_sloc0_1_0
 	mov	alub il ,8
-	mov	test aluc ,0
+	mov	test aluc
 
 	;; genIfx
 	gotonz	L_23
@@ -97,20 +97,18 @@ __sdcc_program_startup:
 
 	;; genAssign      
 	lad	_crc8_one_PARM_1
-	mov	stack mem ,0
-	lad	iTemp2
-	mov	mem stack ,0
+	mov	x mem
 ;; genALUOp 0
 	mov	alus il ,0
 	mov	alua x
 	mov	alub il ,128
-	mov	test aluc ,0
+	mov	test aluc
 ;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;; genALUOp 4
 	mov	alus il ,4
 	mov	alua x
 	mov	alub x
-	mov	r aluc ,0
+	mov	r aluc
 ;; genALUOp 2
 	mov	alus il ,2
 	mov	alua r

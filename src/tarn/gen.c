@@ -161,7 +161,6 @@ void load_reg(const char *reg, operand *op) {
             load_address_16(OP_SYMBOL(op)->rname);
             emit2("mov", "%s mem", reg);
         } else {
-            // test if has reg...
             if (OP_SYMBOL(op)->isspilt) {
                 emit2("mov", "%s %s", reg, OP_SYMBOL(op)->usl.spillLoc->rname);
             } else {
@@ -179,7 +178,7 @@ void load_reg(const char *reg, operand *op) {
     /*         // but really we want to pass them on the stack... */
     /*         /\* emit2("; symbol is parameter", ""); *\/ */
     /*         load_address_16(OP_SYMBOL(op)->rname); */
-    /*         emit2("mov", "%s mem ,0", reg); */
+    /*         emit2("mov", "%s mem", reg); */
     /*         return; */
     /*     } */
 
@@ -193,7 +192,7 @@ void load_reg(const char *reg, operand *op) {
     /*     if (op->isPtr) { */
     /*         emit2("; symbol is pointer", ""); */
     /*     } */
-    /*     emit2("mov", "%s %s ,0", reg, OP_SYMBOL(op)->rname); */
+    /*     emit2("mov", "%s %s", reg, OP_SYMBOL(op)->rname); */
     /*     return; */
     /* } */
 
@@ -215,14 +214,14 @@ void read_reg(const char *reg, operand *op) {
             load_address_16(OP_SYMBOL(op)->rname);
             emit2("mov", "mem %s", reg);
         } else if (OP_SYMBOL(op)->regType == REG_CND) {
-            emit2("mov", "test %s ,0", reg);
+            emit2("mov", "test %s", reg);
         } else if (OP_SYMBOL(op)->nRegs == 1) {
             /* emit2("; ", "symbol is in reg %s", OP_SYMBOL(op)->regs[0]->name); */
-            emit2("mov", "%s %s ,0", OP_SYMBOL(op)->regs[0]->name, reg);
+            emit2("mov", "%s %s", OP_SYMBOL(op)->regs[0]->name, reg);
         } else if (OP_SYMBOL(op)->isspilt) {
             emit2("mov", "%s %s", reg, OP_SYMBOL(op)->usl.spillLoc->rname);
         } else {
-            emit2("mov", "%s %s ,0", OP_SYMBOL(op)->rname, reg);
+            emit2("mov", "%s %s", OP_SYMBOL(op)->rname, reg);
         }
 
         return;
@@ -407,6 +406,40 @@ genFunction (iCode *ic)
   emit2 ("", "%s:", sym->rname);
 }
 
+const char *op_get_register_name(const operand *op) {
+    if (regalloc_dry_run) {
+        return;
+    }
+
+    if (op->type == SYMBOL) {
+        if (!op->isParm) {
+            if (!OP_SYMBOL(op)->isspilt) {
+                return OP_SYMBOL(op)->regs[0]->name;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+
+static int is_mem(const operand *op) {
+    if (regalloc_dry_run) {
+        return;
+    }
+
+    if (op->type == SYMBOL) {
+        if (op->isParm) {
+            return 1;
+        }
+        if (OP_SYMBOL(op)->isspilt) {
+            return 1;
+        }
+    }
+
+    return 0;
+
+}
 
 /*-----------------------------------------------------------------*/
 /* genAssign - generate code for assignment                        */
@@ -423,13 +456,53 @@ genAssign (const iCode *ic)
 
 
   if (IS_SYMOP (result)) {
+      /* if (OP_SYMBOL(result)->isspilt) { */
+      /*     emit2("", ";; assign result is spilled symbol!!"); */
+      /* } */
+      /* if (OP_SYMBOL(result)->isitmp) { */
+      /*     emit2("", ";; assign result is temp symbol!!"); */
+      /* } */
+      /* if (OP_SYMBOL(result)->remat) { */
+      /*     emit2("", ";; assign result is remat!!"); */
+      /* } */
       if (IS_SYMOP (right)) {
-          load_address_16(OP_SYMBOL(right)->rname);
-          emit2("mov", "stack mem ,0");
-          load_address_16(OP_SYMBOL(result)->rname);
-          emit2("mov", "mem stack ,0");
+          const char *right_reg = op_get_register_name(right);
+          const char *result_reg = op_get_register_name(result);
+          if (right_reg && result_reg) {
+              emit2("mov", "%s %s", result_reg, right_reg);
+          } else
+
+          if (is_mem(right)) {
+              if (is_mem(result)) {
+                  // buffer in stack so we can change addresses
+                  load_reg("stack", right);
+                  read_reg("stack", result);
+              } else if (result_reg) {
+                  load_reg(result_reg, right);
+              } else {
+                  emit2("", ";; don't know how to assign this");
+              }
+          } else if (right_reg) {
+              if (result_reg) {
+                  emit2("mov", "%s %s", result_reg, right_reg);
+              } else {
+                  read_reg(right_reg, result);
+              }
+          }
+
+          /* if (OP_SYMBOL(result)->isspilt) { */
+          /*     load_address_16(OP_SYMBOL(result)->usl.spillLoc->rname); */
+          /* } else { */
+          /*     /\* load_address_16(OP_SYMBOL(op)->regs[0]->name); *\/ */
+          /*     load_address_16(OP_SYMBOL(result)->rname); */
+          /* } */
+          /* emit2("mov", "mem stack"); */
       } else if (IS_OP_LITERAL (right)) {
-          load_address_16(OP_SYMBOL(result)->rname);
+          if (OP_SYMBOL(result)->isspilt) {
+              load_address_16(OP_SYMBOL(result)->usl.spillLoc->rname);
+          } else {
+              load_address_16(OP_SYMBOL(result)->rname);
+          }
           if (byteOfVal(OP_VALUE(right), 0) == 0) {
               emit2("mov", "mem zero");
           } else {
@@ -593,10 +666,10 @@ static void genIfx (const iCode *ic)
             // no need to copy test to itself
             // shouldn't really happen
             if (OP_SYMBOL(cond)->regs[0] &&  OP_SYMBOL(cond)->regs[0]->rIdx != TEST_IDX) {
-                emit2("mov", "test %s ,0", OP_SYMBOL(cond)->regs[0]->name);
+                emit2("mov", "test %s", OP_SYMBOL(cond)->regs[0]->name);
             }
         } else {
-            emit2("mov", "test %s ,0", OP_SYMBOL(cond)->rname);
+            emit2("mov", "test %s", OP_SYMBOL(cond)->rname);
         }
     }
 
@@ -640,7 +713,7 @@ static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
         load_reg("alua", IC_LEFT(ic));
         load_reg("alub", IC_RIGHT(ic));
         /* read_reg("aluc", IC_RESULT(ic)); */
-        emit2("mov", "test aluc ,0");
+        emit2("mov", "test aluc");
     } else {
         emit2(";; TODO: genCmpEQorNE non-conditional case", "");
     }
@@ -664,7 +737,7 @@ static void genCmp   (const iCode *ic, iCode *ifx)       {
         load_reg("alua", IC_LEFT(ic));
         load_reg("alub", IC_RIGHT(ic));
         /* read_reg("aluc", IC_RESULT(ic)); */
-        emit2("mov", "test aluc ,0");
+        emit2("mov", "test aluc");
     } else {
         emit2(";; TODO: genCmp non-conditional case", "");
     }

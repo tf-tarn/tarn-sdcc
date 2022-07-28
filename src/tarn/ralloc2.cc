@@ -244,13 +244,13 @@ static bool Pinst_ok(const assignment &a, unsigned short int i, const G_t &G, co
   if(ic->op == IPUSH && left_stack)
     return(false);
 
-  // Arithmetic uses p internally for literal operands with multiple nonzero bytes.
-  if ((ic->op == '+' || ic->op == '-' || ic->op == '!' || ic->op == '<' || ic->op == '>') && (IS_OP_LITERAL(left) || IS_OP_LITERAL(right)))
-    {
-      const operand *const litop = IS_OP_LITERAL(left) ? left : right;
-      if ((ullFromVal(OP_VALUE_CONST (litop)) & 0x000000ffull) && (ullFromVal(OP_VALUE_CONST(litop)) & 0x0000ff00ull) && (ullFromVal(OP_VALUE_CONST (litop)) & 0x00ff0000ull) && (ullFromVal(OP_VALUE_CONST (litop)) & 0xff000000ull))
-        return(false);
-    }
+  // // Arithmetic uses p internally for literal operands with multiple nonzero bytes.
+  // if ((ic->op == '+' || ic->op == '-' || ic->op == '!' || ic->op == '<' || ic->op == '>') && (IS_OP_LITERAL(left) || IS_OP_LITERAL(right)))
+  //   {
+  //     const operand *const litop = IS_OP_LITERAL(left) ? left : right;
+  //     if ((ullFromVal(OP_VALUE_CONST (litop)) & 0x000000ffull) && (ullFromVal(OP_VALUE_CONST(litop)) & 0x0000ff00ull) && (ullFromVal(OP_VALUE_CONST (litop)) & 0x00ff0000ull) && (ullFromVal(OP_VALUE_CONST (litop)) & 0xff000000ull))
+  //       return(false);
+  //   }
   if (ic->op == PCALL)
     return(false);
 

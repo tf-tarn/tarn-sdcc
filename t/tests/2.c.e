@@ -86,7 +86,7 @@ __sdcc_program_startup:
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub zero
-	mov	test aluc ,0
+	mov	test aluc
 
 	;; genIfx
 	gotonz	L_1
@@ -96,7 +96,7 @@ __sdcc_program_startup:
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub il ,1
-	mov	test aluc ,0
+	mov	test aluc
 
 	;; genIfx
 	gotonz	L_2
@@ -109,15 +109,15 @@ __sdcc_program_startup:
 
 	;; genAssign      
 	lad	_multiply_or_divide_PARM_2
-	mov	stack mem ,0
+	mov	stack mem
 	lad	__muluchar_PARM_1
-	mov	mem stack ,0
+	mov	mem stack
 
 	;; genAssign      
 	lad	_multiply_or_divide_PARM_3
-	mov	stack mem ,0
+	mov	stack mem
 	lad	__muluchar_PARM_2
-	mov	mem stack ,0
+	mov	mem stack
 ;; genCall
 	goto	__muluchar
 
@@ -132,15 +132,15 @@ __sdcc_program_startup:
 
 	;; genAssign      
 	lad	_multiply_or_divide_PARM_2
-	mov	stack mem ,0
+	mov	stack mem
 	lad	__divuchar_PARM_1
-	mov	mem stack ,0
+	mov	mem stack
 
 	;; genAssign      
 	lad	_multiply_or_divide_PARM_3
-	mov	stack mem ,0
+	mov	stack mem
 	lad	__divuchar_PARM_2
-	mov	mem stack ,0
+	mov	mem stack
 ;; genCall
 	goto	__divuchar
 
@@ -154,7 +154,7 @@ __sdcc_program_startup:
 ;	t/tests/2.c: 11: if (a) {
 
 	;; genIfx
-	mov	test _multiply_or_divide_PARM_2 ,0
+	mov	test _multiply_or_divide_PARM_2
 	gotonz	L_21
 	goto	L_5
 	L_21:
@@ -171,9 +171,9 @@ __sdcc_program_startup:
 
 	;; genAssign      
 	lad	_multiply_or_divide_PARM_3
-	mov	stack mem ,0
+	mov	stack mem
 	lad	_multiply_or_divide_PARM_2
-	mov	mem stack ,0
+	mov	mem stack
 	L_6:
 ;	t/tests/2.c: 17: return a;
 

@@ -66,6 +66,15 @@ static void emit2 (const char *inst, const char *fmt, ...)
     }
 }
 
+static void
+cost(unsigned int words)
+{
+  /* regalloc_dry_run_cost_words += words; */
+  /* regalloc_dry_run_cost_cycles += cycles * regalloc_dry_run_cycle_scale; */
+  regalloc_dry_run_cost_words += words;
+  regalloc_dry_run_cost_cycles += words * regalloc_dry_run_cycle_scale;
+}
+
 /*---------------------------------------------------------------------*/
 /* tarn_emitDebuggerSymbol - associate the current code location       */
 /*   with a debugger symbol                                            */
@@ -141,15 +150,13 @@ static void genUminus      (const iCode *ic)                   { if (!regalloc_d
 /* static void genXor         (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genXor          = "); piCode (ic, stderr); } emit2(";; genXor         ", ""); } */
 
 void load_reg(const char *reg, operand *op) {
-    if (regalloc_dry_run) {
-        return;
-    }
-
     if (IS_OP_LITERAL (op)) {
         if (byteOfVal(OP_VALUE(op), 0) == 0) {
             emit2("mov", "%s zero", reg);
+            cost(1);
         } else {
             emit2("mov", "%s il ,%d", reg, byteOfVal(OP_VALUE(op), 0));
+            cost(1);
         }
         return;
     }
@@ -160,11 +167,17 @@ void load_reg(const char *reg, operand *op) {
             // but really we want to pass them on the stack...
             load_address_16(OP_SYMBOL(op)->rname);
             emit2("mov", "%s mem", reg);
+            cost(1);
         } else {
             if (OP_SYMBOL(op)->isspilt) {
-                emit2("mov", "%s %s", reg, OP_SYMBOL(op)->usl.spillLoc->rname);
+                load_address_16(OP_SYMBOL(op)->usl.spillLoc->rname);
+                emit2("mov", "%s mem", reg);
+                cost(1);
             } else {
-                emit2("mov", "%s %s", reg, OP_SYMBOL(op)->regs[0]->name);
+                if (!regalloc_dry_run) {
+                    emit2("mov", "%s %s", reg, OP_SYMBOL(op)->regs[0]->name);
+                }
+                cost(1);
             }
         }
         return;
@@ -200,10 +213,6 @@ void load_reg(const char *reg, operand *op) {
 }
 
 void read_reg(const char *reg, operand *op) {
-    if (regalloc_dry_run) {
-        return;
-    }
-
     if (IS_OP_LITERAL (op)) {
         emit2("; error:", "can't assign literal = %s", reg);
         return;
@@ -213,15 +222,23 @@ void read_reg(const char *reg, operand *op) {
         if (op->isParm) {
             load_address_16(OP_SYMBOL(op)->rname);
             emit2("mov", "mem %s", reg);
+            cost(1);
         } else if (OP_SYMBOL(op)->regType == REG_CND) {
             emit2("mov", "test %s", reg);
+            cost(1);
+        } else if (OP_SYMBOL(op)->isspilt) {
+            load_address_16(OP_SYMBOL(op)->usl.spillLoc->rname);
+            emit2("mov", "mem %s", reg);
+            cost(1);
         } else if (OP_SYMBOL(op)->nRegs == 1) {
             /* emit2("; ", "symbol is in reg %s", OP_SYMBOL(op)->regs[0]->name); */
-            emit2("mov", "%s %s", OP_SYMBOL(op)->regs[0]->name, reg);
-        } else if (OP_SYMBOL(op)->isspilt) {
-            emit2("mov", "%s %s", OP_SYMBOL(op)->usl.spillLoc->rname, reg);
+            if (!regalloc_dry_run) {
+                emit2("mov", "%s %s", OP_SYMBOL(op)->regs[0]->name, reg);
+            }
+            cost(1);
         } else {
             emit2("mov", "%s %s", OP_SYMBOL(op)->rname, reg);
+            cost(1);
         }
 
         return;
@@ -232,41 +249,39 @@ void read_reg(const char *reg, operand *op) {
 
 static void emit_jump_to_label(const symbol *target, int nz)
 {
-    if (!regalloc_dry_run) {
-        const char *instruction;
-        if (nz) {
-            instruction = "gotonz";
-        } else {
-            instruction = "goto";
-        }
-        emit2(instruction, "L_%d", target->key);
+    const char *instruction;
+    if (nz) {
+        instruction = "gotonz";
+    } else {
+        instruction = "goto";
     }
+    emit2(instruction, "L_%d", target->key);
+    cost(1);
 }
+
 
 static void emit_jump_to_symbol(const char *name, int nz)
 {
-    if (!regalloc_dry_run) {
-        const char *instruction;
-        if (nz) {
-            instruction = "gotonz";
-        } else {
-            instruction = "goto";
-        }
-        emit2(instruction, "%s", name);
+    const char *instruction;
+    if (nz) {
+        instruction = "gotonz";
+    } else {
+        instruction = "goto";
     }
+    emit2(instruction, "%s", name);
+    cost(1);
 }
 
 static void emit_jump_to_number(int address, int nz)
 {
-    if (!regalloc_dry_run) {
-        const char *instruction;
-        if (nz) {
-            instruction = "gotonz";
-        } else {
-            instruction = "goto";
-        }
-        emit2(instruction, "%d", address);
+    const char *instruction;
+    if (nz) {
+        instruction = "gotonz";
+    } else {
+        instruction = "goto";
     }
+    emit2(instruction, "%d", address);
+    cost(1);
 }
 
 const char *to_string_op(unsigned int op) {
@@ -326,6 +341,7 @@ void load_address_16(const char *sym_name) {
 #else
     emit2("lad", "%s", sym_name);
 #endif
+    cost(2);
 }
 
 /*-----------------------------------------------------------------*/
@@ -341,7 +357,7 @@ genCall (const iCode *ic)
 
   operand *left = IC_LEFT (ic);
 
-  D2(emit2(";; genCall", ""));
+  D2(emit2("", ";; genCall"));
   if (ic->op == PCALL) {
       emit2("; What is a PCALL?", "");
   } else {
@@ -367,10 +383,6 @@ genCall (const iCode *ic)
 static void
 genReturn (const iCode *ic)
 {
-    if (regalloc_dry_run) {
-        return;
-    }
-
     print_ic_intelligibly(ic);
 
     operand *left = IC_LEFT (ic);
@@ -380,10 +392,12 @@ genReturn (const iCode *ic)
 
     emit2("mov", "jmpl stack");
     emit2("mov", "jmph stack");
+    cost(2);
 
     load_reg("stack", left);
 
     emit2("jump", "");
+    cost(1);
 }
 
 
@@ -407,27 +421,20 @@ genFunction (iCode *ic)
 }
 
 const char *op_get_register_name(const operand *op) {
-    if (regalloc_dry_run) {
-        return;
-    }
-
-    if (op->type == SYMBOL) {
-        if (!op->isParm) {
-            if (!OP_SYMBOL(op)->isspilt) {
-                return OP_SYMBOL(op)->regs[0]->name;
+    if (!regalloc_dry_run) {
+        if (op->type == SYMBOL) {
+            if (!op->isParm) {
+                if (!OP_SYMBOL(op)->isspilt) {
+                    return OP_SYMBOL(op)->regs[0]->name;
+                }
             }
         }
     }
-
     return NULL;
 }
 
 
 static int is_mem(const operand *op) {
-    if (regalloc_dry_run) {
-        return;
-    }
-
     if (op->type == SYMBOL) {
         if (op->isParm) {
             return 1;
@@ -470,9 +477,8 @@ genAssign (const iCode *ic)
           const char *result_reg = op_get_register_name(result);
           if (right_reg && result_reg) {
               emit2("mov", "%s %s", result_reg, right_reg);
-          } else
-
-          if (is_mem(right)) {
+              cost(1);
+          } else if (is_mem(right)) {
               if (is_mem(result)) {
                   // buffer in stack so we can change addresses
                   load_reg("stack", right);
@@ -485,6 +491,7 @@ genAssign (const iCode *ic)
           } else if (right_reg) {
               if (result_reg) {
                   emit2("mov", "%s %s", result_reg, right_reg);
+                  cost(1);
               } else {
                   read_reg(right_reg, result);
               }
@@ -498,16 +505,34 @@ genAssign (const iCode *ic)
           /* } */
           /* emit2("mov", "mem stack"); */
       } else if (IS_OP_LITERAL (right)) {
-          if (OP_SYMBOL(result)->isspilt) {
-              load_address_16(OP_SYMBOL(result)->usl.spillLoc->rname);
+          if (is_mem(result)) {
+              if (OP_SYMBOL(result)->isspilt) {
+                  load_address_16(OP_SYMBOL(result)->usl.spillLoc->rname);
+              } else {
+                  load_address_16(OP_SYMBOL(result)->rname);
+              }
+              if (byteOfVal(OP_VALUE(right), 0) == 0) {
+                  emit2("mov", "mem zero");
+                  cost(1);
+              } else {
+                  emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
+                  cost(1);
+              }
           } else {
-              load_address_16(OP_SYMBOL(result)->rname);
+              if (!regalloc_dry_run) {
+                  if (byteOfVal(OP_VALUE(right), 0) == 0) {
+                      emit2("mov", "%s zero", OP_SYMBOL(result)->regs[0]->name);
+                  } else {
+                      emit2("mov", "%s il, %d",
+                            OP_SYMBOL(result)->regs[0]->name,
+                            byteOfVal(OP_VALUE(right), 0));
+                  }
+              }
+              cost(1);
           }
-          if (byteOfVal(OP_VALUE(right), 0) == 0) {
-              emit2("mov", "mem zero");
-          } else {
-              emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
-          }
+
+
+
       } else {
           emit2("; genAssign: can't handle right", "");
       }
@@ -516,20 +541,20 @@ genAssign (const iCode *ic)
   }
 }
 
-/*-----------------------------------------------------------------*/
-/* genIfx - generate code for Ifx statement                        */
-/*-----------------------------------------------------------------*/
-static void genIfx (const iCode *ic)
-{
-    if (regalloc_dry_run) {
-        return;
-    }
-
+static void genIfx_impl(const iCode *ic, int invert) {
     if (!regalloc_dry_run) { fprintf(stderr, "genIfx          = "); piCode (ic, stderr); }
 
     operand *const cond = IC_COND (ic);
-    operand *const t = IC_TRUE (ic);
-    operand *const f = IC_FALSE (ic);
+    symbol *t;
+    symbol *f;
+
+    if (invert) {
+        t = IC_FALSE(ic);
+        f = IC_TRUE(ic);
+    } else {
+        t = IC_TRUE(ic);
+        f = IC_FALSE(ic);
+    }
 
     D2(emit2("\n\t;; genIfx", ""));
 
@@ -553,9 +578,11 @@ static void genIfx (const iCode *ic)
                 // shouldn't really happen
                 if (OP_SYMBOL(cond)->regs[0] && OP_SYMBOL(cond)->regs[0]->rIdx != TEST_IDX) {
                     emit2("mov", "test %s", OP_SYMBOL(cond)->regs[0]->name);
+                    cost(1);
                 }
             } else {
                 emit2("mov", "test %s", OP_SYMBOL(cond)->rname);
+                cost(1);
             }
         }
     }
@@ -570,6 +597,8 @@ static void genIfx (const iCode *ic)
        Or
        If (!IC_COND) goto IC_FALSE;
     */
+
+
 
     if (t) {
         emit_jump_to_label(t, 1);
@@ -590,6 +619,14 @@ static void genIfx (const iCode *ic)
     emit2("; genIfx: op is unknown", "");
 }
 
+/*-----------------------------------------------------------------*/
+/* genIfx - generate code for Ifx statement                        */
+/*-----------------------------------------------------------------*/
+static void genIfx (const iCode *ic)
+{
+    genIfx_impl(ic, 0);
+}
+
 #define ALUS_AND  0
 #define ALUS_XOR  2
 #define ALUS_PLUS 4
@@ -597,7 +634,7 @@ static void genIfx (const iCode *ic)
 #define ALUS_EQ   10
 #define ALUS_GT   11
 
-const char *alu_operations = {
+const char *alu_operations[] = {
     "and",
     "?",
     "xor",
@@ -619,15 +656,28 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
     emit2("", ";; genALUOp %d", op);
     emit2("", ";; TODO: if we have an ifx, then we must AND and then EQ!", op);
 
-    emit2("mov", "alus il ,%d", op);
+    emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
+    cost(1);
 
     load_reg("alua", left);
     load_reg("alub", right);
-    read_reg("aluc", result);
 
     if (ifx) {
+        // TODO: optimize?
+
+        // We can only cast to boolean by checking equality against
+        // zero, and then negating the condition of the ifx
+        // (equivalently, inverting its jumps).
         emit2("", ";; ALU op has ifx!", op);
-        genIfx(ifx);
+        emit2("mov", "alua aluc");
+        emit2("mov", "alus il ,%d\t; %s ", ALUS_EQ, alu_operations[ALUS_EQ]);
+        emit2("mov", "alub zero");
+        emit2("mov", "test aluc");
+        cost(5);
+
+        genIfx_impl(ifx, 1);
+    } else {
+        read_reg("aluc", result);
     }
 
     /* if (IS_OP_LITERAL(left)) { */
@@ -677,10 +727,6 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
 
 static void genALUOp(int op, const iCode *ic, iCode *ifx)
 {
-    if (regalloc_dry_run) {
-        return;
-    }
-
     operand *result = IC_RESULT (ic);
     operand *left = IC_LEFT (ic);
     operand *right = IC_RIGHT (ic);
@@ -705,10 +751,6 @@ genLeftShift (const iCode *ic)
   operand *result = IC_RESULT (ic);
   operand *left = IC_LEFT (ic);
   operand *right = IC_RIGHT (ic);
-
-  if (regalloc_dry_run) {
-      return;
-  }
 
   if (IS_OP_LITERAL(right)) {
       if (byteOfVal(OP_VALUE(right), 0) == 1) {
@@ -739,13 +781,15 @@ static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
     D2(emit2("\n\t;; genCmpEQorNE", ""));
-    emit2("mov", "alus il ,%d", ALUS_EQ);
+    emit2("mov", "alus il ,%d\t; %s ", ALUS_EQ, alu_operations[ALUS_EQ]);
+    cost(1);
 
     if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) {
         load_reg("alua", IC_LEFT(ic));
         load_reg("alub", IC_RIGHT(ic));
         /* read_reg("aluc", IC_RESULT(ic)); */
         emit2("mov", "test aluc");
+        cost(1);
     } else {
         emit2(";; TODO: genCmpEQorNE non-conditional case", "");
     }
@@ -760,9 +804,11 @@ static void genCmp   (const iCode *ic, iCode *ifx)       {
 
     D2(emit2("\n\t;; genCmp", ""));
     if (ic->op == '>') {
-        emit2("mov", "alus il ,%d", ALUS_GT);
+        emit2("mov", "alus il ,%d\t; %s ", ALUS_GT, alu_operations[ALUS_GT]);
+        cost(1);
     } else {
-        emit2("mov", "alus il ,%d", ALUS_LT);
+        emit2("mov", "alus il ,%d\t; %s ", ALUS_LT, alu_operations[ALUS_LT]);
+        cost(1);
     }
 
     if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) {
@@ -770,6 +816,7 @@ static void genCmp   (const iCode *ic, iCode *ifx)       {
         load_reg("alub", IC_RIGHT(ic));
         /* read_reg("aluc", IC_RESULT(ic)); */
         emit2("mov", "test aluc");
+        cost(1);
     } else {
         emit2(";; TODO: genCmp non-conditional case", "");
     }
@@ -1044,46 +1091,45 @@ genTarnCode (iCode *lic)
   if (options.debug && !regalloc_dry_run)
     debugFile->writeFrameAddress (NULL, NULL, 0); /* have no idea where frame is now */
 
-  for (iCode *ic = lic; ic; ic = ic->next)
-    {
+  for (iCode *ic = lic; ic; ic = ic->next) {
       initGenLineElement ();
 
       genLine.lineElement.ic = ic;
 
       if (ic->level != clevel || ic->block != cblock)
-        {
-          if (options.debug)
-            debugFile->writeScope (ic);
-          clevel = ic->level;
-          cblock = ic->block;
-        }
+          {
+              if (options.debug)
+                  debugFile->writeScope (ic);
+              clevel = ic->level;
+              cblock = ic->block;
+          }
 
       if (ic->lineno && cln != ic->lineno)
-        {
-          if (options.debug)
-            debugFile->writeCLine (ic);
+          {
+              if (options.debug)
+                  debugFile->writeCLine (ic);
 
-          if (!options.noCcodeInAsm)
-            emit2 (";", "%s: %d: %s", ic->filename, ic->lineno, printCLine (ic->filename, ic->lineno));
-          cln = ic->lineno;
-        }
+              if (!options.noCcodeInAsm)
+                  emit2 (";", "%s: %d: %s", ic->filename, ic->lineno, printCLine (ic->filename, ic->lineno));
+              cln = ic->lineno;
+          }
 
       regalloc_dry_run_cost_words = 0;
       regalloc_dry_run_cost_cycles = 0;
 
       if (options.iCodeInAsm)
-        {
-          const char *iLine = printILine (ic);
-          emit2 ("; ic:", "%d: %s", ic->key, iLine);
-          dbuf_free (iLine);
-        }
+          {
+              const char *iLine = printILine (ic);
+              emit2 ("; ic:", "%d: %s", ic->key, iLine);
+              dbuf_free (iLine);
+          }
 
       genTarniCode(ic);
 
 #if 0
-      D (emit2 (";", "Cost for generated ic %d : (%d, %f)", ic->key, regalloc_dry_run_cost_words, regalloc_dry_run_cost_cycles));
+      D2(emit2 (";", "Cost for generated ic %d : (%d, %f)", ic->key, regalloc_dry_run_cost_words, regalloc_dry_run_cost_cycles));
 #endif
-    }
+  }
 
   if (options.debug)
     debugFile->writeFrameAddress (NULL, NULL, 0); /* have no idea where frame is now */

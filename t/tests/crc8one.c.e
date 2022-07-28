@@ -23,15 +23,12 @@ assembler was passed: -plosgffw crc8one.asm
 _crc8_one_PARM_1:
 	.ds	1
 _main_PARM_1:
-	.ds	2
+	.ds	1
 _main_PARM_2:
 	.ds	2
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
-	.area	OSEG (OVR,DATA)
-_crc8_one_sloc0_1_0:
-	.ds	2
 ;--------------------------------------------------------
 ; Stack segment in internal ram
 ;--------------------------------------------------------
@@ -76,23 +73,22 @@ __sdcc_program_startup:
 ;	 function crc8_one
 ;	-----------------------------------------
 	_crc8_one:
-;	t/tests/crc8one.c: 8: for (int i = 0; i < 8; i++)
+;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
 
 	;; genAssign      
-	lad	_crc8_one_sloc0_1_0
-	mov	mem zero
+	mov	r zero
 	L_6:
 
 	;; genCmp
-	mov	alus il ,9
-	mov	alua _crc8_one_sloc0_1_0
+	mov	alus il ,9	; less-than 
+	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
 
 	;; genIfx
-	gotonz	L_23
+	gotonz	L_26
 	goto	L_4
-	L_23:
+	L_26:
 ;	t/tests/crc8one.c: 10: if (crc & 0x80)
 
 	;; genAssign      
@@ -100,27 +96,28 @@ __sdcc_program_startup:
 	mov	x mem
 ;; genALUOp 0
 ;; TODO: if we have an ifx, then we must AND and then EQ!
-	mov	alus il ,0
+	mov	alus il ,0	; and 
 	mov	alua x
 	mov	alub il ,128
-	mov	test aluc
 ;; ALU op has ifx!
+	mov	alua aluc
+	mov	alus il ,10	; equal-to 
+	mov	alub zero
+	mov	test aluc
 
 	;; genIfx
-	gotonz	L_24
-	goto	L_2
-	L_24:
+	gotonz	L_2
 ;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;; genALUOp 4
 ;; TODO: if we have an ifx, then we must AND and then EQ!
-	mov	alus il ,4
+	mov	alus il ,4	; plus 
 	mov	alua x
 	mov	alub x
-	mov	r aluc
+	mov	x aluc
 ;; genALUOp 2
 ;; TODO: if we have an ifx, then we must AND and then EQ!
-	mov	alus il ,2
-	mov	alua r
+	mov	alus il ,2	; xor 
+	mov	alua x
 	mov	alub il ,7
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
@@ -131,19 +128,19 @@ __sdcc_program_startup:
 ;	t/tests/crc8one.c: 16: crc <<= 1;
 ;; genALUOp 4
 ;; TODO: if we have an ifx, then we must AND and then EQ!
-	mov	alus il ,4
+	mov	alus il ,4	; plus 
 	mov	alua x
 	mov	alub x
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 	L_7:
-;	t/tests/crc8one.c: 8: for (int i = 0; i < 8; i++)
+;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
 ;; genALUOp 4
 ;; TODO: if we have an ifx, then we must AND and then EQ!
-	mov	alus il ,4
-	mov	alua _crc8_one_sloc0_1_0
+	mov	alus il ,4	; plus 
+	mov	alua r
 	mov	alub il ,1
-	mov	_crc8_one_sloc0_1_0 aluc
+	mov	r aluc
 
 	;; genGoto
 	goto	L_6
@@ -159,7 +156,7 @@ __sdcc_program_startup:
 	L_8:
 ;	t/tests/crc8one.c: 21: }
 ;; genEndFunction 
-;	t/tests/crc8one.c: 23: int main(int argc, char **argv) {
+;	t/tests/crc8one.c: 23: uint8_t main(uint8_t argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
@@ -171,7 +168,6 @@ __sdcc_program_startup:
 	mov	mem il ,5
 ;; genCall
 	goto	_crc8_one
-;; genCast        
 
 	;; genReturn
 	mov	jmpl stack

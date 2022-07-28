@@ -82,7 +82,7 @@ __sdcc_program_startup:
 ;	t/tests/2.c: 4: switch(which) {
 
 	;; genCmpEQorNE
-	mov	alus il ,10
+	mov	alus il ,10	; equal-to 
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub zero
@@ -92,7 +92,7 @@ __sdcc_program_startup:
 	gotonz	L_1
 
 	;; genCmpEQorNE
-	mov	alus il ,10
+	mov	alus il ,10	; equal-to 
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub il ,1
@@ -155,9 +155,9 @@ __sdcc_program_startup:
 
 	;; genIfx
 	mov	test _multiply_or_divide_PARM_2
-	gotonz	L_21
+	gotonz	L_24
 	goto	L_5
-	L_21:
+	L_24:
 ;	t/tests/2.c: 12: a = 4;
 
 	;; genAssign      

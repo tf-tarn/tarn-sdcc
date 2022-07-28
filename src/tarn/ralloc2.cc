@@ -112,162 +112,6 @@ static bool operand_byte_in_reg(const operand *o, int offset, reg_t r, const ass
 }
 
 template <class G_t, class I_t>
-static bool Ainst_ok(const assignment &a, unsigned short int i, const G_t &G, const I_t &I)
-{
-  const iCode *ic = G[i].ic;
-  const i_assignment_t &ia = a.i_assignment;
-
-  if(ia.registers[REG_R][1] < 0)
-    return(true);       // Register R not in use.
-
-  if(ic->op == GOTO || ic->op == LABEL)
-    return(true);
-
-  const operand *left = IC_LEFT(ic);
-  const operand *right = IC_RIGHT(ic);
-  const operand *result = IC_RESULT(ic);
-
-  bool result_in_A = operand_in_reg(result, REG_R, ia, i, G);
-  bool left_in_A = operand_in_reg(left, REG_R, ia, i, G);
-  bool right_in_A = operand_in_reg(right, REG_R, ia, i, G);
-
-  const cfg_dying_t &dying = G[i].dying;
-
-  bool dying_A = result_in_A || dying.find(ia.registers[REG_R][1]) != dying.end() || dying.find(ia.registers[REG_R][0]) != dying.end();
-
-  bool result_dir = IS_TRUE_SYMOP (result) || IS_ITEMP (result) && !(options.stackAuto || reentrant) && !result_in_A;
-  bool left_dir = IS_TRUE_SYMOP (left) || IS_ITEMP (left) && !(options.stackAuto || reentrant) && !left_in_A;
-  bool right_dir = IS_TRUE_SYMOP (right) || IS_ITEMP (right) && !(options.stackAuto || reentrant) && !right_in_A;
-
-  // For some iCodes, code generation can handle anything.
-  if (ic->op == GETBYTE || ic->op == '=' || ic->op == DUMMY_READ_VOLATILE || ic->op == CAST || ic->op == GET_VALUE_AT_ADDRESS || ic->op == SET_VALUE_AT_ADDRESS || ic->op == '~' || ic->op == '|' || ic->op == '^' || ic->op == BITWISEAND && !ifxForOp (result, ic))
-    return(true);
-
-  if(result && IS_ITEMP(result) && OP_SYMBOL_CONST(result)->remat && !operand_in_reg(result, REG_R, ia, i, G) && !operand_in_reg(result, REG_X, ia, i, G))
-    return(true);
-
-  if ((ic->op == EQ_OP || ic->op == NE_OP) && dying_A &&
-    (left_in_A && (right_dir || IS_OP_LITERAL(right) || IS_ITEMP(right) && OP_SYMBOL_CONST(right)->remat) ||
-    right_in_A && (left_dir || IS_OP_LITERAL(left) || IS_ITEMP(left) && OP_SYMBOL_CONST(left)->remat)))
-    return (true);
-
-  if ((ic->op == EQ_OP || ic->op == NE_OP || (ic->op == '>' || ic->op == '<') && SPEC_USIGN(getSpec(operandType(left)))) && // Non-destructive comparison.
-    (left_in_A && getSize(operandType(left)) == 1 && (IS_OP_LITERAL(right) || right_dir) || right_in_A && getSize(operandType(right)) == 1 && (IS_OP_LITERAL(left) || left_dir)))
-    return (true);
-
-  if (ic->op == IFX && (dying_A || left_in_A))
-    return (true);
-
-  if (ic->op == '<' && IS_OP_LITERAL(right) && !ullFromVal(OP_VALUE_CONST (right)) &&
-    (operand_byte_in_reg(left, getSize(operandType(left)) - 1, REG_R, a, i, G) || operand_byte_in_reg(left, getSize(operandType(left)) - 1, REG_X, a, i, G)))
-    return (true);
-
-  if (ic->op == SET_VALUE_AT_ADDRESS && getSize(operandType(right)) == 1 && left_dir && right_in_A)
-    return (true);
-  if (ic->op == SET_VALUE_AT_ADDRESS && IS_ITEMP(left) && OP_SYMBOL_CONST(left)->remat && !operand_in_reg(left, REG_R, ia, i, G))
-    return (true);
-
-  if ((ic->op == '+' || ic->op == '-' || ic->op == UNARYMINUS) && (!left_in_A && !right_in_A || getSize(operandType(result)) == 1))
-    return (true);
-
-  if ((ic->op == CALL || ic->op == PCALL) && !left_in_A)
-    return(true);
-
-  if (ic->op == RETURN ||
-    (ic->op == GET_VALUE_AT_ADDRESS && getSize(operandType(result)) <= 2 || ic->op == SET_VALUE_AT_ADDRESS && getSize(operandType(right)) == 1) && dying_A)
-    return(true);
-
-  if (ic->op == GET_VALUE_AT_ADDRESS && !left_in_A)
-    return(true);
-
-  if (ic->op == CAST &&
-    (getSize(operandType(result)) == 1 || getSize(operandType(result)) == 2 && SPEC_USIGN (getSpec(operandType(right))) && operand_byte_in_reg(result, 1, REG_X, a, i, G)) &&
-    right_in_A && (result_dir || dying_A))
-    return (true);
-
-  if ((ic->op == CAST && (getSize(operandType(result)) <= getSize(operandType(right)) || SPEC_USIGN(getSpec(operandType(right))))) &&
-    getSize(operandType(result)) <= 2 &&
-    (result_dir && dying_A || result_in_A && right_dir || result_in_A && right_in_A))
-    return (true);
-
-  if ((ic->op == LEFT_OP || ic->op == RIGHT_OP))
-    return(IS_OP_LITERAL(right) || right_in_A && !result_in_A);
-
-  if (ic->op == '^' &&
-    (operand_byte_in_reg(result, 0, REG_R, a, i, G) && (operand_byte_in_reg(left, 0, REG_R, a, i, G) || operand_byte_in_reg(right, 0, REG_R, a, i, G)) ||
-    operand_byte_in_reg(result, 1, REG_R, a, i, G) && (operand_byte_in_reg(left, 1, REG_R, a, i, G) || operand_byte_in_reg(right, 1, REG_R, a, i, G))))
-    return (true);
-
-  // For most operations only allow lower byte in a for now (upper byte for result).
-  if (left_in_A && !operand_byte_in_reg(left, 0, REG_R, a, i, G) || right_in_A && !operand_byte_in_reg(right, 0, REG_R, a, i, G) ||
-    ic->op != '+' && ic->op != '-' && ic->op != UNARYMINUS && result_in_A && !operand_byte_in_reg(result, getSize(operandType(result)) - 1, REG_R, a, i, G))
-    return(false);
-
-  if(dying_A)
-    return(true);
-
-  return(false);
-}
-
-template <class G_t, class I_t>
-static bool Pinst_ok(const assignment &a, unsigned short int i, const G_t &G, const I_t &I)
-{
-  const iCode *ic = G[i].ic;
-  const i_assignment_t &ia = a.i_assignment;
-
-  if(ia.registers[REG_X][1] < 0)
-    return(true);       // Pseudoregister p not in use.
-
-  const operand *left = IC_LEFT(ic);
-  const operand *right = IC_RIGHT(ic);
-  const operand *result = IC_RESULT(ic);
-
-  bool left_in_P = operand_in_reg(left, REG_X, ia, i, G);
-  bool right_in_P = operand_in_reg(right, REG_X, ia, i, G);
-  bool result_in_P = operand_in_reg(result, REG_X, ia, i, G);
-
-  bool left_in_A = operand_in_reg(left, REG_R, ia, i, G);
-  bool right_in_A = operand_in_reg(right, REG_R, ia, i, G);
-  bool result_in_A = operand_in_reg(result, REG_R, ia, i, G);
-
-  const cfg_dying_t &dying = G[i].dying;
-
-  bool dying_P = result_in_P || dying.find(ia.registers[REG_X][1]) != dying.end() || dying.find(ia.registers[REG_X][0]) != dying.end();
-
-  bool left_stack = (IS_ITEMP (left) || IS_PARM (left)) && (options.stackAuto || reentrant) && !left_in_A && !left_in_P;
-  bool right_stack = (IS_ITEMP (right) || IS_PARM (right)) && (options.stackAuto || reentrant) && !right_in_A && !right_in_P;
-  bool result_stack = (IS_ITEMP (result) || IS_PARM (result)) && (options.stackAuto || reentrant) && !result_in_A && !result_in_P;
-
-  if(result && IS_ITEMP(result) && OP_SYMBOL_CONST(result)->remat)
-    return(true);
-
-  if(ic->op == IPUSH && left_stack)
-    return(false);
-
-  // // Arithmetic uses p internally for literal operands with multiple nonzero bytes.
-  // if ((ic->op == '+' || ic->op == '-' || ic->op == '!' || ic->op == '<' || ic->op == '>') && (IS_OP_LITERAL(left) || IS_OP_LITERAL(right)))
-  //   {
-  //     const operand *const litop = IS_OP_LITERAL(left) ? left : right;
-  //     if ((ullFromVal(OP_VALUE_CONST (litop)) & 0x000000ffull) && (ullFromVal(OP_VALUE_CONST(litop)) & 0x0000ff00ull) && (ullFromVal(OP_VALUE_CONST (litop)) & 0x00ff0000ull) && (ullFromVal(OP_VALUE_CONST (litop)) & 0xff000000ull))
-  //       return(false);
-  //   }
-  if (ic->op == PCALL)
-    return(false);
-
-  if (ic->op == CALL && !dying_P)
-    return(false);
-
-  if (ic->op == GET_VALUE_AT_ADDRESS && !dying_P && !(left_in_P && getSize(operandType(result)) == 1))
-    return(false);
-
-  if ((ic->op == '^' || ic->op == '|' || ic->op == BITWISEAND || ic->op == EQ_OP || ic->op == NE_OP) &&
-    (left_stack || right_stack || result_stack && !dying_P))
-    return(false);
-
-  return(true);
-}
-
-template <class G_t, class I_t>
 static void set_surviving_regs(const assignment &a, unsigned short int i, const G_t &G, const I_t &I)
 {
   iCode *ic = G[i].ic;
@@ -397,11 +241,11 @@ static float instruction_cost(const assignment &a, unsigned short int i, const G
       return(0.0f);
     }
 
-  if(!Ainst_ok(a, i, G, I))
-    return(std::numeric_limits<float>::infinity());
+  // if(!Ainst_ok(a, i, G, I))
+  //   return(std::numeric_limits<float>::infinity());
 
-  if(!Pinst_ok(a, i, G, I))
-    return(std::numeric_limits<float>::infinity());
+  // if(!Pinst_ok(a, i, G, I))
+  //   return(std::numeric_limits<float>::infinity());
 
   switch(ic->op)
     {
@@ -466,7 +310,8 @@ static float instruction_cost(const assignment &a, unsigned short int i, const G
         c += 0.0001;
 
       ic->generated = false;
-      // std::cout << "Got cost " << c << "\n";
+      // piCode(ic, stdout);
+      // printf("Got cost %f\n", c);
       return(c);
     default:
       return(0.0f);

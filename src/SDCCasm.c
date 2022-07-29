@@ -517,7 +517,7 @@ static const ASM_MAPPING _gas_mapping[] = {
   {"one", "#0x01"},
   {"area", ".section %s"},
   {"areacode", ".section %s,\"ax\""},
-  {"areadata", ".section %s,\"rw\""},
+  {"areadata", ".section %s,\"w\""},
   {"areahome", ".section %s,\"ax\""},
   {"ascii", ".ascii\t\"%s\""},
   {"ds", ".ds\t%d"},

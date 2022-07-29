@@ -241,23 +241,23 @@ PORT tarn_port =
             /* "data", */
 
             "XSEG",
-            "STACK",
-            "CODE",                     /* code */
-            "DATA",                     /* data */
+            "data",
+            "text",                     /* code */
+            "data",                     /* data */
             NULL,                       /* idata */
             NULL,                       /* pdata */
             NULL,                       /* xdata */
             NULL,                       /* bit */
-            "RSEG (ABS)",               /* reg */
+            NULL,                       /* reg. can it be null? */
             "GSINIT",                   /* static initialization */
             "OSEG (OVR,DATA)",          /* overlay */
             "GSFINAL",                  /* gsfinal */
-            "HOME",                     /* home */
+            "text",                     /* home */
             NULL,                       /* xidata */
             NULL,                       /* xinit */
-            "CONST",                    /* const_name */
-            "CABS (ABS)",               /* cabs_name */
-            "DABS (ABS)",               /* xabs_name */
+            "rodata",                   /* const_name */
+            "rodata",                   /* cabs_name */
+            "data",                     /* xabs_name */
             0,                          /* iabs_name */
             0,                          /* name of segment for initialized variables */
             0,                          /* name of segment for copies of initialized variables in code space */
@@ -265,6 +265,7 @@ PORT tarn_port =
             0,
             1,                          /* CODE  is read-only */
             1                           /* No fancy alignments supported. */
+
         },
         { 0, 0 },
         0,                            /* ABI revision */

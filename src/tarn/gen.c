@@ -21,6 +21,8 @@
 #include "ralloc.h"
 #include "gen.h"
 
+#define labelKey2num(X) (X)
+
 /* Use the D macro for basic (unobtrusive) debugging messages */
 #define D(x) do if (options.verboseAsm) { x; } while (0)
 #define D2(x) do { x; } while (0)
@@ -255,7 +257,7 @@ static void emit_jump_to_label(const symbol *target, int nz)
     } else {
         instruction = "goto";
     }
-    emit2(instruction, "L_%d", target->key);
+    emit2(instruction, "L_%d", labelKey2num(target->key));
     cost(1);
 }
 
@@ -616,7 +618,8 @@ static void genIfx_impl(const iCode *ic, int invert) {
         symbol *label = newiTempLabel(NULL);
         emit_jump_to_label(label, 1);
         emit_jump_to_label(f, 0);
-        emit2("", "\rL_%d:", label->key);
+        /* emitLabel(label); */
+        emit2("", "\rL_%d:", labelKey2num(label->key));
         return;
     }
 
@@ -835,7 +838,9 @@ static void genCmp   (const iCode *ic, iCode *ifx)       {
 /*-----------------------------------------------------------------*/
 static void genLabel (const iCode *ic)
 {
-    // emit2 ("; genLabel", "");
+    /* emit2 (";; genLabel", ""); */
+    /* printf("genLabel: "); */
+    /* piCode(ic, stdout); */
 
     /* special case never generate */
     if (IC_LABEL (ic) == entryLabel)
@@ -844,7 +849,8 @@ static void genLabel (const iCode *ic)
     if (options.debug /*&& !regalloc_dry_run*/)
         debugFile->writeLabel (IC_LABEL (ic), ic);
 
-    emit2("", "\rL_%d:", IC_LABEL(ic)->key);
+    /* emitLabel(IC_LABEL(ic)); */
+    emit2("", "\rL_%d:", labelKey2num(IC_LABEL(ic)->key));
 
     // G.p.type = AOP_INVALID;
 }

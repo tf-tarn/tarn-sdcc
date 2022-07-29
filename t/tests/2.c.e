@@ -21,7 +21,7 @@ assembler was passed: -plosgffw 2.asm
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section DATA,"rw"
+	.section data,"rw"
 _multiply_or_divide_PARM_1:
 	.ds	1
 _multiply_or_divide_PARM_2:
@@ -45,17 +45,17 @@ __start__stack:
 ;--------------------------------------------------------
 ; absolute external ram data
 ;--------------------------------------------------------
-	.section DABS (ABS)
+	.section data,"rw"
 ;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
-	.section HOME,"ax"
+	.section text,"ax"
 __interrupt_vect:
 ;; tarn_genIVT
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section HOME
+	.section text
 	.section GSINIT
 	.section GSFINAL
 	.section GSINIT
@@ -65,15 +65,15 @@ tarn_genInitStartup
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
-	.section HOME,"ax"
-	.section HOME,"ax"
+	.section text,"ax"
+	.section text,"ax"
 __sdcc_program_startup:
 	ljmp	_main
 ;	return from main will return to caller
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section CODE,"ax"
+	.section text,"ax"
 ;	t/tests/2.c: 3: int multiply_or_divide(int which, int a, int b) {
 ;	-----------------------------------------
 ;	 function multiply_or_divide
@@ -202,7 +202,7 @@ __sdcc_program_startup:
 	L_1:
 ;	t/tests/2.c: 22: }
 ;; genEndFunction 
-	.section CODE,"ax"
-	.section CONST
-	.section CABS (ABS)
+	.section text,"ax"
+	.section rodata
+	.section rodata
 --END ASM--

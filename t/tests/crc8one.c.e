@@ -19,7 +19,7 @@ assembler was passed: -plosgffw crc8one.asm
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section DATA,"rw"
+	.section data,"rw"
 _crc8_one_PARM_1:
 	.ds	1
 _main_PARM_1:
@@ -39,17 +39,17 @@ __start__stack:
 ;--------------------------------------------------------
 ; absolute external ram data
 ;--------------------------------------------------------
-	.section DABS (ABS)
+	.section data,"rw"
 ;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
-	.section HOME,"ax"
+	.section text,"ax"
 __interrupt_vect:
 ;; tarn_genIVT
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section HOME
+	.section text
 	.section GSINIT
 	.section GSFINAL
 	.section GSINIT
@@ -59,15 +59,15 @@ tarn_genInitStartup
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
-	.section HOME,"ax"
-	.section HOME,"ax"
+	.section text,"ax"
+	.section text,"ax"
 __sdcc_program_startup:
 	ljmp	_main
 ;	return from main will return to caller
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section CODE,"ax"
+	.section text,"ax"
 ;	t/tests/crc8one.c: 5: uint8_t crc8_one(uint8_t crc)
 ;	-----------------------------------------
 ;	 function crc8_one
@@ -172,7 +172,7 @@ __sdcc_program_startup:
 	L_1:
 ;	t/tests/crc8one.c: 25: }
 ;; genEndFunction 
-	.section CODE,"ax"
-	.section CONST
-	.section CABS (ABS)
+	.section text,"ax"
+	.section rodata
+	.section rodata
 --END ASM--

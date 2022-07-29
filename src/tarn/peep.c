@@ -184,9 +184,9 @@ stm8MightReadFlag(const lineNode *pl, const char *what)
 }
 
 static bool
-pdkMightRead(const lineNode *pl, const char *what)
+tarnMightRead(const lineNode *pl, const char *what)
 {
-//printf("pdkMightRead() for |%s|%s|\n", pl->line, what);
+//printf("tarnMightRead() for |%s|%s|\n", pl->line, what);
   if (!strcmp(what, "z") || !strcmp(what, "c") || !strcmp(what, "ac") || !strcmp(what, "ov"))
     return (stm8MightReadFlag(pl, what));
   else if (strcmp(what, "a") && strcmp(what, "p"))
@@ -293,7 +293,7 @@ stm8SurelyWritesFlag(const lineNode *pl, const char *what)
 }
 
 static bool
-pdkSurelyWrites(const lineNode *pl, const char *what)
+tarnSurelyWrites(const lineNode *pl, const char *what)
 {
   if (!strcmp(what, "z") || !strcmp(what, "c") || !strcmp(what, "ac") || !strcmp(what, "ov"))
     return (stm8SurelyWritesFlag(pl, what));
@@ -326,13 +326,13 @@ pdkSurelyWrites(const lineNode *pl, const char *what)
 
 
 static bool
-pdkUncondJump(const lineNode *pl)
+tarnUncondJump(const lineNode *pl)
 {
   return (ISINST(pl->line, "goto") || ISINST(pl->line, "pcadd"));
 }
 
 static bool
-pdkCondJump(const lineNode *pl)
+tarnCondJump(const lineNode *pl)
 {
   return (ISINST(pl->line, "ceqsn") || ISINST(pl->line, "cneqsn") ||
     ISINST(pl->line, "t0sn") || ISINST(pl->line, "t1sn") ||
@@ -341,7 +341,7 @@ pdkCondJump(const lineNode *pl)
 }
 
 static bool
-pdkSurelyReturns(const lineNode *pl)
+tarnSurelyReturns(const lineNode *pl)
 {
   return(ISINST(pl->line, "ret"));
 }
@@ -407,20 +407,20 @@ scan4op (lineNode **pl, const char *what, const char *untilOp,
 
       (*pl)->visited = TRUE;
 
-      if(pdkMightRead(*pl, what))
+      if(tarnMightRead(*pl, what))
         {
           D(("S4O_RD_OP\n"));
           return S4O_RD_OP;
         }
 
       // Check writes before conditional jumps, some jumps (btjf, btjt) write 'c'
-      if(pdkSurelyWrites(*pl, what))
+      if(tarnSurelyWrites(*pl, what))
         {
           D(("S4O_WR_OP\n"));
           return S4O_WR_OP;
         }
 
-      if(pdkUncondJump(*pl))
+      if(tarnUncondJump(*pl))
         {
           *pl = findLabel (*pl);
             if (!*pl)
@@ -429,7 +429,7 @@ scan4op (lineNode **pl, const char *what, const char *untilOp,
                 return S4O_ABORT;
               }
         }
-      if(pdkCondJump(*pl))
+      if(tarnCondJump(*pl))
         {
           *plCond = (*pl)->next->next;
           if (!*plCond)
@@ -442,7 +442,7 @@ scan4op (lineNode **pl, const char *what, const char *untilOp,
         }
 
       /* Don't need to check for de, hl since stm8MightRead() does that */
-      if(pdkSurelyReturns(*pl))
+      if(tarnSurelyReturns(*pl))
         {
           D(("S4O_TERM\n"));
           return S4O_TERM;
@@ -498,7 +498,7 @@ unvisitLines (lineNode *pl)
     pl->visited = false;
 }
 
-bool pdknotUsed(const char *what, lineNode *endPl, lineNode *head)
+bool tarnnotUsed(const char *what, lineNode *endPl, lineNode *head)
 {
   lineNode *pl;
 
@@ -510,20 +510,19 @@ bool pdknotUsed(const char *what, lineNode *endPl, lineNode *head)
   return (doTermScan (&pl, what));
 }
 
-bool pdknotUsedFrom(const char *what, const char *label, lineNode *head)
+bool tarnnotUsedFrom(const char *what, const char *label, lineNode *head)
 {
   lineNode *cpl;
 
   for (cpl = head; cpl; cpl = cpl->next)
     if (cpl->isLabel && !strncmp (label, cpl->line, strlen(label)))
-      return (pdknotUsed (what, cpl, head));
+      return (tarnnotUsed (what, cpl, head));
 
   return false;
 }
 
 int
-pdkinstructionSize(lineNode *pl)
+tarninstructionSize(lineNode *pl)
 {
   return 1;
 }
-

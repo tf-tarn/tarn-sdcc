@@ -182,7 +182,7 @@ void load_reg(const char *reg, operand *op) {
         }
         return;
     } else {
-        emit2("", ";; genALUOp %d bad op", op);
+        emit2("", ";; load_reg bad op");
     }
 
     /* if (op->type == SYMBOL) { */
@@ -357,7 +357,7 @@ genCall (const iCode *ic)
 
   operand *left = IC_LEFT (ic);
 
-  D2(emit2("", ";; genCall"));
+  D2(emit2("", ";; call function"));
   if (ic->op == PCALL) {
       emit2("; What is a PCALL?", "");
   } else {
@@ -387,7 +387,7 @@ genReturn (const iCode *ic)
 
     operand *left = IC_LEFT (ic);
 
-    D2(emit2("\n\t;; genReturn", ""));
+    D2(emit2("\n\t;; return", ""));
     piCode(ic, stderr);
 
     emit2("mov", "jmpl stack");
@@ -456,7 +456,8 @@ genAssign (const iCode *ic)
 {
   operand *result, *right;
 
-  if (!regalloc_dry_run) { fprintf(stderr, "genAssign       = "); piCode (ic, stderr); } emit2("\n\t;; genAssign      ", "");
+  if (!regalloc_dry_run) { fprintf(stderr, "genAssign       = "); piCode (ic, stderr); }
+  D2(emit2("\n\t;; assign", ""));
 
   result = IC_RESULT (ic);
   right = IC_RIGHT (ic);
@@ -556,7 +557,7 @@ static void genIfx_impl(const iCode *ic, int invert) {
         f = IC_FALSE(ic);
     }
 
-    D2(emit2("\n\t;; genIfx", ""));
+    D2(emit2("\n\t;; If x", ""));
 
     if (IS_OP_LITERAL (cond)) {
         emit2("; genIfx: op is literal", "");
@@ -653,7 +654,7 @@ const char *alu_operations[] = {
 };
 
 static void genALUOp_impl(int op, const operand *left, const operand *right, const operand *result, iCode *ifx) {
-    emit2(";;", "genALUOp %s (%d)", alu_operations[op], op);
+    emit2(";;", "ALU %s (%d)", alu_operations[op], op);
 
     emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
     cost(1);
@@ -771,7 +772,7 @@ genLeftShift (const iCode *ic)
 static void
 genGoto (const iCode *ic)
 {
-    D2(emit2("\n\t;; genGoto", ""));
+    D2(emit2("\n\t;; goto", ""));
     emit_jump_to_label (IC_LABEL (ic), 0);
 }
 
@@ -779,7 +780,7 @@ genGoto (const iCode *ic)
 static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
-    D2(emit2("\n\t;; genCmpEQorNE", ""));
+    D2(emit2("\n\t;; test equality", ""));
     emit2("mov", "alus il ,%d\t; %s ", ALUS_EQ, alu_operations[ALUS_EQ]);
     cost(1);
 
@@ -801,7 +802,7 @@ static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
 static void genCmp   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
-    D2(emit2("\n\t;; genCmp", ""));
+    D2(emit2("\n\t;; compare", ""));
     if (ic->op == '>') {
         emit2("mov", "alus il ,%d\t; %s ", ALUS_GT, alu_operations[ALUS_GT]);
         cost(1);

@@ -81,47 +81,47 @@ __sdcc_program_startup:
 	_multiply_or_divide:
 ;	t/tests/2.c: 4: switch(which) {
 
-	;; genCmpEQorNE
+	;; test equality
 	mov	alus il ,10	; equal-to 
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub zero
 	mov	test aluc
 
-	;; genIfx
+	;; If x
 	gotonz	L_1
 
-	;; genCmpEQorNE
+	;; test equality
 	mov	alus il ,10	; equal-to 
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub il ,1
 	mov	test aluc
 
-	;; genIfx
+	;; If x
 	gotonz	L_2
 
-	;; genGoto
+	;; goto
 	goto	L_3
 ;	t/tests/2.c: 5: case 0:
 	L_1:
 ;	t/tests/2.c: 6: return a * b;
 
-	;; genAssign      
+	;; assign
 	lad	_multiply_or_divide_PARM_2
 	mov	stack mem
 	lad	__muluchar_PARM_1
 	mov	mem stack
 
-	;; genAssign      
+	;; assign
 	lad	_multiply_or_divide_PARM_3
 	mov	stack mem
 	lad	__muluchar_PARM_2
 	mov	mem stack
-;; genCall
+;; call function
 	goto	__muluchar
 
-	;; genReturn
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -130,21 +130,21 @@ __sdcc_program_startup:
 	L_2:
 ;	t/tests/2.c: 8: return a / b;
 
-	;; genAssign      
+	;; assign
 	lad	_multiply_or_divide_PARM_2
 	mov	stack mem
 	lad	__divuchar_PARM_1
 	mov	mem stack
 
-	;; genAssign      
+	;; assign
 	lad	_multiply_or_divide_PARM_3
 	mov	stack mem
 	lad	__divuchar_PARM_2
 	mov	mem stack
-;; genCall
+;; call function
 	goto	__divuchar
 
-	;; genReturn
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -153,23 +153,23 @@ __sdcc_program_startup:
 	L_3:
 ;	t/tests/2.c: 11: if (a) {
 
-	;; genIfx
+	;; If x
 	mov	test _multiply_or_divide_PARM_2
 	gotonz	L_24
 	goto	L_5
 	L_24:
 ;	t/tests/2.c: 12: a = 4;
 
-	;; genAssign      
+	;; assign
 	lad	_multiply_or_divide_PARM_2
 	mov	mem il ,4
 
-	;; genGoto
+	;; goto
 	goto	L_6
 	L_5:
 ;	t/tests/2.c: 14: a = b;
 
-	;; genAssign      
+	;; assign
 	lad	_multiply_or_divide_PARM_3
 	mov	stack mem
 	lad	_multiply_or_divide_PARM_2
@@ -177,7 +177,7 @@ __sdcc_program_startup:
 	L_6:
 ;	t/tests/2.c: 17: return a;
 
-	;; genReturn
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_multiply_or_divide_PARM_2
@@ -193,7 +193,7 @@ __sdcc_program_startup:
 	_main:
 ;	t/tests/2.c: 21: return 0;
 
-	;; genReturn
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero

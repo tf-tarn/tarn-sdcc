@@ -75,26 +75,26 @@ __sdcc_program_startup:
 	_crc8_one:
 ;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
 
-	;; genAssign      
+	;; assign
 	mov	r zero
 	L_6:
 
-	;; genCmp
+	;; compare
 	mov	alus il ,9	; less-than 
 	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
 
-	;; genIfx
+	;; If x
 	gotonz	L_26
 	goto	L_4
 	L_26:
 ;	t/tests/crc8one.c: 10: if (crc & 0x80)
 
-	;; genAssign      
+	;; assign
 	lad	_crc8_one_PARM_1
 	mov	x mem
-;;	genALUOp and (0)
+;;	ALU and (0)
 	mov	alus il ,0	; and 
 	mov	alua x
 	mov	alub il ,128
@@ -104,26 +104,26 @@ __sdcc_program_startup:
 	mov	alub zero
 	mov	test aluc
 
-	;; genIfx
+	;; If x
 	gotonz	L_2
 ;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
-;;	genALUOp plus (4)
+;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua x
 	mov	alub x
 	mov	x aluc
-;;	genALUOp xor (2)
+;;	ALU xor (2)
 	mov	alus il ,2	; xor 
 	mov	alua x
 	mov	alub il ,7
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 
-	;; genGoto
+	;; goto
 	goto	L_7
 	L_2:
 ;	t/tests/crc8one.c: 16: crc <<= 1;
-;;	genALUOp plus (4)
+;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua x
 	mov	alub x
@@ -131,18 +131,18 @@ __sdcc_program_startup:
 	mov	mem aluc
 	L_7:
 ;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
-;;	genALUOp plus (4)
+;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua r
 	mov	alub il ,1
 	mov	r aluc
 
-	;; genGoto
+	;; goto
 	goto	L_6
 	L_4:
 ;	t/tests/crc8one.c: 20: return crc;
 
-	;; genReturn
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_crc8_one_PARM_1
@@ -158,13 +158,13 @@ __sdcc_program_startup:
 	_main:
 ;	t/tests/crc8one.c: 24: return crc8_one(5);
 
-	;; genAssign      
+	;; assign
 	lad	_crc8_one_PARM_1
 	mov	mem il ,5
-;; genCall
+;; call function
 	goto	_crc8_one
 
-	;; genReturn
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r

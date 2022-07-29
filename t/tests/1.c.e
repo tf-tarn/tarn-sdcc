@@ -71,7 +71,7 @@ __sdcc_program_startup:
 	_main:
 ;	t/tests/1.c: 2: return 0;
 
-	;; genReturn
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero

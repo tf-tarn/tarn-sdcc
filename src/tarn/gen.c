@@ -846,6 +846,10 @@ static void genLabel (const iCode *ic)
     if (IC_LABEL (ic) == entryLabel)
         return;
 
+    /* special case never generate */
+    if (IC_LABEL (ic) == returnLabel)
+        return;
+
     if (options.debug /*&& !regalloc_dry_run*/)
         debugFile->writeLabel (IC_LABEL (ic), ic);
 

@@ -76,7 +76,6 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack zero
 	jump
-	L_1:
 ;	t/tests/1.c: 3: }
 ;; genEndFunction 
 	.section text,"ax"

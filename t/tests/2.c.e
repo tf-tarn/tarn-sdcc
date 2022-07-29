@@ -184,7 +184,6 @@ __sdcc_program_startup:
 	lad	_multiply_or_divide_PARM_2
 	mov	stack mem
 	jump
-	L_7:
 ;	t/tests/2.c: 18: }
 ;; genEndFunction 
 ;	t/tests/2.c: 20: int main (int argc, char **argv) {
@@ -199,7 +198,6 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack zero
 	jump
-	L_1:
 ;	t/tests/2.c: 22: }
 ;; genEndFunction 
 	.section text,"ax"

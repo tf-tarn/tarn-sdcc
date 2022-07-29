@@ -159,7 +159,6 @@ __sdcc_program_startup:
 	lad	_crc8_one_PARM_1
 	mov	stack mem
 	jump
-	L_8:
 ;	t/tests/crc8.c: 21: }
 ;; genEndFunction 
 ;	t/tests/crc8.c: 23: uint8_t crc8(const uint8_t *data, uint8_t len)
@@ -227,7 +226,6 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack r
 	jump
-	L_5:
 ;	t/tests/crc8.c: 33: }
 ;; genEndFunction 
 ;	t/tests/crc8.c: 35: uint8_t main(uint8_t argc, char **argv) {
@@ -253,7 +251,6 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack r
 	jump
-	L_1:
 ;	t/tests/crc8.c: 37: }
 ;; genEndFunction 
 	.section text,"ax"

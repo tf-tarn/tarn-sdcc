@@ -5,9 +5,11 @@ assembler was passed: -plosgffw crc8.asm
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
 	.file	"crc8.c"
-	.optsdcc -mtarn
 	
-;; tarn_genAssemblerStart
+.section text
+.org 0
+ljmp _main
+jump
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -64,7 +66,6 @@ __interrupt_vect:
 	.section GSINIT
 	.section GSFINAL
 	.section GSINIT
-tarn_genInitStartup
 	.section GSFINAL
 	ljmp	__sdcc_program_startup
 ;--------------------------------------------------------

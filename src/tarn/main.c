@@ -53,7 +53,12 @@ static char *tarn_keywords[] = {
 static void
 tarn_genAssemblerStart (FILE *of)
 {
-  fprintf (of, ";; tarn_genAssemblerStart\n");
+    fprintf (of,
+             ".section text\n"
+             ".org 0\n"
+             "ljmp _main\n"
+             "jump\n"
+             );
 }
 
 static void
@@ -74,13 +79,13 @@ tarn_genIVT(struct dbuf_s *oBuf, symbol **intTable, int intCount)
 static void
 tarn_genInitStartup (FILE *of)
 {
-  fprintf (of, "tarn_genInitStartup\n");
 }
 
 static void
 tarn_init (void)
 {
   asm_addTree (&asm_gas_mapping);
+  options.noOptsdccInAsm = true;
 
   // tarn_init_asmops();
 }

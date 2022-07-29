@@ -568,23 +568,26 @@ static void genIfx_impl(const iCode *ic, int invert) {
         if (OP_SYMBOL(cond)->regType == REG_CND)  {
             // don't need to do anything; has already been loaded.
         } else {
-            /* emit2("; genIfx: op is symbol", ""); */
-            /* emit2("; symbol is", "%s", OP_SYMBOL(cond)->rname); */
-            if (OP_SYMBOL(cond)->nRegs == 1) {
-                /* emit2("; ", "symbol is in reg %s", OP_SYMBOL(cond)->regs[0]->name); */
-                if (OP_SYMBOL(cond)->regType != REG_CND && !OP_SYMBOL(cond)->regs[0]) {
-                    emit2(";; ERROR: sanity. conditional in ifx is not conditional?", "");
-                }
-                // no need to copy test to itself
-                // shouldn't really happen
-                if (OP_SYMBOL(cond)->regs[0] && OP_SYMBOL(cond)->regs[0]->rIdx != TEST_IDX) {
-                    emit2("mov", "test %s", OP_SYMBOL(cond)->regs[0]->name);
-                    cost(1);
-                }
-            } else {
-                emit2("mov", "test %s", OP_SYMBOL(cond)->rname);
-                cost(1);
-            }
+            load_reg("test", cond);
+            cost(1);
+
+            /* /\* emit2("; genIfx: op is symbol", ""); *\/ */
+            /* /\* emit2("; symbol is", "%s", OP_SYMBOL(cond)->rname); *\/ */
+            /* if (OP_SYMBOL(cond)->nRegs == 1) { */
+            /*     /\* emit2("; ", "symbol is in reg %s", OP_SYMBOL(cond)->regs[0]->name); *\/ */
+            /*     if (OP_SYMBOL(cond)->regType != REG_CND && !OP_SYMBOL(cond)->regs[0]) { */
+            /*         emit2(";; ERROR: sanity. conditional in ifx is not conditional?", ""); */
+            /*     } */
+            /*     // no need to copy test to itself */
+            /*     // shouldn't really happen */
+            /*     if (OP_SYMBOL(cond)->regs[0] && OP_SYMBOL(cond)->regs[0]->rIdx != TEST_IDX) { */
+            /*         emit2("mov", "test %s", OP_SYMBOL(cond)->regs[0]->name); */
+            /*         cost(1); */
+            /*     } */
+            /* } else { */
+            /*     emit2("mov", "test %s", OP_SYMBOL(cond)->rname); */
+            /*     cost(1); */
+            /* } */
         }
     }
 

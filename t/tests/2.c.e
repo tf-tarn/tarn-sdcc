@@ -154,7 +154,8 @@ __sdcc_program_startup:
 ;	t/tests/2.c: 11: if (a) {
 
 	;; If x
-	mov	test _multiply_or_divide_PARM_2
+	lad	_multiply_or_divide_PARM_2
+	mov	test mem
 	gotonz	L_24
 	goto	L_5
 	L_24:

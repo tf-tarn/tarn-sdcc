@@ -24,7 +24,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section data,"rw"
+	.section data,"r"
 _crc8_one_PARM_1:
 	.ds	1
 _crc8_PARM_1:
@@ -40,6 +40,10 @@ _main_PARM_1:
 _main_PARM_2:
 	.ds	2
 ;--------------------------------------------------------
+; ram data
+;--------------------------------------------------------
+	.section initd
+;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
 ;--------------------------------------------------------
@@ -50,36 +54,32 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
-; absolute external ram data
-;--------------------------------------------------------
-	.section data,"rw"
-;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
-	.section text,"ax"
+	.section home,"ax"
 __interrupt_vect:
 ;; tarn_genIVT
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section text
-	.section GSINIT
-	.section GSFINAL
-	.section GSINIT
-	.section GSFINAL
+	.section home
+	.section static
+	.section post_static
+	.section static
+	.section post_static
 	ljmp	__sdcc_program_startup
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
-	.section text,"ax"
-	.section text,"ax"
+	.section home,"ax"
+	.section home,"ax"
 __sdcc_program_startup:
 	ljmp	_main
 ;	return from main will return to caller
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section text,"ax"
+	.section code,"ax"
 ;	t/tests/crc8.c: 5: uint8_t crc8_one(uint8_t crc)
 ;	-----------------------------------------
 ;	 function crc8_one
@@ -254,7 +254,8 @@ __sdcc_program_startup:
 	jump
 ;	t/tests/crc8.c: 37: }
 ;; genEndFunction 
-	.section text,"ax"
-	.section rodata
-	.section rodata
+	.section code,"ax"
+	.section const
+	.section initr
+	.section cabs
 --END ASM--

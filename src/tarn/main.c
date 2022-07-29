@@ -242,30 +242,28 @@ PORT tarn_port =
         /* tags for generic pointers */
         { 0x00, 0x40, 0x60, 0x80 },   /* far, near, xstack, code */
         {
-            /* "rodata", */
-            /* "data", */
+            "xstack",                   // xstack_name;
+            "istack",                   // istack_name;
+            "code",                     // code_name;
+            "data",                     // data_name;
+            NULL,                       // idata_name;
+            NULL,                       // pdata_name;
+            NULL,                       // xdata_name;
+            NULL,                       // bit_name;
+            NULL,                       // reg_name;
+            "static",                   // static_name;
+            "_overlay",                 // overlay_name;
+            "post_static",              // post_static_name;
+            "home",                     // home_name;
+            NULL,                       // xidata_name;      // initialized xdata
+            NULL,                       // xinit_name;       // a code copy of xidata
+            "const",                    // const_name;       // const data (code or not)
+            "cabs",                     // cabs_name;        // const absolute data (code or not)
+            NULL,                       // xabs_name;        // absolute xdata/pdata
+            NULL,                       // iabs_name;        // absolute idata/data
+            "initd",                    // initialized_name; // Initialized global (and static local) variables.
+            "initr",                    // initializer_name; // A code copy of initialized_name (to be copied for fast initialization).
 
-            "XSEG",
-            "data",
-            "text",                     /* code */
-            "data",                     /* data */
-            NULL,                       /* idata */
-            NULL,                       /* pdata */
-            NULL,                       /* xdata */
-            NULL,                       /* bit */
-            NULL,                       /* reg. can it be null? */
-            "GSINIT",                   /* static initialization */
-            "OSEG (OVR,DATA)",          /* overlay */
-            "GSFINAL",                  /* gsfinal */
-            "text",                     /* home */
-            NULL,                       /* xidata */
-            NULL,                       /* xinit */
-            "rodata",                   /* const_name */
-            "rodata",                   /* cabs_name */
-            "data",                     /* xabs_name */
-            0,                          /* iabs_name */
-            0,                          /* name of segment for initialized variables */
-            0,                          /* name of segment for copies of initialized variables in code space */
             0,
             0,
             1,                          /* CODE  is read-only */

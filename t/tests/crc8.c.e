@@ -43,7 +43,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; Stack segment in internal ram
 ;--------------------------------------------------------
-	.area	SSEG
+	.section SSEG
 __start__stack:
 	.ds	1
 

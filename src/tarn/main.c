@@ -250,7 +250,7 @@ PORT tarn_port =
             NULL,                       // pdata_name;
             NULL,                       // xdata_name;
             NULL,                       // bit_name;
-            NULL,                       // reg_name;
+            "sfr",                      // reg_name;
             "static",                   // static_name;
             "_overlay",                 // overlay_name;
             "post_static",              // post_static_name;

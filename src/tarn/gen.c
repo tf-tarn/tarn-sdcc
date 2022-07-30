@@ -550,25 +550,11 @@ genAssign (const iCode *ic)
                   emit2("mov", "%s %s", result_reg, right_reg);
               }
               cost(1);
-              /* } else { */
-              /*     read_reg(right_reg, result); */
-              /* } */
           }
 
-          /* if (OP_SYMBOL(result)->isspilt) { */
-          /*     load_address_16(OP_SYMBOL(result)->usl.spillLoc->rname); */
-          /* } else { */
-          /*     /\* load_address_16(OP_SYMBOL(op)->regs[0]->name); *\/ */
-          /*     load_address_16(OP_SYMBOL(result)->rname); */
-          /* } */
-          /* emit2("mov", "mem stack"); */
       } else if (IS_OP_LITERAL (right)) {
           if (is_mem(result)) {
-              if (OP_SYMBOL(result)->isspilt) {
-                  load_address_16(OP_SYMBOL(result)->usl.spillLoc->rname);
-              } else {
-                  load_address_16(OP_SYMBOL(result)->rname);
-              }
+              load_address_16(op_get_mem_label(result));
               if (byteOfVal(OP_VALUE(right), 0) == 0) {
                   emit2("mov", "mem zero");
                   cost(1);
@@ -577,26 +563,12 @@ genAssign (const iCode *ic)
                   cost(1);
               }
           } else {
-              if (!regalloc_dry_run) {
-                  if (!OP_SYMBOL(result)->regs[0]) {
-                      if (IN_REGSP (SPEC_OCLS (OP_SYMBOL(result)->etype))) {
-                          emit2("mov", "%s il ,%d", OP_SYMBOL(result)->name, byteOfVal(OP_VALUE(right), 0));
-                      } else if (OP_SYMBOL(result)->isspilt) {
-                          load_address_16(OP_SYMBOL(result)->usl.spillLoc->rname);
-                          emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
-                      } else {
-                          load_address_16(OP_SYMBOL(result)->rname);
-                          emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
-                      }
-                  } else {
-                      if (byteOfVal(OP_VALUE(right), 0) == 0) {
-                          emit2("mov", "%s zero", OP_SYMBOL(result)->regs[0]->name);
-                      } else {
-                          emit2("mov", "%s il, %d",
-                                OP_SYMBOL(result)->regs[0]->name,
-                                byteOfVal(OP_VALUE(right), 0));
-                      }
-                  }
+              if (byteOfVal(OP_VALUE(right), 0) == 0) {
+                  emit2("mov", "%s zero", op_get_register_name(result));
+              } else {
+                  emit2("mov", "%s il, %d",
+                        op_get_register_name(result),
+                        byteOfVal(OP_VALUE(right), 0));
               }
               cost(1);
           }

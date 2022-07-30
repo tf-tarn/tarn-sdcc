@@ -54,8 +54,8 @@ static void
 tarn_genAssemblerStart (FILE *of)
 {
     fprintf (of,
+             //       ".include \"/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s\"\n"
              ".section text\n"
-             ".org 0\n"
              "ljmp _main\n"
              "jump\n"
              );
@@ -231,7 +231,7 @@ PORT tarn_port =
             2,                          /* int */
             4,                          /* long */
             8,                          /* long long */
-            1,                          /* near ptr */
+            2,                          /* near ptr */
             2,                          /* far ptr */
             2,                          /* generic ptr */
             2,                          /* func ptr */
@@ -290,7 +290,7 @@ PORT tarn_port =
               0,
               0,                        /* cfiSame */
               0,                        /* cfiUndef */
-              0,                        /* addressSize */
+              2,                        /* addressSize */
               0,                        /* regNumRet */
               0,                        /* regNumSP */
               0,                        /* regNumBP */

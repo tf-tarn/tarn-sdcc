@@ -7,7 +7,6 @@ assembler was passed: -plosgffw 1.asm
 	.file	"1.c"
 	
 .section text
-.org 0
 ljmp _main
 jump
 ;--------------------------------------------------------

@@ -123,9 +123,19 @@ regTypeNum (void)
           /* if not then we require registers */
           D (D_ALLOC,
              ("regTypeNum: isagg %u nRegs %u type %p\n", IS_AGGREGATE (sym->type) || sym->isptr, sym->nRegs, sym->type));
-          sym->nRegs =
-            ((IS_AGGREGATE (sym->type)
-              || sym->isptr) ? getSize (sym->type = aggrToPtr (sym->type, FALSE)) : getSize (sym->type));
+          if (IS_AGGREGATE (sym->type) || sym->isptr) {
+              sym->nRegs = getSize (sym->type = aggrToPtr (sym->type, FALSE));
+              /* printf("getSize(1) -> %d\n", sym->nRegs); */
+          } else {
+              sym->nRegs = getSize (sym->type);
+              /* printf("getSize(2) -> %d\n", sym->nRegs); */
+          }
+          /* sym->nRegs = */
+          /*     ( */
+          /*      (IS_AGGREGATE (sym->type) || sym->isptr) */
+          /*      ? getSize (sym->type = aggrToPtr (sym->type, FALSE)) */
+          /*      : getSize (sym->type) */
+          /*      ); */
           D (D_ALLOC, ("regTypeNum: setting nRegs of %s (%p) to %u\n", sym->name, sym, sym->nRegs));
 
           D (D_ALLOC, ("regTypeNum: setup to assign regs sym %p\n", sym));

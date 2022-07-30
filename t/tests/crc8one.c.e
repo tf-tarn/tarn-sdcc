@@ -7,7 +7,6 @@ assembler was passed: -plosgffw crc8one.asm
 	.file	"crc8one.c"
 	
 .section text
-.org 0
 ljmp _main
 jump
 ;--------------------------------------------------------
@@ -176,3 +175,6 @@ __sdcc_program_startup:
 	.section initr
 	.section cabs
 --END ASM--
+t/tests/crc8one.c(10:9:9:1:0:4)		iTemp3 [err err ] = iTemp2 [x ] & 0x80 {unsigned-char literal}
+t/tests/crc8one.c(12:12:15:1:0:5)		_crc8_one_PARM_1  = iTemp5 [x ] ^ 0x7 {unsigned-char literal}
+t/tests/crc8one.c(8:17:25:1:0:3)		iTemp10 [r ] = iTemp10 [r ] + 0x1 {const-unsigned-char literal}

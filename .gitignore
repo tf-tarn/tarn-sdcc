@@ -1,3 +1,6 @@
 *.o
 support/
 sim/
+bin/
+debugger/
+device/

@@ -1,6 +1,6 @@
 typedef unsigned char uint8_t;
 
-#define POLYNOMIAL 0x07
+#define POLYNOMIAL ((uint8_t)0x07)
 
 uint8_t crc8_one(uint8_t crc)
  {

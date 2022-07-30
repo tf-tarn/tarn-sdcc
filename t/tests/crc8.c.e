@@ -7,7 +7,6 @@ assembler was passed: -plosgffw crc8.asm
 	.file	"crc8.c"
 	
 .section text
-.org 0
 ljmp _main
 jump
 ;--------------------------------------------------------
@@ -34,6 +33,8 @@ _crc8_PARM_2:
 _crc8_sloc0_1_0:
 	.ds	2
 _crc8_sloc1_1_0:
+	.ds	1
+_crc8_sloc2_1_0:
 	.ds	1
 _main_PARM_1:
 	.ds	1
@@ -190,13 +191,18 @@ __sdcc_program_startup:
 	L_25:
 ;	t/tests/crc8.c: 28: crc ^= data[i]; /* XOR-in the next input uint8_t */
 ;;	ALU plus (4)
-	mov	alus il ,4	; plus 
-	lad	_crc8_PARM_1
-	mov	alua mem
-	mov	alub x
+	add_8r_16	x _crc8_PARM_1 ; 2
 	lad	_crc8_sloc0_1_0
-	mov	mem aluc
-;; genPointerGet  
+	mov	mem r
+	lad	_crc8_sloc0_1_0 + 1
+	mov	mem x
+	add_x_y_restore
+;; genPointerGet: operand size 2, 1, 1
+	mov	adh il ,hi8(_crc8_sloc0_1_0)
+	mov	adl il ,lo8(_crc8_sloc0_1_0)
+	mov	stack mem
+	lad	_crc8_sloc1_1_0
+	mov	mem stack
 ;;	ALU xor (2)
 	mov	alus il ,2	; xor 
 	mov	alua r
@@ -209,7 +215,8 @@ __sdcc_program_startup:
 	goto	_crc8_one
 
 	;; assign
-	mov	r r
+	lad	_crc8_sloc2_1_0
+	mov	r mem
 ;	t/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
@@ -239,7 +246,11 @@ __sdcc_program_startup:
 	;; assign
 	lad	_main_PARM_2
 	mov	r mem
-;; genPointerGet  
+;; genPointerGet: operand size 2, 1, 2
+	lad	_crc8_PARM_1
+	mov	mem r
+	lad	_crc8_PARM_1 + 1
+	mov	mem x
 
 	;; assign
 	lad	_crc8_PARM_2
@@ -259,3 +270,9 @@ __sdcc_program_startup:
 	.section initr
 	.section cabs
 --END ASM--
+t/tests/crc8.c(10:9:9:1:0:4)		iTemp3 [err err ] = iTemp2 [x ] & 0x80 {unsigned-char literal}
+t/tests/crc8.c(12:12:15:1:0:5)		_crc8_one_PARM_1  = iTemp5 [x ] ^ 0x7 {const-unsigned-char literal}
+t/tests/crc8.c(8:17:25:1:0:3)		iTemp10 [r ] = iTemp10 [r ] + 0x1 {const-unsigned-char literal}
+t/tests/crc8.c(28:9:9:1:0:10)		iTemp3 [_crc8_sloc0_1_0] = _crc8_PARM_1  + iTemp7 [x ]
+t/tests/crc8.c(28:11:11:1:0:10)		_crc8_one_PARM_1  = iTemp8 [r ] ^ iTemp4 [_crc8_sloc1_1_0]
+t/tests/crc8.c(27:14:17:1:0:9)		iTemp7 [x ] = iTemp7 [x ] + 0x1 {const-unsigned-char literal}

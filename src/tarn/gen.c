@@ -517,15 +517,6 @@ genAssign (const iCode *ic)
   right = IC_RIGHT (ic);
 
   if (IS_SYMOP (result)) {
-      /* if (OP_SYMBOL(result)->isspilt) { */
-      /*     emit2("", ";; assign result is spilled symbol!!"); */
-      /* } */
-      /* if (OP_SYMBOL(result)->isitmp) { */
-      /*     emit2("", ";; assign result is temp symbol!!"); */
-      /* } */
-      /* if (OP_SYMBOL(result)->remat) { */
-      /*     emit2("", ";; assign result is remat!!"); */
-      /* } */
       if (IS_SYMOP (right)) {
           if (is_mem(right)) {
               const char *right_reg = op_get_mem_label(right);
@@ -551,7 +542,6 @@ genAssign (const iCode *ic)
               }
               cost(1);
           }
-
       } else if (IS_OP_LITERAL (right)) {
           if (is_mem(result)) {
               load_address_16(op_get_mem_label(result));
@@ -611,24 +601,6 @@ static void genIfx_impl(const iCode *ic, int invert) {
         } else {
             load_reg("test", cond);
             cost(1);
-
-            /* /\* emit2("; genIfx: op is symbol", ""); *\/ */
-            /* /\* emit2("; symbol is", "%s", OP_SYMBOL(cond)->rname); *\/ */
-            /* if (OP_SYMBOL(cond)->nRegs == 1) { */
-            /*     /\* emit2("; ", "symbol is in reg %s", OP_SYMBOL(cond)->regs[0]->name); *\/ */
-            /*     if (OP_SYMBOL(cond)->regType != REG_CND && !OP_SYMBOL(cond)->regs[0]) { */
-            /*         emit2(";; ERROR: sanity. conditional in ifx is not conditional?", ""); */
-            /*     } */
-            /*     // no need to copy test to itself */
-            /*     // shouldn't really happen */
-            /*     if (OP_SYMBOL(cond)->regs[0] && OP_SYMBOL(cond)->regs[0]->rIdx != TEST_IDX) { */
-            /*         emit2("mov", "test %s", OP_SYMBOL(cond)->regs[0]->name); */
-            /*         cost(1); */
-            /*     } */
-            /* } else { */
-            /*     emit2("mov", "test %s", OP_SYMBOL(cond)->rname); */
-            /*     cost(1); */
-            /* } */
         }
     }
 
@@ -724,50 +696,6 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
     } else {
         read_reg("aluc", result);
     }
-
-    /* if (IS_OP_LITERAL(left)) { */
-    /*     emit2("mov", "alua il ,%d", byteOfVal(OP_VALUE(left), 0)); */
-    /*     if (IS_OP_LITERAL(right)) { */
-    /*         emit2("mov", "alub il ,%d", byteOfVal(OP_VALUE(right), 0)); */
-    /*     } else { */
-    /*         emit2("", ";; genALUOp %d bad right", op); */
-    /*     } */
-    /* } else if (left->type == SYMBOL) { */
-    /*     if (left->isParm) { */
-    /*         // parameters are addresses by default */
-    /*         // but really we want to pass them on the stack... */
-    /*         load_address_16(OP_SYMBOL(left)->rname); */
-    /*         emit2("mov", "alua mem", byteOfVal(OP_VALUE(left), 0)); */
-    /*     } else { */
-    /*         // test if has reg... */
-    /*         if (OP_SYMBOL(left)->isspilt) { */
-    /*             emit2("mov", "alua %s", OP_SYMBOL(left)->usl.spillLoc->rname); */
-    /*         } else { */
-    /*             emit2("mov", "alua %s", OP_SYMBOL(left)->regs[0]->name); */
-    /*         } */
-    /*     } */
-
-    /*     if (IS_OP_LITERAL(right)) { */
-    /*         emit2("mov", "alub il ,%d", byteOfVal(OP_VALUE(right), 0)); */
-    /*     } else if (right->type == SYMBOL) { */
-    /*         if (right->isParm) { */
-    /*             // parameters are addresses by default */
-    /*             // but really we want to pass them on the stack... */
-    /*             load_address_16(OP_SYMBOL(right)->rname); */
-    /*             emit2("mov", "alub mem", byteOfVal(OP_VALUE(right), 0)); */
-    /*         } else { */
-    /*             // test if has reg... */
-    /*             if (OP_SYMBOL(right)->isspilt) { */
-    /*                 emit2("mov", "alub %s", OP_SYMBOL(right)->usl.spillLoc->rname); */
-    /*             } else { */
-    /*                 emit2("mov", "alub %s", OP_SYMBOL(right)->regs[0]->name); */
-    /*             } */
-    /*         } */
-    /*     } else */
-    /*         emit2("", ";; genALUOp %d bad right", op); */
-    /* } else { */
-    /*     emit2("", ";; genALUOp %d bad left", op); */
-    /* } */
 }
 
 static void genALUOp(int op, const iCode *ic, iCode *ifx)

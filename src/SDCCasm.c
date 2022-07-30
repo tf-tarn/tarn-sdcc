@@ -521,8 +521,8 @@ static const ASM_MAPPING _gas_mapping[] = {
   {"areahome", ".section %s,\"ax\""},
   {"ascii", ".ascii\t\"%s\""},
   {"ds", ".ds\t%d"},
-  {"db", ".db"},
-  {"dbs", ".db\t%s"},
+  {"db", ".byte"},
+  {"dbs", ".byte\t%s"},
   {"dw", ".dw"},
   {"dws", ".dw\t%s"},
   {"constbyte", "0x%02X"},
@@ -631,4 +631,3 @@ const ASM_MAPPINGS asm_a390_mapping = {
   NULL,
   _a390_mapping
 };
-

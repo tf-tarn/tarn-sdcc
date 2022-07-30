@@ -2,7 +2,7 @@
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
-	.file	"crc8one.c"
+	.file	"function_non_void.c"
 	
 .include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
 .section .text
@@ -12,16 +12,13 @@ jump
 ; Public variables in this module
 ;--------------------------------------------------------
 	.globl	_main
-	.globl	_crc8_one
+	.globl	_f
 	.globl	_main_PARM_2
 	.globl	_main_PARM_1
-	.globl	_crc8_one_PARM_1
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
 	.section .data,"w"
-_crc8_one_PARM_1:
-	.ds	1
 _main_PARM_1:
 	.ds	1
 _main_PARM_2:
@@ -67,116 +64,45 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	t/tests/crc8one.c: 5: uint8_t crc8_one(uint8_t crc)
+;	t/tests/function_non-void.c: 1: char f() {
 ;	-----------------------------------------
-;	 function crc8_one
+;	 function f
 ;	-----------------------------------------
-	_crc8_one:
-;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
-
-	;; assign
-	mov	r zero
-	L_6:
-
-	;; compare
-	mov	alus il ,9	; less-than 
-	mov	alua r
-	mov	alub il ,8
-	mov	test aluc
-
-	;; If x
-	gotonz	L_26
-	goto	L_4
-	L_26:
-;	t/tests/crc8one.c: 10: if (crc & 0x80)
-
-	;; assign
-	lad	_crc8_one_PARM_1
-	mov	x mem
-;;	ALU and (0)
-	mov	alus il ,0	; and 
-	mov	alua x
-	mov	alub il ,128
-;; ALU op has ifx!
-	mov	alua aluc
-	mov	alus il ,10	; equal-to 
-	mov	alub zero
-	mov	test aluc
-
-	;; If x
-	gotonz	L_2
-;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
-;;	ALU plus (4)
-	mov	alus il ,4	; plus 
-	mov	alua x
-	mov	alub x
-	mov	x aluc
-;;	ALU xor (2)
-	mov	alus il ,2	; xor 
-	mov	alua x
-	mov	alub il ,7
-	lad	_crc8_one_PARM_1
-	mov	mem aluc
-
-	;; goto
-	goto	L_7
-	L_2:
-;	t/tests/crc8one.c: 16: crc <<= 1;
-;;	ALU plus (4)
-	mov	alus il ,4	; plus 
-	mov	alua x
-	mov	alub x
-	lad	_crc8_one_PARM_1
-	mov	mem aluc
-	L_7:
-;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
-;;	ALU plus (4)
-	mov	alus il ,4	; plus 
-	mov	alua r
-	mov	alub il ,1
-	mov	r aluc
-
-	;; goto
-	goto	L_6
-	L_4:
-;	t/tests/crc8one.c: 20: return crc;
+	_f:
+;	t/tests/function_non-void.c: 2: return 9;
 
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
-	lad	_crc8_one_PARM_1
-	mov	stack mem
+	mov	stack il ,9
 	jump
-;	t/tests/crc8one.c: 21: }
+;	t/tests/function_non-void.c: 3: }
 ;; genEndFunction 
-;	t/tests/crc8one.c: 23: uint8_t main(uint8_t argc, char **argv) {
+;	t/tests/function_non-void.c: 4: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	t/tests/crc8one.c: 24: return crc8_one(5);
-
-	;; assign
-	lad	_crc8_one_PARM_1
-	mov	mem il ,5
+;	t/tests/function_non-void.c: 5: char val = f();
 	;; call function
 	mov	stack hi8(L_ret_6)
 	mov	stack lo8(L_ret_6)
-	goto	_crc8_one
+	goto	_f
 	L_ret_6:
 	mov	r stack
+
+	;; assign
+;	genAssign: registers r, r same; skipping assignment
+;	t/tests/function_non-void.c: 6: return val;
 
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
 	jump
-;	t/tests/crc8one.c: 25: }
+;	t/tests/function_non-void.c: 7: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const
 	.section initr
 	.section cabs
-t/tests/crc8one.c(10:9:9:1:0:4)		iTemp3 [err err ] = iTemp2 [x ] & 0x80 {unsigned-char literal}
-t/tests/crc8one.c(12:12:15:1:0:5)		_crc8_one_PARM_1  = iTemp5 [x ] ^ 0x7 {unsigned-char literal}
-t/tests/crc8one.c(8:17:25:1:0:3)		iTemp10 [r ] = iTemp10 [r ] + 0x1 {const-unsigned-char literal}

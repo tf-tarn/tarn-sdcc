@@ -1,5 +1,3 @@
-assembler was passed: -plosgffw 2.asm
---BEGIN ASM--
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
@@ -119,8 +117,12 @@ __sdcc_program_startup:
 	mov	stack mem
 	lad	__muluchar_PARM_2
 	mov	mem stack
-;; call function
+	;; call function
+	mov	stack hi8(L_ret_30)
+	mov	stack lo8(L_ret_30)
 	goto	__muluchar
+	L_ret_30:
+	mov	r stack
 
 	;; return
 	mov	jmpl stack
@@ -142,8 +144,12 @@ __sdcc_program_startup:
 	mov	stack mem
 	lad	__divuchar_PARM_2
 	mov	mem stack
-;; call function
+	;; call function
+	mov	stack hi8(L_ret_31)
+	mov	stack lo8(L_ret_31)
 	goto	__divuchar
+	L_ret_31:
+	mov	r stack
 
 	;; return
 	mov	jmpl stack
@@ -157,9 +163,9 @@ __sdcc_program_startup:
 	;; If x
 	lad	_multiply_or_divide_PARM_2
 	mov	test mem
-	gotonz	L_24
+	gotonz	L_32
 	goto	L_5
-	L_24:
+	L_32:
 ;	t/tests/2.c: 12: a = 4;
 
 	;; assign
@@ -205,4 +211,3 @@ __sdcc_program_startup:
 	.section const
 	.section initr
 	.section cabs
---END ASM--

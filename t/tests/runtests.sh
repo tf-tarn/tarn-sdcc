@@ -7,7 +7,7 @@ mkdir -p testruns
 LOGFILE=testruns/testlog.txt
 
 > $LOGFILE
-for srcfile in $(find t/tests/ -type f -name "*.c"); do
+for srcfile in $(find t/tests/ -type f -name "*.c" | sort); do
     echo $srcfile
     name=$(basename $srcfile)
     dir=$(dirname $srcfile)
@@ -21,7 +21,7 @@ for srcfile in $(find t/tests/ -type f -name "*.c"); do
         echo
         echo ==== BEGIN TEST $name ====
         set -x
-        PRINT_SHORT_OPERANDS=2 bin/sdcc $srcfile > $output || true
+        PRINT_SHORT_OPERANDS=2 bin/sdcc $srcfile -o /tmp/tmp.asm > $output || true
     ) >> $LOGFILE 2>&1 || true
     diff -w -U1 $expectfile $output
 done

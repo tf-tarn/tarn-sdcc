@@ -1,5 +1,3 @@
-assembler was passed: -plosgffw crc8.asm
---BEGIN ASM--
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
@@ -34,8 +32,6 @@ _crc8_PARM_2:
 _crc8_sloc0_1_0:
 	.ds	2
 _crc8_sloc1_1_0:
-	.ds	1
-_crc8_sloc2_1_0:
 	.ds	1
 _main_PARM_1:
 	.ds	1
@@ -187,9 +183,9 @@ __sdcc_program_startup:
 	mov	test aluc
 
 	;; If x
-	gotonz	L_25
+	gotonz	L_42
 	goto	L_1
-	L_25:
+	L_42:
 ;	t/tests/crc8.c: 28: crc ^= data[i]; /* XOR-in the next input uint8_t */
 ;;	ALU plus (4)
 	add_8r_16	x _crc8_PARM_1 ; 2
@@ -212,12 +208,15 @@ __sdcc_program_startup:
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 ;	t/tests/crc8.c: 29: crc = crc8_one(crc);
-;; call function
+	;; call function
+	mov	stack hi8(L_ret_43)
+	mov	stack lo8(L_ret_43)
 	goto	_crc8_one
+	L_ret_43:
+	mov	r stack
 
 	;; assign
-	lad	_crc8_sloc2_1_0
-	mov	r mem
+;	genAssign: registers r, r same; skipping assignment
 ;	t/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
@@ -256,8 +255,12 @@ __sdcc_program_startup:
 	;; assign
 	lad	_crc8_PARM_2
 	mov	mem il ,200
-;; call function
+	;; call function
+	mov	stack hi8(L_ret_6)
+	mov	stack lo8(L_ret_6)
 	goto	_crc8
+	L_ret_6:
+	mov	r stack
 
 	;; return
 	mov	jmpl stack
@@ -270,7 +273,6 @@ __sdcc_program_startup:
 	.section const
 	.section initr
 	.section cabs
---END ASM--
 t/tests/crc8.c(10:9:9:1:0:4)		iTemp3 [err err ] = iTemp2 [x ] & 0x80 {unsigned-char literal}
 t/tests/crc8.c(12:12:15:1:0:5)		_crc8_one_PARM_1  = iTemp5 [x ] ^ 0x7 {const-unsigned-char literal}
 t/tests/crc8.c(8:17:25:1:0:3)		iTemp10 [r ] = iTemp10 [r ] + 0x1 {const-unsigned-char literal}

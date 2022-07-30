@@ -1,5 +1,3 @@
-assembler was passed: -plosgffw 3.asm
---BEGIN ASM--
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
@@ -91,7 +89,6 @@ __sdcc_program_startup:
 	.section const
 	.section initr
 	.section cabs
---END ASM--
 has remat: _array + 1
 has remat: _array + 1
 has remat: _array + 1

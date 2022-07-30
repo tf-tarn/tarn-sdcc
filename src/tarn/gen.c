@@ -717,11 +717,30 @@ genCall (const iCode *ic)
   /* bool tailjump = false; */
 
   operand *left = IC_LEFT (ic);
+  operand *result = IC_RESULT (ic);
 
-  D2(emit2("", ";; call function"));
+  const bool bigreturn = (getSize (ftype->next) > 2) || IS_STRUCT (ftype->next);
+  const bool returns_value =
+      IS_TRUE_SYMOP (result)
+      || (IS_ITEMP (result)
+          && (OP_SYMBOL (result)->nRegs
+              || OP_SYMBOL (result)->spildir));
+
+
+  D2(emit2("", "\t;; call function"));
+
+  if (bigreturn) {
+      emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+      return;
+  }
+
   if (ic->op == PCALL) {
       emit2("; What is a PCALL?", "");
   } else {
+      symbol *label = newiTempLabel(NULL);
+      emit2("mov", "stack hi8(L_ret_%d)", labelKey2num(label->key));
+      emit2("mov", "stack lo8(L_ret_%d)", labelKey2num(label->key));
+
       if (IS_LITERAL (etype)) {
           emit_jump_to_number(ulFromVal (OP_VALUE (IC_LEFT (ic))), 0);
       } else {
@@ -732,6 +751,14 @@ genCall (const iCode *ic)
               name = OP_SYMBOL (IC_LEFT (ic))->name;
           }
           emit_jump_to_symbol(name, 0);
+      }
+
+      emit2("", "\rL_ret_%d:", labelKey2num(label->key));
+
+      if (returns_value) {
+          read_reg("stack", result);
+      } else {
+          emit2("\t; function returns nothing", "");
       }
   }
 
@@ -788,7 +815,9 @@ genFunction (iCode *ic)
 static void
 genAssign (const iCode *ic)
 {
-  if (!regalloc_dry_run) { fprintf(stderr, "genAssign       = "); piCode (ic, stderr); }
+  if (!regalloc_dry_run) {
+      fprintf(stderr, "genAssign       = "); piCode (ic, stderr);
+  }
   D2(emit2("\n\t;; assign", ""));
 
   operand *result = IC_RESULT (ic);
@@ -805,6 +834,7 @@ genAssign (const iCode *ic)
                   read_reg("stack", result);
               } else {
                   const char *result_reg = op_get_register_name(result);
+                  const char *right_reg = op_get_register_name(right);
                   load_reg(result_reg, right);
               }
           } else {
@@ -813,12 +843,17 @@ genAssign (const iCode *ic)
                   const char *right_reg = op_get_register_name(right);
                   load_address_16(result_reg);
                   emit2("mov", "mem %s", right_reg);
+                  cost(1);
               } else {
                   const char *result_reg = op_get_register_name(result);
                   const char *right_reg = op_get_register_name(right);
-                  emit2("mov", "%s %s", result_reg, right_reg);
+                  if (result_reg && right_reg && !strcmp(result_reg, right_reg)) {
+                      emit2(";", "genAssign: registers %s, %s same; skipping assignment", result_reg, right_reg);
+                  } else {
+                      emit2("mov", "%s %s ; here", result_reg, right_reg);
+                      cost(1);
+                  }
               }
-              cost(1);
           }
       } else if (IS_OP_LITERAL (right)) {
           if (is_mem(result)) {

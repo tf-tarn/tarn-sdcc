@@ -86,9 +86,7 @@ t/tests/write_array.c(6:4:3:0:0:2)		iTemp0 [err err ] = &[_array  , 0x0 {const-u
 has remat: _array + 0
 t/tests/write_array.c(6:4:3:0:0:2)		iTemp0 [err err ] = &[_array  , 0x0 {const-unsigned-char literal}]
 has remat: _array + 0
-t/tests/write_array.c(6:4:3:0:0:2)		iTemp0 [err err ] assembler was passed: -plosgffw write_array.asm
---BEGIN ASM--
-;--------------------------------------------------------
+t/tests/write_array.c(6:4:3:0:0:2)		iTemp0 [err err ] ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
@@ -428,7 +426,6 @@ __sdcc_program_startup:
 __xinit__index:
 	.byte	#0x00	; 0
 	.section cabs
---END ASM--
 = &[_array  , 0x0 {const-unsigned-char literal}]
 has remat: _array + 0
 t/tests/write_array.c(6:4:3:0:0:2)		iTemp0 [err err ] = &[_array  , 0x0 {const-unsigned-char literal}]

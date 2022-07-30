@@ -1,5 +1,3 @@
-assembler was passed: -plosgffw 4.asm
---BEGIN ASM--
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
@@ -103,5 +101,4 @@ __sdcc_program_startup:
 __xinit__index:
 	.byte	#0x01	; 1
 	.section cabs
---END ASM--
 t/tests/4.c(4:4:3:0:0:2)		iTemp1 [r x ] = iTemp0 [r x ] + _index 

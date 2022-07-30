@@ -1,5 +1,3 @@
-assembler was passed: -plosgffw monitor.asm
---BEGIN ASM--
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
@@ -158,12 +156,16 @@ __sdcc_program_startup:
 	mov	test aluc
 
 	;; If x
-	gotonz	L_32
+	gotonz	L_33
 	goto	L_5
-	L_32:
+	L_33:
 ;	t/tests/monitor.c: 36: execute_command();
-;; call function
+	;; call function
+	mov	stack hi8(L_ret_34)
+	mov	stack lo8(L_ret_34)
 	goto	_execute_command
+	L_ret_34:
+	; function returns nothing
 
 	;; goto
 	goto	L_11
@@ -242,6 +244,5 @@ __sdcc_program_startup:
 __xinit__inputlen:
 	.byte	#0x00	; 0
 	.section cabs
---END ASM--
 t/tests/monitor.c(46:31:42:1:0:9)		_inputlen  = _inputlen  + 0x1 {signed-char literal}
 t/tests/monitor.c(47:33:46:1:0:9)		iTemp9 [r x ] = iTemp8 [r x ] + _inputlen 

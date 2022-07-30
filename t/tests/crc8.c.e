@@ -259,4 +259,3 @@ __sdcc_program_startup:
 	.section initr
 	.section cabs
 --END ASM--
-;DEBUG: mov r r

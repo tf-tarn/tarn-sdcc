@@ -94,7 +94,8 @@ t/tests/write_array.c(6:4:3:0:0:2)		iTemp0 [err err ] assembler was passed: -plo
 ;--------------------------------------------------------
 	.file	"write_array.c"
 	
-.section text
+.include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
+.section .text
 ljmp _main
 jump
 ;--------------------------------------------------------
@@ -108,7 +109,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section data,"w"
+	.section .data,"w"
 _array:
 	.ds	5
 _main_PARM_1:
@@ -157,7 +158,7 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section code,"ax"
+	.section .text,"ax"
 ;	t/tests/write_array.c: 3: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
@@ -421,11 +422,11 @@ __sdcc_program_startup:
 ;	t/tests/write_array.c: 54: return 0;
 ;	t/tests/write_array.c: 55: }
 ;; genEndFunction 
-	.section code,"ax"
+	.section .text,"ax"
 	.section const
 	.section initr
 __xinit__index:
-	.db	#0x00	; 0
+	.byte	#0x00	; 0
 	.section cabs
 --END ASM--
 = &[_array  , 0x0 {const-unsigned-char literal}]

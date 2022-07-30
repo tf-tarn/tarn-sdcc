@@ -5,8 +5,9 @@ assembler was passed: -plosgffw 2.asm
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
 	.file	"2.c"
-
-.section text
+	
+.include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
+.section .text
 ljmp _main
 jump
 ;--------------------------------------------------------
@@ -22,7 +23,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section data,"w"
+	.section .data,"w"
 _multiply_or_divide_PARM_1:
 	.ds	1
 _multiply_or_divide_PARM_2:
@@ -73,7 +74,7 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section code,"ax"
+	.section .text,"ax"
 ;	t/tests/2.c: 3: int multiply_or_divide(int which, int a, int b) {
 ;	-----------------------------------------
 ;	 function multiply_or_divide
@@ -82,7 +83,7 @@ __sdcc_program_startup:
 ;	t/tests/2.c: 4: switch(which) {
 
 	;; test equality
-	mov	alus il ,10	; equal-to
+	mov	alus il ,10	; equal-to 
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub zero
@@ -92,7 +93,7 @@ __sdcc_program_startup:
 	gotonz	L_1
 
 	;; test equality
-	mov	alus il ,10	; equal-to
+	mov	alus il ,10	; equal-to 
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub il ,1
@@ -185,7 +186,7 @@ __sdcc_program_startup:
 	mov	stack mem
 	jump
 ;	t/tests/2.c: 18: }
-;; genEndFunction
+;; genEndFunction 
 ;	t/tests/2.c: 20: int main (int argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
@@ -199,8 +200,8 @@ __sdcc_program_startup:
 	mov	stack zero
 	jump
 ;	t/tests/2.c: 22: }
-;; genEndFunction
-	.section code,"ax"
+;; genEndFunction 
+	.section .text,"ax"
 	.section const
 	.section initr
 	.section cabs

@@ -54,8 +54,8 @@ static void
 tarn_genAssemblerStart (FILE *of)
 {
     fprintf (of,
-             //       ".include \"/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s\"\n"
-             ".section text\n"
+             ".include \"/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s\"\n"
+             ".section .text\n"
              "ljmp _main\n"
              "jump\n"
              );
@@ -244,8 +244,8 @@ PORT tarn_port =
         {
             "xstack",                   // xstack_name;
             "istack",                   // istack_name;
-            "code",                     // code_name;
-            "data",                     // data_name;
+            ".text",                    // code_name;
+            ".data",                    // data_name;
             NULL,                       // idata_name;
             NULL,                       // pdata_name;
             NULL,                       // xdata_name;

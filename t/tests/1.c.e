@@ -6,7 +6,8 @@ assembler was passed: -plosgffw 1.asm
 ;--------------------------------------------------------
 	.file	"1.c"
 	
-.section text
+.include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
+.section .text
 ljmp _main
 jump
 ;--------------------------------------------------------
@@ -18,7 +19,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section data,"w"
+	.section .data,"w"
 _main_PARM_1:
 	.ds	2
 _main_PARM_2:
@@ -63,7 +64,7 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section code,"ax"
+	.section .text,"ax"
 ;	t/tests/1.c: 1: int main (int argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
@@ -78,7 +79,7 @@ __sdcc_program_startup:
 	jump
 ;	t/tests/1.c: 3: }
 ;; genEndFunction 
-	.section code,"ax"
+	.section .text,"ax"
 	.section const
 	.section initr
 	.section cabs

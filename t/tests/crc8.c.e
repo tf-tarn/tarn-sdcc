@@ -6,7 +6,8 @@ assembler was passed: -plosgffw crc8.asm
 ;--------------------------------------------------------
 	.file	"crc8.c"
 	
-.section text
+.include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
+.section .text
 ljmp _main
 jump
 ;--------------------------------------------------------
@@ -23,7 +24,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section data,"w"
+	.section .data,"w"
 _crc8_one_PARM_1:
 	.ds	1
 _crc8_PARM_1:
@@ -80,7 +81,7 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section code,"ax"
+	.section .text,"ax"
 ;	t/tests/crc8.c: 5: uint8_t crc8_one(uint8_t crc)
 ;	-----------------------------------------
 ;	 function crc8_one
@@ -265,7 +266,7 @@ __sdcc_program_startup:
 	jump
 ;	t/tests/crc8.c: 37: }
 ;; genEndFunction 
-	.section code,"ax"
+	.section .text,"ax"
 	.section const
 	.section initr
 	.section cabs

@@ -53,6 +53,35 @@ static struct
 }
 G;
 
+////////////////////////////////////////////////////////////////////////////////
+
+typedef struct {
+    char num;
+    const char *name;
+} tarn_reg_list_entry_t;
+
+#define TARN_SRC_REG_COUNT 16
+
+const tarn_reg_list_entry_t tarn_src_registers[TARN_SRC_REG_COUNT] = {
+    { 0,  "nop" },
+    { 1,  "p0" },
+    { 2,  "intl" },
+    { 3,  "inth" },
+    { 4,  "do_reti" },
+    { 5,  "x" },
+    { 6,  "stack" },
+    { 7,  "pic" },
+    { 8,  "il" },
+    { 9,  "jnz" },
+    { 10, "mem" },
+    { 11, "r" },
+    { 12, "jump" },
+    { 13, "zero" },
+    { 14, "one" },
+    { 15, "aluc" }
+};
+////////////////////////////////////////////////////////////////////////////////
+
 /*---------------------------------------------------------------------*/
 /* emit2                                                               */
 /*---------------------------------------------------------------------*/
@@ -75,6 +104,84 @@ cost(unsigned int words)
   /* regalloc_dry_run_cost_cycles += cycles * regalloc_dry_run_cycle_scale; */
   regalloc_dry_run_cost_words += words;
   regalloc_dry_run_cost_cycles += words * regalloc_dry_run_cycle_scale;
+}
+
+static int is_mem(const operand *op) {
+    if (op->type == SYMBOL) {
+        if (op->isParm) {
+            return 1;
+        }
+        if (OP_SYMBOL(op)->isspilt) {
+            return 1;
+        }
+        if (IN_REGSP (SPEC_OCLS (OP_SYMBOL(op)->etype))) {
+            return 0;
+        } else if (OP_SYMBOL(op)->regs[0]) {
+            return 0;
+        }
+        if (OP_SYMBOL(op)->islocal) {
+            return 1;
+        }
+    }
+
+    return 1;
+
+}
+
+static int is_reg(const operand *op) {
+    if (op->type == SYMBOL) {
+        if (OP_SYMBOL(op)->isspilt) {
+            return 0;
+        }
+        if (IN_REGSP (SPEC_OCLS (OP_SYMBOL(op)->etype))) {
+            return 1;
+        } else if (OP_SYMBOL(op)->regs[0]) {
+            return 1;
+        }
+        if (op->isParm) {
+            return 0;
+        }
+        if (OP_SYMBOL(op)->islocal) {
+            return 0;
+        }
+    }
+
+    return 0;
+
+}
+
+const char *op_get_register_name(const operand *op) {
+    if (is_reg(op)) {
+        if (op->type == SYMBOL) {
+            if (!op->isParm) {
+                if (!OP_SYMBOL(op)->isspilt) {
+                    if (IN_REGSP (SPEC_OCLS (OP_SYMBOL(op)->etype))) {
+                        return tarn_src_registers[OP_SYMBOL(op)->etype->select.s._addr].name;
+                    } else if (OP_SYMBOL(op)->regs[0]) {
+                        if (!regalloc_dry_run) {
+                            return OP_SYMBOL(op)->regs[0]->name;
+                        }
+                    } else {
+                        return OP_SYMBOL(op)->rname;
+                    }
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
+const char *op_get_mem_label(const operand *op) {
+    if (is_mem(op)) {
+        if (op->type == SYMBOL) {
+            if (OP_SYMBOL(op)->isspilt) {
+                return OP_SYMBOL(op)->usl.spillLoc->rname;
+            } else {
+                return OP_SYMBOL(op)->rname;
+            }
+        }
+    }
+    return NULL;
 }
 
 /*---------------------------------------------------------------------*/
@@ -151,7 +258,9 @@ static void genSwap        (const iCode *ic)                   { if (!regalloc_d
 static void genUminus      (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genUminus       = "); piCode (ic, stderr); } emit2(";; genUminus      ", ""); }
 /* static void genXor         (const iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genXor          = "); piCode (ic, stderr); } emit2(";; genXor         ", ""); } */
 
+
 void load_reg(const char *reg, operand *op) {
+
     if (IS_OP_LITERAL (op)) {
         if (byteOfVal(OP_VALUE(op), 0) == 0) {
             emit2("mov", "%s zero", reg);
@@ -164,52 +273,22 @@ void load_reg(const char *reg, operand *op) {
     }
 
     if (op->type == SYMBOL) {
-        if (op->isParm) {
-            // parameters are addresses by default
-            // but really we want to pass them on the stack...
-            load_address_16(OP_SYMBOL(op)->rname);
+        if (is_mem(op)) {
+            const char *label = op_get_mem_label(op);
+            load_address_16(label);
             emit2("mov", "%s mem", reg);
             cost(1);
+        } else if (is_reg(op)) {
+            const char *source_reg = op_get_register_name(op);
+            emit2("mov", "%s %s", reg, source_reg);
+            cost(1);
         } else {
-            if (OP_SYMBOL(op)->isspilt) {
-                load_address_16(OP_SYMBOL(op)->usl.spillLoc->rname);
-                emit2("mov", "%s mem", reg);
-                cost(1);
-            } else {
-                if (!regalloc_dry_run) {
-                    emit2("mov", "%s %s", reg, OP_SYMBOL(op)->regs[0]->name);
-                }
-                cost(1);
-            }
+            emit2("", ";; load_reg bad op");
         }
         return;
     } else {
         emit2("", ";; load_reg bad op");
     }
-
-    /* if (op->type == SYMBOL) { */
-    /*     if (op->isParm) { */
-    /*         // parameters are addresses by default */
-    /*         // but really we want to pass them on the stack... */
-    /*         /\* emit2("; symbol is parameter", ""); *\/ */
-    /*         load_address_16(OP_SYMBOL(op)->rname); */
-    /*         emit2("mov", "%s mem", reg); */
-    /*         return; */
-    /*     } */
-
-    /*     emit2("", "; symbol has %d regs", OP_SYMBOL(op)->nRegs); */
-    /*     // if (OP_SYMBOL(op)->nRegs) */
-
-    /*     // something else? */
-    /*     if (op->isaddr) { */
-    /*         emit2("; symbol is addr", ""); */
-    /*     } */
-    /*     if (op->isPtr) { */
-    /*         emit2("; symbol is pointer", ""); */
-    /*     } */
-    /*     emit2("mov", "%s %s", reg, OP_SYMBOL(op)->rname); */
-    /*     return; */
-    /* } */
 
     emit2("; load_reg: op not suppoted", "");
 }
@@ -422,33 +501,6 @@ genFunction (iCode *ic)
   emit2 ("", "%s:", sym->rname);
 }
 
-const char *op_get_register_name(const operand *op) {
-    if (!regalloc_dry_run) {
-        if (op->type == SYMBOL) {
-            if (!op->isParm) {
-                if (!OP_SYMBOL(op)->isspilt) {
-                    return OP_SYMBOL(op)->regs[0]->name;
-                }
-            }
-        }
-    }
-    return NULL;
-}
-
-
-static int is_mem(const operand *op) {
-    if (op->type == SYMBOL) {
-        if (op->isParm) {
-            return 1;
-        }
-        if (OP_SYMBOL(op)->isspilt) {
-            return 1;
-        }
-    }
-
-    return 0;
-
-}
 
 /*-----------------------------------------------------------------*/
 /* genAssign - generate code for assignment                        */
@@ -464,7 +516,6 @@ genAssign (const iCode *ic)
   result = IC_RESULT (ic);
   right = IC_RIGHT (ic);
 
-
   if (IS_SYMOP (result)) {
       /* if (OP_SYMBOL(result)->isspilt) { */
       /*     emit2("", ";; assign result is spilled symbol!!"); */
@@ -476,28 +527,32 @@ genAssign (const iCode *ic)
       /*     emit2("", ";; assign result is remat!!"); */
       /* } */
       if (IS_SYMOP (right)) {
-          const char *right_reg = op_get_register_name(right);
-          const char *result_reg = op_get_register_name(result);
-          if (right_reg && result_reg) {
-              emit2("mov", "%s %s", result_reg, right_reg);
-              cost(1);
-          } else if (is_mem(right)) {
+          if (is_mem(right)) {
+              const char *right_reg = op_get_mem_label(right);
               if (is_mem(result)) {
+                  const char *result_reg = op_get_mem_label(result);
                   // buffer in stack so we can change addresses
                   load_reg("stack", right);
                   read_reg("stack", result);
-              } else if (result_reg) {
+              } else {
+                  const char *result_reg = op_get_register_name(result);
                   load_reg(result_reg, right);
-              } else {
-                  emit2("", ";; don't know how to assign this");
               }
-          } else if (right_reg) {
-              if (result_reg) {
+          } else {
+              if (is_mem(result)) {
+                  const char *result_reg = op_get_mem_label(result);
+                  const char *right_reg = op_get_register_name(right);
+                  load_address_16(result_reg);
+                  emit2("mov", "mem %s", right_reg);
+              } else {
+                  const char *result_reg = op_get_register_name(result);
+                  const char *right_reg = op_get_register_name(right);
                   emit2("mov", "%s %s", result_reg, right_reg);
-                  cost(1);
-              } else {
-                  read_reg(right_reg, result);
               }
+              cost(1);
+              /* } else { */
+              /*     read_reg(right_reg, result); */
+              /* } */
           }
 
           /* if (OP_SYMBOL(result)->isspilt) { */
@@ -523,12 +578,24 @@ genAssign (const iCode *ic)
               }
           } else {
               if (!regalloc_dry_run) {
-                  if (byteOfVal(OP_VALUE(right), 0) == 0) {
-                      emit2("mov", "%s zero", OP_SYMBOL(result)->regs[0]->name);
+                  if (!OP_SYMBOL(result)->regs[0]) {
+                      if (IN_REGSP (SPEC_OCLS (OP_SYMBOL(result)->etype))) {
+                          emit2("mov", "%s il ,%d", OP_SYMBOL(result)->name, byteOfVal(OP_VALUE(right), 0));
+                      } else if (OP_SYMBOL(result)->isspilt) {
+                          load_address_16(OP_SYMBOL(result)->usl.spillLoc->rname);
+                          emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
+                      } else {
+                          load_address_16(OP_SYMBOL(result)->rname);
+                          emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
+                      }
                   } else {
-                      emit2("mov", "%s il, %d",
-                            OP_SYMBOL(result)->regs[0]->name,
-                            byteOfVal(OP_VALUE(right), 0));
+                      if (byteOfVal(OP_VALUE(right), 0) == 0) {
+                          emit2("mov", "%s zero", OP_SYMBOL(result)->regs[0]->name);
+                      } else {
+                          emit2("mov", "%s il, %d",
+                                OP_SYMBOL(result)->regs[0]->name,
+                                byteOfVal(OP_VALUE(right), 0));
+                      }
                   }
               }
               cost(1);

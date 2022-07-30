@@ -23,7 +23,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section data,"r"
+	.section data,"w"
 _multiply_or_divide_PARM_1:
 	.ds	1
 _multiply_or_divide_PARM_2:

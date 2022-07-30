@@ -24,7 +24,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section data,"r"
+	.section data,"w"
 _crc8_one_PARM_1:
 	.ds	1
 _crc8_PARM_1:
@@ -259,3 +259,4 @@ __sdcc_program_startup:
 	.section initr
 	.section cabs
 --END ASM--
+;DEBUG: mov r r

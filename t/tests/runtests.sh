@@ -12,13 +12,16 @@ for srcfile in $(find t/tests/ -type f -name "*.c"); do
     name=$(basename $srcfile)
     dir=$(dirname $srcfile)
     expectfile=$dir/$name.e
+    if [ ! -f $expectfile ]; then
+        continue
+    fi
     output=testruns/$name.output
     rm -f $output
     (
         echo
         echo ==== BEGIN TEST $name ====
         set -x
-        PRINT_SHORT_OPERANDS=2 bin/sdcc $srcfile > $output
+        PRINT_SHORT_OPERANDS=2 bin/sdcc $srcfile > $output || true
     ) >> $LOGFILE 2>&1 || true
     diff -U0 $expectfile $output || true
 done

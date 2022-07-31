@@ -66,14 +66,14 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/assignment_big.c: 2: char main (char argc, char **argv) {
+;	t/tests/assignment_big.c: 2: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/assignment_big.c: 3: const char *msg = "foo";
+;	t/tests/assignment_big.c: 3: const char *msg = "foo";
 ;; genCast        
-;	sdcc-dev/tests/assignment_big.c: 7: return vvv[0];
+;	t/tests/assignment_big.c: 7: return vvv[0];
 ;; genPointerGet: operand size 2, 1, 1
 	lad	_vvv + 0
 	mov	stack mem
@@ -88,7 +88,7 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack nop
 	jump
-;	sdcc-dev/tests/assignment_big.c: 8: }
+;	t/tests/assignment_big.c: 8: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

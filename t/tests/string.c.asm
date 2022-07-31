@@ -63,29 +63,29 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/string.c: 1: char main (char argc, char **argv) {
+;	t/tests/string.c: 1: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/string.c: 3: const char *s = "foobar";
-;	sdcc-dev/tests/string.c: 4: pic = s[0];
+;	t/tests/string.c: 3: const char *s = "foobar";
+;	t/tests/string.c: 4: pic = s[0];
 ;; genPointerGet: operand size 2, 1, 1
 	mov	adh il ,hi8(___str_0 + 0)
 	mov	adl il ,lo8(___str_0 + 0)
 	mov	pic mem
-;	sdcc-dev/tests/string.c: 5: pic = s[1];
+;	t/tests/string.c: 5: pic = s[1];
 ;; genPointerGet: operand size 2, 1, 1
 	mov	adh il ,hi8(___str_0 + 1)
 	mov	adl il ,lo8(___str_0 + 1)
 	mov	pic mem
-;	sdcc-dev/tests/string.c: 6: return 0;
+;	t/tests/string.c: 6: return 0;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero
 	jump
-;	sdcc-dev/tests/string.c: 7: }
+;	t/tests/string.c: 7: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

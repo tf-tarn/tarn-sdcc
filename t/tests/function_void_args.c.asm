@@ -73,12 +73,12 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/function_void_args.c: 2: void g(char a, char b) {
+;	t/tests/function_void_args.c: 2: void g(char a, char b) {
 ;	-----------------------------------------
 ;	 function g
 ;	-----------------------------------------
 	_g:
-;	sdcc-dev/tests/function_void_args.c: 3: var = a+b;
+;	t/tests/function_void_args.c: 3: var = a+b;
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	lad	_g_PARM_1
@@ -87,14 +87,14 @@ __sdcc_program_startup:
 	mov	alub mem
 	lad	_var
 	mov	mem aluc
-;	sdcc-dev/tests/function_void_args.c: 4: }
+;	t/tests/function_void_args.c: 4: }
 ;; genEndFunction 
-;	sdcc-dev/tests/function_void_args.c: 5: char main (char argc, char **argv) {
+;	t/tests/function_void_args.c: 5: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/function_void_args.c: 6: g(1, 2);
+;	t/tests/function_void_args.c: 6: g(1, 2);
 	;; assign
 	lad	_g_PARM_1
 	mov	mem il ,1
@@ -102,19 +102,19 @@ __sdcc_program_startup:
 	lad	_g_PARM_2
 	mov	mem il ,2
 	;; call function
-	mov	stack hi8(L_ret_4)
-	mov	stack lo8(L_ret_4)
+	mov	stack il ,hi8(L_ret_4)
+	mov	stack il ,lo8(L_ret_4)
 	goto	_g
 	L_ret_4:
 	; function returns nothing
-;	sdcc-dev/tests/function_void_args.c: 7: return var;
+;	t/tests/function_void_args.c: 7: return var;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_var
 	mov	stack mem
 	jump
-;	sdcc-dev/tests/function_void_args.c: 8: }
+;	t/tests/function_void_args.c: 8: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

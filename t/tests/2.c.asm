@@ -73,12 +73,12 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/2.c: 3: int multiply_or_divide(int which, int a, int b) {
+;	t/tests/2.c: 3: int multiply_or_divide(int which, int a, int b) {
 ;	-----------------------------------------
 ;	 function multiply_or_divide
 ;	-----------------------------------------
 	_multiply_or_divide:
-;	sdcc-dev/tests/2.c: 4: switch(which) {
+;	t/tests/2.c: 4: switch(which) {
 	;; test equality
 	mov	alus il ,10	; equal-to 
 	lad	_multiply_or_divide_PARM_1
@@ -97,9 +97,9 @@ __sdcc_program_startup:
 	gotonz	L_2
 	;; goto
 	goto	L_3
-;	sdcc-dev/tests/2.c: 5: case 0:
+;	t/tests/2.c: 5: case 0:
 	L_1:
-;	sdcc-dev/tests/2.c: 6: return a * b;
+;	t/tests/2.c: 6: return a * b;
 	;; assign
 	lad	_multiply_or_divide_PARM_2
 	mov	stack mem
@@ -111,8 +111,8 @@ __sdcc_program_startup:
 	lad	__muluchar_PARM_2
 	mov	mem stack
 	;; call function
-	mov	stack hi8(L_ret_30)
-	mov	stack lo8(L_ret_30)
+	mov	stack il ,hi8(L_ret_30)
+	mov	stack il ,lo8(L_ret_30)
 	goto	__muluchar
 	L_ret_30:
 	mov	r stack
@@ -121,9 +121,9 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack r
 	jump
-;	sdcc-dev/tests/2.c: 7: case 1:
+;	t/tests/2.c: 7: case 1:
 	L_2:
-;	sdcc-dev/tests/2.c: 8: return a / b;
+;	t/tests/2.c: 8: return a / b;
 	;; assign
 	lad	_multiply_or_divide_PARM_2
 	mov	stack mem
@@ -135,8 +135,8 @@ __sdcc_program_startup:
 	lad	__divuchar_PARM_2
 	mov	mem stack
 	;; call function
-	mov	stack hi8(L_ret_31)
-	mov	stack lo8(L_ret_31)
+	mov	stack il ,hi8(L_ret_31)
+	mov	stack il ,lo8(L_ret_31)
 	goto	__divuchar
 	L_ret_31:
 	mov	r stack
@@ -145,50 +145,50 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack r
 	jump
-;	sdcc-dev/tests/2.c: 9: }
+;	t/tests/2.c: 9: }
 	L_3:
-;	sdcc-dev/tests/2.c: 11: if (a) {
+;	t/tests/2.c: 11: if (a) {
 	;; If x
 	lad	_multiply_or_divide_PARM_2
 	mov	test mem
 	gotonz	L_32
 	goto	L_5
 	L_32:
-;	sdcc-dev/tests/2.c: 12: a = 4;
+;	t/tests/2.c: 12: a = 4;
 	;; assign
 	lad	_multiply_or_divide_PARM_2
 	mov	mem il ,4
 	;; goto
 	goto	L_6
 	L_5:
-;	sdcc-dev/tests/2.c: 14: a = b;
+;	t/tests/2.c: 14: a = b;
 	;; assign
 	lad	_multiply_or_divide_PARM_3
 	mov	stack mem
 	lad	_multiply_or_divide_PARM_2
 	mov	mem stack
 	L_6:
-;	sdcc-dev/tests/2.c: 17: return a;
+;	t/tests/2.c: 17: return a;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_multiply_or_divide_PARM_2
 	mov	stack mem
 	jump
-;	sdcc-dev/tests/2.c: 18: }
+;	t/tests/2.c: 18: }
 ;; genEndFunction 
-;	sdcc-dev/tests/2.c: 20: int main (int argc, char **argv) {
+;	t/tests/2.c: 20: int main (int argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/2.c: 21: return 0;
+;	t/tests/2.c: 21: return 0;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero
 	jump
-;	sdcc-dev/tests/2.c: 22: }
+;	t/tests/2.c: 22: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

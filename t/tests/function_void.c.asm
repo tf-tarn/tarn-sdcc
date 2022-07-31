@@ -67,37 +67,37 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/function_void.c: 2: void g() {
+;	t/tests/function_void.c: 2: void g() {
 ;	-----------------------------------------
 ;	 function g
 ;	-----------------------------------------
 	_g:
-;	sdcc-dev/tests/function_void.c: 3: var = 1;
+;	t/tests/function_void.c: 3: var = 1;
 	;; assign
 	lad	_var
 	mov	mem il ,1
-;	sdcc-dev/tests/function_void.c: 4: }
+;	t/tests/function_void.c: 4: }
 ;; genEndFunction 
-;	sdcc-dev/tests/function_void.c: 5: char main (char argc, char **argv) {
+;	t/tests/function_void.c: 5: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/function_void.c: 6: g();
+;	t/tests/function_void.c: 6: g();
 	;; call function
-	mov	stack hi8(L_ret_4)
-	mov	stack lo8(L_ret_4)
+	mov	stack il ,hi8(L_ret_4)
+	mov	stack il ,lo8(L_ret_4)
 	goto	_g
 	L_ret_4:
 	; function returns nothing
-;	sdcc-dev/tests/function_void.c: 7: return var;
+;	t/tests/function_void.c: 7: return var;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_var
 	mov	stack mem
 	jump
-;	sdcc-dev/tests/function_void.c: 8: }
+;	t/tests/function_void.c: 8: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

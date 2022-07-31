@@ -66,23 +66,23 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/3.c: 2: char main (char argc, char **argv) {
+;	t/tests/3.c: 2: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/3.c: 3: array[1] = 5;
+;	t/tests/3.c: 3: array[1] = 5;
 ;; genPointerSet: operand size 2, 1
 	mov	adh il ,hi8(_array + 1)
 	mov	adl il ,lo8(_array + 1)
 	mov	mem il ,5
-;	sdcc-dev/tests/3.c: 5: return 0;
+;	t/tests/3.c: 5: return 0;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero
 	jump
-;	sdcc-dev/tests/3.c: 6: }
+;	t/tests/3.c: 6: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

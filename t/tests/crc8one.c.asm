@@ -67,12 +67,12 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/crc8one.c: 5: uint8_t crc8_one(uint8_t crc)
+;	t/tests/crc8one.c: 5: uint8_t crc8_one(uint8_t crc)
 ;	-----------------------------------------
 ;	 function crc8_one
 ;	-----------------------------------------
 	_crc8_one:
-;	sdcc-dev/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
+;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
 	;; assign
 	mov	r zero
 	L_6:
@@ -85,7 +85,7 @@ __sdcc_program_startup:
 	gotonz	L_26
 	goto	L_4
 	L_26:
-;	sdcc-dev/tests/crc8one.c: 10: if (crc & 0x80)
+;	t/tests/crc8one.c: 10: if (crc & 0x80)
 	;; assign
 	lad	_crc8_one_PARM_1
 	mov	x mem
@@ -100,7 +100,7 @@ __sdcc_program_startup:
 	mov	test aluc
 	;; If x
 	gotonz	L_2
-;	sdcc-dev/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
+;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua x
@@ -115,7 +115,7 @@ __sdcc_program_startup:
 	;; goto
 	goto	L_7
 	L_2:
-;	sdcc-dev/tests/crc8one.c: 16: crc <<= 1;
+;	t/tests/crc8one.c: 16: crc <<= 1;
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua x
@@ -123,7 +123,7 @@ __sdcc_program_startup:
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 	L_7:
-;	sdcc-dev/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
+;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua r
@@ -132,27 +132,27 @@ __sdcc_program_startup:
 	;; goto
 	goto	L_6
 	L_4:
-;	sdcc-dev/tests/crc8one.c: 20: return crc;
+;	t/tests/crc8one.c: 20: return crc;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_crc8_one_PARM_1
 	mov	stack mem
 	jump
-;	sdcc-dev/tests/crc8one.c: 21: }
+;	t/tests/crc8one.c: 21: }
 ;; genEndFunction 
-;	sdcc-dev/tests/crc8one.c: 23: uint8_t main(uint8_t argc, char **argv) {
+;	t/tests/crc8one.c: 23: uint8_t main(uint8_t argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/crc8one.c: 24: return crc8_one(5);
+;	t/tests/crc8one.c: 24: return crc8_one(5);
 	;; assign
 	lad	_crc8_one_PARM_1
 	mov	mem il ,5
 	;; call function
-	mov	stack hi8(L_ret_6)
-	mov	stack lo8(L_ret_6)
+	mov	stack il ,hi8(L_ret_6)
+	mov	stack il ,lo8(L_ret_6)
 	goto	_crc8_one
 	L_ret_6:
 	mov	r stack
@@ -161,7 +161,7 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack r
 	jump
-;	sdcc-dev/tests/crc8one.c: 25: }
+;	t/tests/crc8one.c: 25: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

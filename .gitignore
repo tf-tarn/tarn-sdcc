@@ -18,6 +18,7 @@ src/SDCCy.h
 src/version.h
 sdas/linksrc/asxxxx_config.h
 doc/Makefile
+testruns/
 
 /sdccconf.h
 /config.log

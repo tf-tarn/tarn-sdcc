@@ -64,40 +64,40 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/function_non-void.c: 1: char f() {
+;	t/tests/function_non-void.c: 1: char f() {
 ;	-----------------------------------------
 ;	 function f
 ;	-----------------------------------------
 	_f:
-;	sdcc-dev/tests/function_non-void.c: 2: return 9;
+;	t/tests/function_non-void.c: 2: return 9;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,9
 	jump
-;	sdcc-dev/tests/function_non-void.c: 3: }
+;	t/tests/function_non-void.c: 3: }
 ;; genEndFunction 
-;	sdcc-dev/tests/function_non-void.c: 4: char main (char argc, char **argv) {
+;	t/tests/function_non-void.c: 4: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/function_non-void.c: 5: char val = f();
+;	t/tests/function_non-void.c: 5: char val = f();
 	;; call function
-	mov	stack hi8(L_ret_6)
-	mov	stack lo8(L_ret_6)
+	mov	stack il ,hi8(L_ret_6)
+	mov	stack il ,lo8(L_ret_6)
 	goto	_f
 	L_ret_6:
 	mov	r stack
 	;; assign
 ;	genAssign: registers r, r same; skipping assignment
-;	sdcc-dev/tests/function_non-void.c: 6: return val;
+;	t/tests/function_non-void.c: 6: return val;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
 	jump
-;	sdcc-dev/tests/function_non-void.c: 7: }
+;	t/tests/function_non-void.c: 7: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

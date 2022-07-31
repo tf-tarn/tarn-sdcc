@@ -72,12 +72,12 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/4.c: 3: char main (char argc, char **argv) {
+;	t/tests/4.c: 3: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/4.c: 4: array[index] = 5;
+;	t/tests/4.c: 4: array[index] = 5;
 ;;	ALU plus (4)
 	; remat: _array + 0
 	lad	_index
@@ -93,13 +93,13 @@ __sdcc_program_startup:
 	mov	adh x
 	mov	adl r
 	mov	mem il ,5
-;	sdcc-dev/tests/4.c: 5: return 0;
+;	t/tests/4.c: 5: return 0;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero
 	jump
-;	sdcc-dev/tests/4.c: 6: }
+;	t/tests/4.c: 6: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

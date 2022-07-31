@@ -63,13 +63,13 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/addition_large_const.c: 2: int main (int argc, char **argv) {
+;	t/tests/addition_large_const.c: 2: int main (int argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/addition_large_const.c: 3: const char *msg = "foo";
-;	sdcc-dev/tests/addition_large_const.c: 4: return msg + 1;
+;	t/tests/addition_large_const.c: 3: const char *msg = "foo";
+;	t/tests/addition_large_const.c: 4: return msg + 1;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
@@ -78,7 +78,7 @@ __sdcc_program_startup:
 	mov	adl il ,lo8(___str_0 + 1)
 	mov	stack mem
 	jump
-;	sdcc-dev/tests/addition_large_const.c: 5: }
+;	t/tests/addition_large_const.c: 5: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

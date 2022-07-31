@@ -69,13 +69,13 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/addition_large_2.c: 3: int main (int argc, char **argv) {
+;	t/tests/addition_large_2.c: 3: int main (int argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/addition_large_2.c: 4: const char *msg = "foo";
-;	sdcc-dev/tests/addition_large_2.c: 5: vvv = msg + var;
+;	t/tests/addition_large_2.c: 4: const char *msg = "foo";
+;	t/tests/addition_large_2.c: 5: vvv = msg + var;
 ;;	ALU plus (4)
 	; remat: ___str_0 + 0
 	lad	_var
@@ -87,13 +87,13 @@ __sdcc_program_startup:
 	mov	mem x
 	lad	_vvv + 1
 	mov	mem r
-;	sdcc-dev/tests/addition_large_2.c: 6: return 0;
+;	t/tests/addition_large_2.c: 6: return 0;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero
 	jump
-;	sdcc-dev/tests/addition_large_2.c: 7: }
+;	t/tests/addition_large_2.c: 7: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

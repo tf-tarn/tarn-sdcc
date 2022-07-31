@@ -6,8 +6,10 @@ mkdir -p testruns
 
 LOGFILE=testruns/testlog.txt
 
+rm testruns/*.asm
+
 > $LOGFILE
-for srcfile in $(find sdcc-dev/tests/ -type f -name "*.c" | sort); do
+for srcfile in $(find t/tests/ -type f -name "*.c" | sort); do
     echo $srcfile
     name=$(basename $srcfile)
     dir=$(dirname $srcfile)
@@ -27,7 +29,6 @@ for srcfile in $(find sdcc-dev/tests/ -type f -name "*.c" | sort); do
     output_clean=$(mktemp)
     # sed -r 's/^[\t ]*;.*$//' < $expectfile > $expectfile_clean
     # sed -r 's/^[\t ]*;.*$//' < $output > $output_clean
-    pwd
     diff --label $expectfile --label $output -B -w -U1 $expectfile $output
 done
 echo log written to $LOGFILE

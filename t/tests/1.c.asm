@@ -63,18 +63,18 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/1.c: 1: int main (int argc, char **argv) {
+;	t/tests/1.c: 1: int main (int argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/1.c: 2: return 0;
+;	t/tests/1.c: 2: return 0;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero
 	jump
-;	sdcc-dev/tests/1.c: 3: }
+;	t/tests/1.c: 3: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

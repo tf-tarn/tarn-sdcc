@@ -84,7 +84,7 @@ __sdcc_program_startup:
 	mov	stack mem
 	mov	stack il ,lo8(_array + 0)
 	mov	stack il ,hi8(_array + 0)
-	add_8s_16s	; 1117
+	add_8s_16s
 	lad	_main_sloc0_1_0
 	mov	mem x
 	lad	_main_sloc0_1_0 + 1

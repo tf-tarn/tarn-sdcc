@@ -33,6 +33,7 @@ uint8_t main (uint8_t argc, char **argv) {
         if (byte == 0xff) {
             continue;
         } else if (byte == '\n') {
+            pic = 'x';
             execute_command();
             inputlen = 0;
             pic = '>';

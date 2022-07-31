@@ -80,6 +80,32 @@ const tarn_reg_list_entry_t tarn_src_registers[TARN_SRC_REG_COUNT] = {
     { 14, "one" },
     { 15, "aluc" }
 };
+
+#define ALUS_AND  0
+#define ALUS_XOR  2
+#define ALUS_PLUS 4
+#define ALUS_LT   9
+#define ALUS_EQ   10
+#define ALUS_GT   11
+
+const char *alu_operations[] = {
+    "and",
+    "?",
+    "xor",
+    "?",
+    "plus",
+
+    "?",
+    "?",
+    "?",
+    "?",
+
+    "less-than",
+    "equal-to",
+    "greater-than",
+
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
@@ -218,12 +244,12 @@ const char *op_get_register_name(const operand *op) {
         if (op->type == SYMBOL) {
             if (!op->isParm) {
                 if (!OP_SYMBOL(op)->isspilt) {
-                    if (IN_REGSP (SPEC_OCLS (OP_SYMBOL(op)->etype))) {
-                        return tarn_src_registers[OP_SYMBOL(op)->etype->select.s._addr].name;
-                    } else if (OP_SYMBOL(op)->regs[0]) {
+                    if (OP_SYMBOL(op)->regs[0]) {
                         if (!regalloc_dry_run) {
                             return OP_SYMBOL(op)->regs[0]->name;
                         }
+                    } else if (IN_REGSP (SPEC_OCLS (OP_SYMBOL(op)->etype))) {
+                        return tarn_src_registers[OP_SYMBOL(op)->etype->select.s._addr].name;
                     } else {
                         return OP_SYMBOL(op)->rname;
                     }
@@ -609,6 +635,7 @@ static void genPointerGet(const iCode *ic) {
             const char *sym_name = NULL;
             /* emit2(";; genPointerGet:", "right = %d", val); */
             if (OP_SYMBOL(left)->remat) {
+                emit2("", "; line %d", __LINE__);
                 remat_result_t *remat_result = resolve_remat(OP_SYMBOL(left));
                 D2(printf("has remat: %s + %d\n", remat_result->name, remat_result->offset));
                 emit2("mov", "adh il ,hi8(%s + %d)", remat_result->name, remat_result->offset);
@@ -617,6 +644,9 @@ static void genPointerGet(const iCode *ic) {
             } else {
                 if (!val) {
                     if (is_mem(left)) {
+                        if (!regalloc_dry_run) {
+                            emit2("", "; line %d", __LINE__);
+                        }
                         load_address_16o(op_get_mem_label(left), 0);
                         emit2("mov", "stack mem");
                         load_address_16o(op_get_mem_label(left), 1);
@@ -627,6 +657,7 @@ static void genPointerGet(const iCode *ic) {
                         cost(5);
                         read_reg("stack", result);
                     } else if (is_reg(left)) {
+                        emit2("", "; line %d", __LINE__);
                         emit2("lad", "%s",     op_get_mem_label(result));
                         emit2("mov", "mem %s", op_get_register_name_i(left, 0));
                         emit2("lad", "%s + 1", op_get_mem_label(result));
@@ -963,14 +994,6 @@ static void genIfx_impl(const iCode *ic, int invert) {
     symbol *t;
     symbol *f;
 
-    if (invert) {
-        t = IC_FALSE(ic);
-        f = IC_TRUE(ic);
-    } else {
-        t = IC_TRUE(ic);
-        f = IC_FALSE(ic);
-    }
-
     D2(emit2("\t;; If x", ""));
 
     if (IS_OP_LITERAL (cond)) {
@@ -982,10 +1005,16 @@ static void genIfx_impl(const iCode *ic, int invert) {
         if (OP_SYMBOL(cond)->regType == REG_CND)  {
             // don't need to do anything; has already been loaded.
         } else {
-            load_reg("test", cond);
-            cost(1);
+            // Check if it equals zero and invert.
+            load_reg("alua", cond);
+            emit2("mov", "alus il ,%d\t; %s ", ALUS_EQ, alu_operations[ALUS_EQ]);
+            emit2("mov", "alub zero");
+            emit2("mov", "test aluc");
+            cost(4);
+            invert = 1 - invert;
         }
     }
+
 
     /* Description of IFX:
 
@@ -998,7 +1027,13 @@ static void genIfx_impl(const iCode *ic, int invert) {
        If (!IC_COND) goto IC_FALSE;
     */
 
-
+    if (invert) {
+        t = IC_FALSE(ic);
+        f = IC_TRUE(ic);
+    } else {
+        t = IC_TRUE(ic);
+        f = IC_FALSE(ic);
+    }
 
     if (t) {
         emit_jump_to_label(t, 1);
@@ -1027,31 +1062,6 @@ static void genIfx (const iCode *ic)
 {
     genIfx_impl(ic, 0);
 }
-
-#define ALUS_AND  0
-#define ALUS_XOR  2
-#define ALUS_PLUS 4
-#define ALUS_LT   9
-#define ALUS_EQ   10
-#define ALUS_GT   11
-
-const char *alu_operations[] = {
-    "and",
-    "?",
-    "xor",
-    "?",
-    "plus",
-
-    "?",
-    "?",
-    "?",
-    "?",
-
-    "less-than",
-    "equal-to",
-    "greater-than",
-
-};
 
 static void genALUOp_impl(int op, const operand *left, const operand *right, const operand *result, iCode *ifx) {
     emit2(";;", "ALU %s (%d)", alu_operations[op], op);
@@ -1093,18 +1103,18 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
                     remat_result_t *result = resolve_remat(OP_SYMBOL(left));
                     D2(printf("has remat: %s + %d\n", result->name, result->offset));
                     piCode(OP_SYMBOL(left)->rematiCode, stdout);
-                    emit2("add_8r_16", "%s %s ; 1",
-                          op_get_register_name(right),
-                          result->name);
+                    emit2("mov", "stack %s", op_get_register_name(right));
+                    emit2("add_8s_16", "%s ; 1", result->name);
                 } else  if (is_mem(left)) {
-                    emit2("add_8r_16", "%s %s ; 2",
-                          op_get_register_name(right),
+                    emit2("mov", "stack %s", op_get_register_name(right));
+                    emit2("add_8s_16", "%s ; 2",
                           op_get_mem_label(left));
                 } else {
-                    emit2("add_8r_2x8r", "%s %s %s ; 3",
-                          op_get_register_name(right),
-                          op_get_register_name_i(left, 0),
-                          op_get_register_name_i(left, 1));
+                    emit2("", "; I AM BROKEN (%s:%d)", __FILE__, __LINE__);
+                    /* emit2("add_8s_2x8r", "%s %s %s ; 3", */
+                    /*       op_get_register_name(right), */
+                    /*       op_get_register_name_i(left, 0), */
+                    /*       op_get_register_name_i(left, 1)); */
                 }
             } else if (is_mem(right)) {
                 if (OP_SYMBOL(left)->remat) {
@@ -1114,23 +1124,20 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
                     emit2("mov", "stack mem");
                     emit2("mov", "stack il ,lo8(%s + %d)", result->name, result->offset);
                     emit2("mov", "stack il ,hi8(%s + %d)", result->name, result->offset);
-                    emit2("add_8s_16s", "; %d", __LINE__);
+                    emit2("add_8s_16s", "");
                 } else if (OP_SYMBOL(left)->isspilt) {
                     load_address_16(op_get_mem_label(right));
                     emit2("mov", "stack mem");
                     emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
                     emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
-                    emit2("add_8s_16s", "; %d", __LINE__);
+                    emit2("add_8s_16s", "");
                 } else if (is_mem(left)) {
                     if (!regalloc_dry_run) {
                         load_address_16(op_get_mem_label(right));
                         emit2("mov", "stack mem");
                         emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->rname);
                         emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->rname);
-                        emit2("add_8s_16s", "; %d",
-                              OP_SYMBOL(left)->rname,
-                              OP_SYMBOL(left)->rname,
-                              __LINE__);
+                        emit2("add_8s_16s", "");
                     }
                 } else {
                     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
@@ -1177,8 +1184,8 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
                 /* emit2("mov", "%s stack", op_get_register_name_i(result, 0)); */
                 /* cost(4); */
 
-                /* emit2("add_x_y_restore", ""); */
-                /* cost(2); */
+                emit2("restore_rx", "");
+                cost(6);
             }
         } else {
             emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);

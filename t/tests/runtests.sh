@@ -29,7 +29,7 @@ for srcfile in $(find t/tests/ -type f -name "*.c" | sort); do
     output_clean=$(mktemp)
     # sed -r 's/^[\t ]*;.*$//' < $expectfile > $expectfile_clean
     # sed -r 's/^[\t ]*;.*$//' < $output > $output_clean
-    diff --label $expectfile --label $output -B -w -U1 $expectfile $output
+    diff --label $expectfile --label $output -B -w -U4 $expectfile $output || true
 done
 echo log written to $LOGFILE
 

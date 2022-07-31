@@ -1,0 +1,8 @@
+SECTIONS
+{
+  . = ${TEXT};
+  .text : { *(.text) *(home) *(code) }
+  /* . = ${DATA}; */
+  .data : { *(.data) *(static) *(post_static) *(initr) *(SSEG) *(initd) *(cabs) *(const) *(_overlay) }
+  .rodata : { *(.rodata) }
+}

@@ -2,7 +2,7 @@
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
-	.file	"crc8.c"
+	.file	"crc8one.c"
 	
 .include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
 .section .text
@@ -12,26 +12,15 @@ jump
 ; Public variables in this module
 ;--------------------------------------------------------
 	.globl	_main
-	.globl	_crc8
 	.globl	_crc8_one
 	.globl	_main_PARM_2
 	.globl	_main_PARM_1
-	.globl	_crc8_PARM_2
-	.globl	_crc8_PARM_1
 	.globl	_crc8_one_PARM_1
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
 	.section .data,"w"
 _crc8_one_PARM_1:
-	.ds	1
-_crc8_PARM_1:
-	.ds	2
-_crc8_PARM_2:
-	.ds	1
-_crc8_sloc0_1_0:
-	.ds	2
-_crc8_sloc1_1_0:
 	.ds	1
 _main_PARM_1:
 	.ds	1
@@ -78,12 +67,12 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section .text,"ax"
-;	sdcc-dev/tests/crc8.c: 5: uint8_t crc8_one(uint8_t crc)
+;	sdcc-dev/tests/crc8one.c: 5: uint8_t crc8_one(uint8_t crc)
 ;	-----------------------------------------
 ;	 function crc8_one
 ;	-----------------------------------------
 	_crc8_one:
-;	sdcc-dev/tests/crc8.c: 8: for (uint8_t i = 0; i < 8; i++)
+;	sdcc-dev/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
 	;; assign
 	mov	r zero
 	L_6:
@@ -96,7 +85,7 @@ __sdcc_program_startup:
 	gotonz	L_26
 	goto	L_4
 	L_26:
-;	sdcc-dev/tests/crc8.c: 10: if (crc & 0x80)
+;	sdcc-dev/tests/crc8one.c: 10: if (crc & 0x80)
 	;; assign
 	lad	_crc8_one_PARM_1
 	mov	x mem
@@ -111,7 +100,7 @@ __sdcc_program_startup:
 	mov	test aluc
 	;; If x
 	gotonz	L_2
-;	sdcc-dev/tests/crc8.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
+;	sdcc-dev/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua x
@@ -126,7 +115,7 @@ __sdcc_program_startup:
 	;; goto
 	goto	L_7
 	L_2:
-;	sdcc-dev/tests/crc8.c: 16: crc <<= 1;
+;	sdcc-dev/tests/crc8one.c: 16: crc <<= 1;
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua x
@@ -134,7 +123,7 @@ __sdcc_program_startup:
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 	L_7:
-;	sdcc-dev/tests/crc8.c: 8: for (uint8_t i = 0; i < 8; i++)
+;	sdcc-dev/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua r
@@ -143,107 +132,28 @@ __sdcc_program_startup:
 	;; goto
 	goto	L_6
 	L_4:
-;	sdcc-dev/tests/crc8.c: 20: return crc;
+;	sdcc-dev/tests/crc8one.c: 20: return crc;
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_crc8_one_PARM_1
 	mov	stack mem
 	jump
-;	sdcc-dev/tests/crc8.c: 21: }
+;	sdcc-dev/tests/crc8one.c: 21: }
 ;; genEndFunction 
-;	sdcc-dev/tests/crc8.c: 23: uint8_t crc8(const uint8_t *data, uint8_t len)
-;	-----------------------------------------
-;	 function crc8
-;	-----------------------------------------
-	_crc8:
-;	sdcc-dev/tests/crc8.c: 25: uint8_t crc = 0; /* start with 0 so first uint8_t can be 'xored' in */
-	;; assign
-	mov	r zero
-;	sdcc-dev/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
-	;; assign
-	mov	x zero
-	L_3:
-	;; compare
-	mov	alus il ,9	; less-than 
-	mov	alua x
-	lad	_crc8_PARM_2
-	mov	alub mem
-	mov	test aluc
-	;; If x
-	gotonz	L_42
-	goto	L_1
-	L_42:
-;	sdcc-dev/tests/crc8.c: 28: crc ^= data[i]; /* XOR-in the next input uint8_t */
-;;	ALU plus (4)
-	add_8r_16	x _crc8_PARM_1 ; 2
-	lad	_crc8_sloc0_1_0
-	mov	mem x
-	lad	_crc8_sloc0_1_0 + 1
-	mov	mem r
-;; genPointerGet: operand size 2, 1, 1
-	lad	_crc8_sloc0_1_0 + 0
-	mov	stack mem
-	lad	_crc8_sloc0_1_0 + 1
-	mov	stack mem
-	mov	adl stack
-	mov	adh stack
-	mov	stack mem
-	lad	_crc8_sloc1_1_0
-	mov	mem stack
-;;	ALU xor (2)
-	mov	alus il ,2	; xor 
-	mov	alua r
-	lad	_crc8_sloc1_1_0
-	mov	alub mem
-	lad	_crc8_one_PARM_1
-	mov	mem aluc
-;	sdcc-dev/tests/crc8.c: 29: crc = crc8_one(crc);
-	;; call function
-	mov	stack hi8(L_ret_43)
-	mov	stack lo8(L_ret_43)
-	goto	_crc8_one
-	L_ret_43:
-	mov	r stack
-	;; assign
-;	genAssign: registers r, r same; skipping assignment
-;	sdcc-dev/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
-;;	ALU plus (4)
-	mov	alus il ,4	; plus 
-	mov	alua x
-	mov	alub il ,1
-	mov	x aluc
-	;; goto
-	goto	L_3
-	L_1:
-;	sdcc-dev/tests/crc8.c: 32: return crc;
-	;; return
-	mov	jmpl stack
-	mov	jmph stack
-	mov	stack r
-	jump
-;	sdcc-dev/tests/crc8.c: 33: }
-;; genEndFunction 
-;	sdcc-dev/tests/crc8.c: 35: uint8_t main(uint8_t argc, char **argv) {
+;	sdcc-dev/tests/crc8one.c: 23: uint8_t main(uint8_t argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	sdcc-dev/tests/crc8.c: 36: return crc8(argv[0], 200);
+;	sdcc-dev/tests/crc8one.c: 24: return crc8_one(5);
 	;; assign
-; implement me (gen.c:952)
-;; genPointerGet: operand size 2, 1, 2
-	lad	_crc8_PARM_1
-	mov	mem r
-	lad	_crc8_PARM_1 + 1
-	mov	mem x
-	;; assign
-	lad	_crc8_PARM_2
-	mov	mem il ,200
+	lad	_crc8_one_PARM_1
+	mov	mem il ,5
 	;; call function
 	mov	stack hi8(L_ret_6)
 	mov	stack lo8(L_ret_6)
-	goto	_crc8
+	goto	_crc8_one
 	L_ret_6:
 	mov	r stack
 	;; return
@@ -251,7 +161,7 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack r
 	jump
-;	sdcc-dev/tests/crc8.c: 37: }
+;	sdcc-dev/tests/crc8one.c: 25: }
 ;; genEndFunction 
 	.section .text,"ax"
 	.section const

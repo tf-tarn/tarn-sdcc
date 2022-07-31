@@ -767,8 +767,8 @@ genCall (const iCode *ic)
       emit2("; What is a PCALL?", "");
   } else {
       symbol *label = newiTempLabel(NULL);
-      emit2("mov", "stack hi8(L_ret_%d)", labelKey2num(label->key));
-      emit2("mov", "stack lo8(L_ret_%d)", labelKey2num(label->key));
+      emit2("mov", "stack il ,hi8(L_ret_%d)", labelKey2num(label->key));
+      emit2("mov", "stack il ,lo8(L_ret_%d)", labelKey2num(label->key));
 
       if (IS_LITERAL (etype)) {
           emit_jump_to_number(ulFromVal (OP_VALUE (IC_LEFT (ic))), 0);
@@ -1177,8 +1177,8 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
                 /* emit2("mov", "%s stack", op_get_register_name_i(result, 0)); */
                 /* cost(4); */
 
-                emit2("add_x_y_restore", "");
-                cost(2);
+                /* emit2("add_x_y_restore", ""); */
+                /* cost(2); */
             }
         } else {
             emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);

@@ -11,19 +11,23 @@ for srcfile in $(find t/tests/ -type f -name "*.c" | sort); do
     echo $srcfile
     name=$(basename $srcfile)
     dir=$(dirname $srcfile)
-    expectfile=$dir/$name.e
+    expectfile=$dir/$name.asm
     if [ ! -f $expectfile ]; then
         continue
     fi
-    output=testruns/$name.output
+    output=testruns/$name.asm
     rm -f $output
     (
         echo
         echo ==== BEGIN TEST $name ====
         set -x
-        PRINT_SHORT_OPERANDS=2 bin/sdcc $srcfile -o /tmp/tmp.asm > $output || true
+        PRINT_SHORT_OPERANDS=2 bin/sdcc -c $srcfile -o $output || true
     ) >> $LOGFILE 2>&1 || true
-    diff -w -U1 $expectfile $output
+    expectfile_clean=$(mktemp)
+    output_clean=$(mktemp)
+    # sed -r 's/^[\t ]*;.*$//' < $expectfile > $expectfile_clean
+    # sed -r 's/^[\t ]*;.*$//' < $output > $output_clean
+    diff --label $expectfile --label $output -B -w -U1 $expectfile $output
 done
 echo log written to $LOGFILE
 

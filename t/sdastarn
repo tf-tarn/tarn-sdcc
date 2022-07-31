@@ -3,5 +3,5 @@ filename=$2
 
 # echo 'assembler was passed:' "$@"
 # echo '--BEGIN ASM--'
-cat $filename
+# cat $filename
 # echo '--END ASM--'

@@ -84,23 +84,19 @@ __sdcc_program_startup:
 ;	-----------------------------------------
 	_crc8_one:
 ;	t/tests/crc8.c: 8: for (uint8_t i = 0; i < 8; i++)
-
 	;; assign
 	mov	r zero
 	L_6:
-
 	;; compare
 	mov	alus il ,9	; less-than 
 	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
-
 	;; If x
 	gotonz	L_26
 	goto	L_4
 	L_26:
 ;	t/tests/crc8.c: 10: if (crc & 0x80)
-
 	;; assign
 	lad	_crc8_one_PARM_1
 	mov	x mem
@@ -113,7 +109,6 @@ __sdcc_program_startup:
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
-
 	;; If x
 	gotonz	L_2
 ;	t/tests/crc8.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
@@ -128,7 +123,6 @@ __sdcc_program_startup:
 	mov	alub il ,7
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
-
 	;; goto
 	goto	L_7
 	L_2:
@@ -146,12 +140,10 @@ __sdcc_program_startup:
 	mov	alua r
 	mov	alub il ,1
 	mov	r aluc
-
 	;; goto
 	goto	L_6
 	L_4:
 ;	t/tests/crc8.c: 20: return crc;
-
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
@@ -166,22 +158,18 @@ __sdcc_program_startup:
 ;	-----------------------------------------
 	_crc8:
 ;	t/tests/crc8.c: 25: uint8_t crc = 0; /* start with 0 so first uint8_t can be 'xored' in */
-
 	;; assign
 	mov	r zero
 ;	t/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
-
 	;; assign
 	mov	x zero
 	L_3:
-
 	;; compare
 	mov	alus il ,9	; less-than 
 	mov	alua x
 	lad	_crc8_PARM_2
 	mov	alub mem
 	mov	test aluc
-
 	;; If x
 	gotonz	L_42
 	goto	L_1
@@ -190,13 +178,17 @@ __sdcc_program_startup:
 ;;	ALU plus (4)
 	add_8r_16	x _crc8_PARM_1 ; 2
 	lad	_crc8_sloc0_1_0
-	mov	mem r
-	lad	_crc8_sloc0_1_0 + 1
 	mov	mem x
+	lad	_crc8_sloc0_1_0 + 1
+	mov	mem r
 	add_x_y_restore
 ;; genPointerGet: operand size 2, 1, 1
-	mov	adh il ,hi8(_crc8_sloc0_1_0)
-	mov	adl il ,lo8(_crc8_sloc0_1_0)
+	lad	_crc8_sloc0_1_0 + 0
+	mov	stack mem
+	lad	_crc8_sloc0_1_0 + 1
+	mov	stack mem
+	mov	adl stack
+	mov	adh stack
 	mov	stack mem
 	lad	_crc8_sloc1_1_0
 	mov	mem stack
@@ -214,7 +206,6 @@ __sdcc_program_startup:
 	goto	_crc8_one
 	L_ret_43:
 	mov	r stack
-
 	;; assign
 ;	genAssign: registers r, r same; skipping assignment
 ;	t/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
@@ -223,12 +214,10 @@ __sdcc_program_startup:
 	mov	alua x
 	mov	alub il ,1
 	mov	x aluc
-
 	;; goto
 	goto	L_3
 	L_1:
 ;	t/tests/crc8.c: 32: return crc;
-
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
@@ -242,16 +231,13 @@ __sdcc_program_startup:
 ;	-----------------------------------------
 	_main:
 ;	t/tests/crc8.c: 36: return crc8(argv[0], 200);
-
 	;; assign
-	lad	_main_PARM_2
-	mov	r mem
+; implement me (gen.c:952)
 ;; genPointerGet: operand size 2, 1, 2
 	lad	_crc8_PARM_1
 	mov	mem r
 	lad	_crc8_PARM_1 + 1
 	mov	mem x
-
 	;; assign
 	lad	_crc8_PARM_2
 	mov	mem il ,200
@@ -261,7 +247,6 @@ __sdcc_program_startup:
 	goto	_crc8
 	L_ret_6:
 	mov	r stack
-
 	;; return
 	mov	jmpl stack
 	mov	jmph stack
@@ -273,9 +258,3 @@ __sdcc_program_startup:
 	.section const
 	.section initr
 	.section cabs
-t/tests/crc8.c(10:9:9:1:0:4)		iTemp3 [err err ] = iTemp2 [x ] & 0x80 {unsigned-char literal}
-t/tests/crc8.c(12:12:15:1:0:5)		_crc8_one_PARM_1  = iTemp5 [x ] ^ 0x7 {const-unsigned-char literal}
-t/tests/crc8.c(8:17:25:1:0:3)		iTemp10 [r ] = iTemp10 [r ] + 0x1 {const-unsigned-char literal}
-t/tests/crc8.c(28:9:9:1:0:10)		iTemp3 [_crc8_sloc0_1_0] = _crc8_PARM_1  + iTemp7 [x ]
-t/tests/crc8.c(28:11:11:1:0:10)		_crc8_one_PARM_1  = iTemp8 [r ] ^ iTemp4 [_crc8_sloc1_1_0]
-t/tests/crc8.c(27:14:17:1:0:9)		iTemp7 [x ] = iTemp7 [x ] + 0x1 {const-unsigned-char literal}

@@ -184,10 +184,11 @@ static int is_mem(const operand *op) {
         if (OP_SYMBOL(op)->islocal) {
             return 1;
         }
+
+        return 1;
     }
 
-    return 1;
-
+    return 0;
 }
 
 static int is_reg(const operand *op) {
@@ -306,6 +307,27 @@ static bool resultRemat (const iCode *ic)
 }
 
 
+void load_address_16(const char *sym_name) {
+#if 0
+    emit2("mov", "adh hi8(%s)", sym_name);
+    emit2("mov", "adl lo8(%s)", sym_name);
+#else
+    emit2("lad", "%s", sym_name);
+#endif
+    cost(2);
+}
+
+void load_address_16o(const char *sym_name, int offset) {
+#if 0
+    emit2("mov", "adh hi8(%s + %d)", sym_name, offset);
+    emit2("mov", "adl lo8(%s + %d)", sym_name, offset);
+#else
+    emit2("lad", "%s + %d", sym_name, offset);
+#endif
+    cost(2);
+}
+
+
 /*-----------------------------------------------------------------------*/
 /* gen*                                                                  */
 /*-----------------------------------------------------------------------*/
@@ -352,8 +374,8 @@ void load_reg(const char *reg, operand *op) {
 
             if (result->offset) {
                 emit2("", ";; load_reg remat + N");
-                emit2("add_8_16", "%d %s", result->offset, result->name);
-                emit2("", "; implement me (%s:%d): TODO put result in address regs...", __FILE__, __LINE__);
+                emit2("mov", "adh il ,hi8(%s + %d)", result->name, result->offset);
+                emit2("mov", "adl il ,lo8(%s + %d)", result->name, result->offset);
                 emit2("mov", "%s mem", reg);
             } else {
                 emit2("", ";; load_reg remat + 0");
@@ -517,16 +539,6 @@ void print_ic_intelligibly(const iCode *ic) {
 }
 
 
-void load_address_16(const char *sym_name) {
-#if 0
-    emit2("mov", "adh hi8(%s)", sym_name);
-    emit2("mov", "adl lo8(%s)", sym_name);
-#else
-    emit2("lad", "%s", sym_name);
-#endif
-    cost(2);
-}
-
 /*-----------------------------------------------------------------*/
 /* genAddrOf - generates code for address of                       */
 /*-----------------------------------------------------------------*/
@@ -605,9 +617,14 @@ static void genPointerGet(const iCode *ic) {
             } else {
                 if (!val) {
                     if (is_mem(left)) {
-                        emit2("mov", "adh il ,hi8(%s)", op_get_mem_label(left));
-                        emit2("mov", "adl il ,lo8(%s)", op_get_mem_label(left));
+                        load_address_16o(op_get_mem_label(left), 0);
                         emit2("mov", "stack mem");
+                        load_address_16o(op_get_mem_label(left), 1);
+                        emit2("mov", "stack mem");
+                        emit2("mov", "adl stack");
+                        emit2("mov", "adh stack");
+                        emit2("mov", "stack mem");
+                        cost(5);
                         read_reg("stack", result);
                     } else if (is_reg(left)) {
                         emit2("lad", "%s",     op_get_mem_label(result));
@@ -660,10 +677,15 @@ static void genPointerSet(const iCode *ic) {
         if (IS_OP_LITERAL(right)) {
             emit2(";; genPointerSet: literal right not implemented(1)", "");
         } else if (is_mem(right)) {
-            load_reg("stack", right);
-            emit2("mov", "adh zero");
-            emit2("mov", "adl %s", op_get_register_name(left));
-            emit2("mov", "mem stack");
+            if (is_reg(left)) {
+                load_reg("stack", right);
+                emit2("mov", "adh zero");
+                emit2("mov", "adl %s", op_get_register_name(left));
+                emit2("mov", "mem stack");
+                cost(3);
+            } else {
+                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+            }
         } else {
             emit2(";; genPointerSet: non-memory right not implemented(1)", "");
         }
@@ -678,10 +700,12 @@ static void genPointerSet(const iCode *ic) {
                 emit2("mov", "adh il ,hi8(%s + %d)", result->name, result->offset);
                 emit2("mov", "adl il ,lo8(%s + %d)", result->name, result->offset);
                 emit2("mov", "mem il ,%d", val);
+                cost(3);
             } else {
                 emit2("mov", "adh x", val);
                 emit2("mov", "adl r", val);
                 emit2("mov", "mem il ,%d", val);
+                cost(3);
             }
             /* printf("remat stuff\n"); */
             /* printf("remat left = %p\n", OP_SYMBOL(left)->rematiCode); */
@@ -693,10 +717,15 @@ static void genPointerSet(const iCode *ic) {
             /* printf("end remat stuff\n"); */
 
         } else if (is_mem(right)) {
-            load_reg("stack", right);
-            emit2("mov", "adh zero");
-            emit2("mov", "adl %s", op_get_register_name(left));
-            emit2("mov", "mem stack");
+            if (is_reg(left)) {
+                load_reg("stack", right);
+                emit2("mov", "adh zero");
+                emit2("mov", "adl %s", op_get_register_name(left));
+                emit2("mov", "mem stack");
+                cost(3);
+            } else {
+                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+            }
         } else {
             emit2(";; genPointerSet: non-memory right not implemented(2)", "");
         }
@@ -775,7 +804,7 @@ genReturn (const iCode *ic)
 
     operand *left = IC_LEFT (ic);
 
-    D2(emit2("\n\t;; return", ""));
+    D2(emit2("\t;; return", ""));
     piCode(ic, stderr);
 
     emit2("mov", "jmpl stack");
@@ -818,71 +847,112 @@ genAssign (const iCode *ic)
   if (!regalloc_dry_run) {
       fprintf(stderr, "genAssign       = "); piCode (ic, stderr);
   }
-  D2(emit2("\n\t;; assign", ""));
+  D2(emit2("\t;; assign", ""));
 
   operand *result = IC_RESULT (ic);
   operand *right = IC_RIGHT (ic);
 
-  if (IS_SYMOP (result)) {
-      if (IS_SYMOP (right)) {
-          if (is_mem(right)) {
-              const char *right_reg = op_get_mem_label(right);
-              if (is_mem(result)) {
-                  const char *result_reg = op_get_mem_label(result);
-                  // buffer in stack so we can change addresses
-                  load_reg("stack", right);
-                  read_reg("stack", result);
-              } else {
-                  const char *result_reg = op_get_register_name(result);
-                  const char *right_reg = op_get_register_name(right);
-                  load_reg(result_reg, right);
-              }
-          } else {
-              if (is_mem(result)) {
-                  const char *result_reg = op_get_mem_label(result);
-                  const char *right_reg = op_get_register_name(right);
-                  load_address_16(result_reg);
-                  emit2("mov", "mem %s", right_reg);
-                  cost(1);
-              } else {
-                  const char *result_reg = op_get_register_name(result);
-                  const char *right_reg = op_get_register_name(right);
-                  if (result_reg && right_reg && !strcmp(result_reg, right_reg)) {
-                      emit2(";", "genAssign: registers %s, %s same; skipping assignment", result_reg, right_reg);
+  int size_result = operandSize(result);
+  int size_right = operandSize(right);
+
+  if (size_result == 1 && size_right == 1) {
+      if (IS_SYMOP (result)) {
+          if (IS_SYMOP (right)) {
+              if (is_mem(right)) {
+                  const char *right_reg = op_get_mem_label(right);
+                  if (is_mem(result)) {
+                      const char *result_reg = op_get_mem_label(result);
+                      // buffer in stack so we can change addresses
+                      load_reg("stack", right);
+                      read_reg("stack", result);
                   } else {
-                      emit2("mov", "%s %s ; here", result_reg, right_reg);
+                      const char *result_reg = op_get_register_name(result);
+                      const char *right_reg = op_get_register_name(right);
+                      load_reg(result_reg, right);
+                  }
+              } else {
+                  if (is_mem(result)) {
+                      const char *result_reg = op_get_mem_label(result);
+                      const char *right_reg = op_get_register_name(right);
+                      load_address_16(result_reg);
+                      emit2("mov", "mem %s", right_reg);
                       cost(1);
+                  } else {
+                      const char *result_reg = op_get_register_name(result);
+                      const char *right_reg = op_get_register_name(right);
+                      if (result_reg && right_reg && !strcmp(result_reg, right_reg)) {
+                          emit2(";", "genAssign: registers %s, %s same; skipping assignment", result_reg, right_reg);
+                      } else {
+                          emit2("mov", "%s %s ; here", result_reg, right_reg);
+                          cost(1);
+                      }
                   }
               }
-          }
-      } else if (IS_OP_LITERAL (right)) {
-          if (is_mem(result)) {
-              load_address_16(op_get_mem_label(result));
-              if (byteOfVal(OP_VALUE(right), 0) == 0) {
-                  emit2("mov", "mem zero");
-                  cost(1);
+          } else if (IS_OP_LITERAL (right)) {
+              if (is_mem(result)) {
+                  load_address_16(op_get_mem_label(result));
+                  if (byteOfVal(OP_VALUE(right), 0) == 0) {
+                      emit2("mov", "mem zero");
+                      cost(1);
+                  } else {
+                      emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
+                      cost(1);
+                  }
               } else {
-                  emit2("mov", "mem il ,%d", byteOfVal(OP_VALUE(right), 0));
+                  if (byteOfVal(OP_VALUE(right), 0) == 0) {
+                      emit2("mov", "%s zero", op_get_register_name(result));
+                  } else {
+                      emit2("mov", "%s il, %d",
+                            op_get_register_name(result),
+                            byteOfVal(OP_VALUE(right), 0));
+                  }
                   cost(1);
               }
+
+
+
           } else {
-              if (byteOfVal(OP_VALUE(right), 0) == 0) {
-                  emit2("mov", "%s zero", op_get_register_name(result));
-              } else {
-                  emit2("mov", "%s il, %d",
-                        op_get_register_name(result),
-                        byteOfVal(OP_VALUE(right), 0));
-              }
-              cost(1);
+              emit2("; genAssign: can't handle right", "");
           }
-
-
-
       } else {
-          emit2("; genAssign: can't handle right", "");
+          emit2("; genAssign: can't handle non-symbol result", "");
+      }
+  } else if (size_result == 2 && size_right == 2) {
+      if (is_mem(result)) {
+          if (is_mem(right)) {
+              /* load_address_16(result_reg); */
+              /* emit2("mov", "mem %s", right_reg); */
+
+              emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+          } else if (is_reg(right)) {
+              load_address_16(op_get_mem_label(result));
+              emit2("mov", "mem %s ; hi", op_get_register_name_i(right, 1));
+              load_address_16o(op_get_mem_label(result), 1);
+              emit2("mov", "mem %s ; lo", op_get_register_name_i(right, 0));
+              cost(2);
+          } else if (IS_OP_LITERAL(right)) {
+              emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+          } else if (OP_SYMBOL(right)->remat) {
+              remat_result_t *remat_result = resolve_remat(OP_SYMBOL(right));
+              D2(emit2("", "\t; remat: %s + %d", remat_result->name, remat_result->offset));
+              load_address_16o(remat_result->name, remat_result->offset);
+              emit2("mov", "stack mem ; hi");
+              load_address_16o(remat_result->name, remat_result->offset + 1);
+              emit2("mov", "stack mem ; lo");
+
+              load_address_16o(op_get_mem_label(result), 1);
+              emit2("mov", "mem stack ; lo");
+              load_address_16(op_get_mem_label(result));
+              emit2("mov", "mem stack ; hi");
+              cost(4);
+          } else {
+              emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+          }
+      } else {
+          emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
       }
   } else {
-      emit2("; genAssign: can't handle non-symbol result", "");
+      emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
   }
 }
 
@@ -901,7 +971,7 @@ static void genIfx_impl(const iCode *ic, int invert) {
         f = IC_FALSE(ic);
     }
 
-    D2(emit2("\n\t;; If x", ""));
+    D2(emit2("\t;; If x", ""));
 
     if (IS_OP_LITERAL (cond)) {
         emit2("; genIfx: op is literal", "");
@@ -1037,10 +1107,49 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
                           op_get_register_name_i(left, 1));
                 }
             } else if (is_mem(right)) {
-                load_address_16(op_get_mem_label(right));
-                emit2("add_8r_2x8r", "mem %s %s ; 4",
-                      op_get_register_name_i(left, 0),
-                      op_get_register_name_i(left, 1));
+                if (OP_SYMBOL(left)->remat) {
+                    remat_result_t *result = resolve_remat(OP_SYMBOL(left));
+                    D2(emit2("", "\t; remat: %s + %d", result->name, result->offset));
+                    load_address_16(op_get_mem_label(right));
+                    emit2("mov", "stack mem");
+                    emit2("mov", "stack il ,lo8(%s + %d)", result->name, result->offset);
+                    emit2("mov", "stack il ,hi8(%s + %d)", result->name, result->offset);
+                    emit2("add_8s_16s", "; %d", __LINE__);
+                } else if (OP_SYMBOL(left)->isspilt) {
+                    load_address_16(op_get_mem_label(right));
+                    emit2("mov", "stack mem");
+                    emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
+                    emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
+                    emit2("add_8s_16s", "; %d", __LINE__);
+                } else if (is_mem(left)) {
+                    if (!regalloc_dry_run) {
+                        load_address_16(op_get_mem_label(right));
+                        emit2("mov", "stack mem");
+                        emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->rname);
+                        emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->rname);
+                        emit2("add_8s_16s", "; %d",
+                              OP_SYMBOL(left)->rname,
+                              OP_SYMBOL(left)->rname,
+                              __LINE__);
+                    }
+                } else {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                }
+            } else if (IS_OP_LITERAL(right)) {
+                if (OP_SYMBOL(left)->remat) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                } else if (OP_SYMBOL(left)->isspilt) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                } else if (is_mem(left)) {
+                    load_address_16(op_get_mem_label(left));
+                    emit2("mov", "stack mem");
+                    load_address_16o(op_get_mem_label(left), 1);
+                    emit2("mov", "stack mem");
+                    emit2("add_16s_16l", "%lu", ulFromVal (OP_VALUE(right)));
+                    cost(2);
+                } else {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                }
             } else {
                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
             }
@@ -1054,13 +1163,13 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
             } else {
                 if (is_mem(result)) {
                     emit2("lad", "%s",     op_get_mem_label(result));
-                    emit2("mov", "mem r");
-                    emit2("lad", "%s + 1", op_get_mem_label(result));
                     emit2("mov", "mem x");
+                    emit2("lad", "%s + 1", op_get_mem_label(result));
+                    emit2("mov", "mem r");
                     cost(6);
                 } else {
                     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-
+                    cost(1000);
                 }
                 /* emit2("mov", "stack r"); */
                 /* emit2("mov", "stack x"); */
@@ -1071,7 +1180,6 @@ static void genALUOp_impl(int op, const operand *left, const operand *right, con
                 emit2("add_x_y_restore", "");
                 cost(2);
             }
-            cost(2);
         } else {
             emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
         }
@@ -1134,7 +1242,7 @@ genLeftShift (const iCode *ic)
 static void
 genGoto (const iCode *ic)
 {
-    D2(emit2("\n\t;; goto", ""));
+    D2(emit2("\t;; goto", ""));
     emit_jump_to_label (IC_LABEL (ic), 0);
 }
 
@@ -1142,7 +1250,7 @@ genGoto (const iCode *ic)
 static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
-    D2(emit2("\n\t;; test equality", ""));
+    D2(emit2("\t;; test equality", ""));
     emit2("mov", "alus il ,%d\t; %s ", ALUS_EQ, alu_operations[ALUS_EQ]);
     cost(1);
 
@@ -1164,7 +1272,7 @@ static void genCmpEQorNE   (const iCode *ic, iCode *ifx)       {
 static void genCmp   (const iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { fprintf(stderr, "genCmpEQorNE    = "); piCode (ic, stderr); }
 
-    D2(emit2("\n\t;; compare", ""));
+    D2(emit2("\t;; compare", ""));
     if (ic->op == '>') {
         emit2("mov", "alus il ,%d\t; %s ", ALUS_GT, alu_operations[ALUS_GT]);
         cost(1);

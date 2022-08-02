@@ -2,14 +2,22 @@
 
 set -e
 
+pattern=$1
+
 mkdir -p testruns
 
 LOGFILE=testruns/testlog.txt
 
-rm testruns/*.asm
+rm -f testruns/*.asm testruns/failed testruns/failed_expect
 
 > $LOGFILE
 for srcfile in $(find t/tests/ -type f -name "*.c" | sort); do
+    if [[ $pattern ]]; then
+        if [[ ! $srcfile =~ $pattern ]]; then
+            echo "skip $srcfile"
+            continue
+        fi
+    fi
     echo $srcfile
     name=$(basename $srcfile)
     dir=$(dirname $srcfile)
@@ -27,9 +35,19 @@ for srcfile in $(find t/tests/ -type f -name "*.c" | sort); do
     ) >> $LOGFILE 2>&1 || true
     expectfile_clean=$(mktemp)
     output_clean=$(mktemp)
-    # sed -r 's/^[\t ]*;.*$//' < $expectfile > $expectfile_clean
-    # sed -r 's/^[\t ]*;.*$//' < $output > $output_clean
-    diff --label $expectfile --label $output -B -w -U4 $expectfile $output || true
+    diff_output=$(mktemp)
+    # grep -v $'[\t ]*;.*$' < $expectfile > $expectfile_clean
+    # grep -v $'[\t ]*;.*$' < $output > $output_clean
+    diff --label $expectfile --label $output -B -w -U4 $expectfile $output > $diff_output || true
+    RET=$?
+    if [[ 0 == $RET ]]; then
+        true
+    else
+        cat $diff_output | colordiff
+        echo "$output" > testruns/failed
+        echo "$expectfile" > testruns/failed_expect
+        break
+    fi
 done
 echo log written to $LOGFILE
 

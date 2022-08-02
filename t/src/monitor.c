@@ -7,11 +7,61 @@ char linebuf[LINEBUFLEN];
 
 __sfr __at(7) pic;
 
-void execute_command() {
-    const char *msg = "Executed!\n";
-    for (char i = 0; msg[i]; ++i) {
-        pic = msg[i];
+void print(const char *s) {
+    for (char i = 0; s[i]; ++i) {
+        pic = s[i];
     }
+    return;
+}
+
+/* void print_n(char n) { */
+
+/* } */
+
+void execute_command() {
+    const char *msg_too_short = "Too short.\n";
+    const char *msg_bad_command = "Huh!?\n";
+    const char *msg_bad_number = "Bad number.\n";
+
+    if (inputlen < 1) {
+        print("Enter a command, please.\n");
+        return;
+    }
+
+    switch (linebuf[0]) {
+    case 'c':
+        print("CRC coming soon.\n");
+        break;
+    case 'r':
+        if (inputlen < 4) {
+            print(msg_too_short);
+        }
+        if (linebuf[1] != ' ') {
+            print(msg_bad_command);
+        }
+        {
+            /* char adh = 0; */
+            /* char digit = parse_hex_digit(linebuf[2]); */
+            /* if (digit == 0xff) { */
+            /*     print(msg_bad_number); */
+            /*     break; */
+            /* } */
+            /* adh = to_upper_nibble(digit); */
+            /* char digit = parse_hex_digit(linebuf[2]); */
+            /* if (digit == 0xff) { */
+            /*     print(msg_bad_number); */
+            /*     break; */
+            /* } */
+            /* adh += digit; */
+            print("Number parsed! .. (not really)\n");
+        }
+        break;
+    default:
+        print(msg_bad_command);
+        break;
+    }
+
+    return;
 }
 
 #define LINEBUFLEN 6
@@ -33,7 +83,6 @@ uint8_t main (uint8_t argc, char **argv) {
         if (byte == 0xff) {
             continue;
         } else if (byte == '\n') {
-            pic = 'x';
             execute_command();
             inputlen = 0;
             pic = '>';

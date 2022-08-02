@@ -74,6 +74,7 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section .text,"ax"
 ;	t/tests/2.c: 3: int multiply_or_divide(int which, int a, int b) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function multiply_or_divide
 ;	-----------------------------------------
@@ -86,7 +87,8 @@ __sdcc_program_startup:
 	mov	alub zero
 	mov	test aluc
 	;; If x
-	gotonz	L_1
+;	line 531
+	gotonz	L_multiply_or_divide00101
 	;; test equality
 	mov	alus il ,10	; equal-to 
 	lad	_multiply_or_divide_PARM_1
@@ -94,11 +96,15 @@ __sdcc_program_startup:
 	mov	alub il ,1
 	mov	test aluc
 	;; If x
-	gotonz	L_2
+;	line 531
+	gotonz	L_multiply_or_divide00102
 	;; goto
-	goto	L_3
+;	line 531
+	goto	L_multiply_or_divide00103
 ;	t/tests/2.c: 5: case 0:
-	L_1:
+;; genLabel
+;	line 1435
+L_multiply_or_divide00101:
 ;	t/tests/2.c: 6: return a * b;
 	;; assign
 	lad	_multiply_or_divide_PARM_2
@@ -111,10 +117,11 @@ __sdcc_program_startup:
 	lad	__muluchar_PARM_2
 	mov	mem stack
 	;; call function
-	mov	stack il ,hi8(L_ret_30)
-	mov	stack il ,lo8(L_ret_30)
+	mov	stack il ,hi8(L_multiply_or_divide00121)
+	mov	stack il ,lo8(L_multiply_or_divide00121)
 	goto	__muluchar
-	L_ret_30:
+;	line 907
+L_multiply_or_divide00121:
 	mov	r stack
 	;; return
 	mov	jmpl stack
@@ -122,7 +129,9 @@ __sdcc_program_startup:
 	mov	stack r
 	jump
 ;	t/tests/2.c: 7: case 1:
-	L_2:
+;; genLabel
+;	line 1435
+L_multiply_or_divide00102:
 ;	t/tests/2.c: 8: return a / b;
 	;; assign
 	lad	_multiply_or_divide_PARM_2
@@ -135,10 +144,11 @@ __sdcc_program_startup:
 	lad	__divuchar_PARM_2
 	mov	mem stack
 	;; call function
-	mov	stack il ,hi8(L_ret_31)
-	mov	stack il ,lo8(L_ret_31)
+	mov	stack il ,hi8(L_multiply_or_divide00122)
+	mov	stack il ,lo8(L_multiply_or_divide00122)
 	goto	__divuchar
-	L_ret_31:
+;	line 907
+L_multiply_or_divide00122:
 	mov	r stack
 	;; return
 	mov	jmpl stack
@@ -146,28 +156,37 @@ __sdcc_program_startup:
 	mov	stack r
 	jump
 ;	t/tests/2.c: 9: }
-	L_3:
+;; genLabel
+;	line 1435
+L_multiply_or_divide00103:
 ;	t/tests/2.c: 11: if (a) {
 	;; If x
 	lad	_multiply_or_divide_PARM_2
-	mov	test mem
-	gotonz	L_32
-	goto	L_5
-	L_32:
+	mov	alua mem
+	mov	alus il ,10	; equal-to 
+	mov	alub zero
+	mov	test aluc
+;	line 531
+	gotonz	L_multiply_or_divide00105
 ;	t/tests/2.c: 12: a = 4;
 	;; assign
 	lad	_multiply_or_divide_PARM_2
 	mov	mem il ,4
 	;; goto
-	goto	L_6
-	L_5:
+;	line 531
+	goto	L_multiply_or_divide00106
+;; genLabel
+;	line 1435
+L_multiply_or_divide00105:
 ;	t/tests/2.c: 14: a = b;
 	;; assign
 	lad	_multiply_or_divide_PARM_3
 	mov	stack mem
 	lad	_multiply_or_divide_PARM_2
 	mov	mem stack
-	L_6:
+;; genLabel
+;	line 1435
+L_multiply_or_divide00106:
 ;	t/tests/2.c: 17: return a;
 	;; return
 	mov	jmpl stack
@@ -175,9 +194,12 @@ __sdcc_program_startup:
 	lad	_multiply_or_divide_PARM_2
 	mov	stack mem
 	jump
+;; genLabel
+;	line 1435
 ;	t/tests/2.c: 18: }
 ;; genEndFunction 
 ;	t/tests/2.c: 20: int main (int argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
@@ -188,6 +210,8 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack zero
 	jump
+;; genLabel
+;	line 1435
 ;	t/tests/2.c: 22: }
 ;; genEndFunction 
 	.section .text,"ax"

@@ -330,7 +330,7 @@ PORT tarn_port =
         hasExtBitOp,                  /* hasExtBitOp */
         0,                            /* oclsExpense */
         false,                        /* data is represented in ROM using ret k instructions */
-        true,                         /* little endian */
+        false,                         /* little endian */
         0,                            /* leave lt */
         0,                            /* leave gt */
         1,                            /* transform <= to ! > */

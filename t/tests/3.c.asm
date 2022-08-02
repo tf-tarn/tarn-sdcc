@@ -67,6 +67,7 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section .text,"ax"
 ;	t/tests/3.c: 2: char main (char argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
@@ -82,6 +83,8 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack zero
 	jump
+;; genLabel
+;	line 1435
 ;	t/tests/3.c: 6: }
 ;; genEndFunction 
 	.section .text,"ax"

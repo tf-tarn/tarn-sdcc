@@ -98,8 +98,8 @@ uint8_t main (uint8_t argc, char **argv) {
                 pic = ' ';
                 inputlen = 0;
             } else {
-                inputlen += 1;
                 linebuf[inputlen] = byte;
+                inputlen += 1;
             }
         }
     }

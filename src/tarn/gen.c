@@ -400,7 +400,6 @@ void load_address_16o(const char *sym_name, int offset) {
 /* gen*                                                                  */
 /*-----------------------------------------------------------------------*/
 
-static void genCast        (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genCast         = "); piCode (ic, stderr); } emit2(";; genCast        ", ""); }
 static void genCpl         (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genCpl          = "); piCode (ic, stderr); } emit2(";; genCpl         ", ""); }
 static void genGetByte     (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genGetByte      = "); piCode (ic, stderr); } emit2(";; genGetByte     ", ""); }
 static void genIpush       (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genIpush        = "); piCode (ic, stderr); } emit2(";; genIpush       ", ""); }
@@ -412,6 +411,7 @@ static void genOr          (iCode *ic)                   { if (!regalloc_dry_run
 static void genRightShift  (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genRightShift   = "); piCode (ic, stderr); } emit2(";; genRightShift  ", ""); }
 static void genSwap        (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genSwap         = "); piCode (ic, stderr); } emit2(";; genSwap        ", ""); }
 static void genUminus      (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genUminus       = "); piCode (ic, stderr); } emit2(";; genUminus      ", ""); }
+
 
 
 void load_reg(const char *reg, operand *op) {
@@ -1120,6 +1120,13 @@ genAssign (iCode *ic)
           } else {
               emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
           }
+      } else if (is_reg(result)) {
+          emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+          load_address_16(op_get_mem_label(right));
+          emit2("mov", "%s mem ; hi", op_get_register_name_i(result, 1));
+          load_address_16o(op_get_mem_label(right), 1);
+          emit2("mov", "%s mem ; lo", op_get_register_name_i(result, 0));
+          cost(2);
       } else {
           emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
       }
@@ -1127,6 +1134,14 @@ genAssign (iCode *ic)
       emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
   }
 }
+
+static void genCast(iCode *ic) {
+    if (!regalloc_dry_run) { fprintf(stderr, "genCast         = "); piCode (ic, stderr); }
+    emit2(";; genCast        ", "");
+
+    genAssign(ic);
+}
+
 
 static void genIfx_impl(iCode *ic, int invert) {
     if (!regalloc_dry_run) { fprintf(stderr, "genIfx          = "); piCode (ic, stderr); }
@@ -1258,11 +1273,27 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
                     cost(3);
                 } else if (is_mem(left)) {
                     emit2("", "; here (%s:%d)", __FILE__, __LINE__);
+                    emit2("load_stack_from_ptr", "%s", op_get_mem_label(left));
+                    /* load_address_16(op_get_mem_label(left)); */
+                    /* emit2("mov", "stack mem"); */
+                    /* load_address_16(op_get_mem_label(left)); */
+                    /* emit2("mov", "stack mem"); */
+                    /* emit2("mov", "adl stack"); */
+                    /* emit2("mov", "adh stack"); */
+                    /* emit2("mov", "stack mem"); */
 
-                    emit2("mov", "stack il ,hi8(%s)", op_get_mem_label(left));
-                    emit2("mov", "stack il ,lo8(%s)", op_get_mem_label(left));
+                    /* load_address_16o(op_get_mem_label(left), 1); */
+                    /* emit2("mov", "stack mem"); */
+                    /* load_address_16o(op_get_mem_label(left), 1); */
+                    /* emit2("mov", "stack mem"); */
+                    /* emit2("mov", "adl stack"); */
+                    /* emit2("mov", "adh stack"); */
+                    /* emit2("mov", "stack mem"); */
+
+
                     emit2("mov", "stack %s", op_get_register_name(right));
                     emit2("add_8s_16s", "");
+                    cost(1);
                 } else {
                     emit2("", "; I AM BROKEN (%s:%d)", __FILE__, __LINE__);
                     /* emit2("add_8s_2x8r", "%s %s %s ; 3", */

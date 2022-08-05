@@ -5,9 +5,6 @@
 	.file	"function_void.c"
 	
 .include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
-.section .text
-ljmp _main
-jump
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -19,7 +16,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section .data,"w"
+	.section data,"w"
 _main_PARM_1:
 	.ds	1
 _main_PARM_2:
@@ -50,48 +47,48 @@ __interrupt_vect:
 ; global & static initialisations
 ;--------------------------------------------------------
 	.section home
-	.section static
-	.section post_static
-	.section static
-	.section post_static
-	ljmp	__sdcc_program_startup
+	.section static,"ax"
+	.section post_static,"ax"
+	.section static,"ax"
+	.section post_static,"ax"
+	goto	_main
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
 	.section home,"ax"
 	.section home,"ax"
 __sdcc_program_startup:
-	ljmp	_main
+	goto	_main
 ;	return from main will return to caller
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section .text,"ax"
+	.section code,"ax"
 ;	t/tests/function_void.c: 2: void g() {
 ;	-----------------------------------------
 ;	 function g
 ;	-----------------------------------------
 	_g:
 ;	t/tests/function_void.c: 3: var = 1;
-	;; assign
 	lad	_var
 	mov	mem il ,1
 ;	t/tests/function_void.c: 4: }
 ;; genEndFunction 
+	mov	jmpl stack
+	mov	jmph stack
+	jump
 ;	t/tests/function_void.c: 5: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	t/tests/function_void.c: 6: g();
-	;; call function
-	mov	stack il ,hi8(L_ret_4)
-	mov	stack il ,lo8(L_ret_4)
+	mov	stack il ,hi8(L_main00103)
+	mov	stack il ,lo8(L_main00103)
 	goto	_g
-	L_ret_4:
+L_main00103:
 	; function returns nothing
 ;	t/tests/function_void.c: 7: return var;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_var
@@ -99,7 +96,10 @@ __sdcc_program_startup:
 	jump
 ;	t/tests/function_void.c: 8: }
 ;; genEndFunction 
-	.section .text,"ax"
+	mov	jmpl stack
+	mov	jmph stack
+	jump
+	.section code,"ax"
 	.section const
 	.section initr
 __xinit__var:

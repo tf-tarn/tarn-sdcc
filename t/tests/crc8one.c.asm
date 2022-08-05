@@ -5,9 +5,6 @@
 	.file	"crc8one.c"
 	
 .include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
-.section .text
-ljmp _main
-jump
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -19,7 +16,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section .data,"w"
+	.section data,"w"
 _crc8_one_PARM_1:
 	.ds	1
 _main_PARM_1:
@@ -50,43 +47,39 @@ __interrupt_vect:
 ; global & static initialisations
 ;--------------------------------------------------------
 	.section home
-	.section static
-	.section post_static
-	.section static
-	.section post_static
-	ljmp	__sdcc_program_startup
+	.section static,"ax"
+	.section post_static,"ax"
+	.section static,"ax"
+	.section post_static,"ax"
+	goto	_main
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
 	.section home,"ax"
 	.section home,"ax"
 __sdcc_program_startup:
-	ljmp	_main
+	goto	_main
 ;	return from main will return to caller
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section .text,"ax"
+	.section code,"ax"
 ;	t/tests/crc8one.c: 5: uint8_t crc8_one(uint8_t crc)
 ;	-----------------------------------------
 ;	 function crc8_one
 ;	-----------------------------------------
 	_crc8_one:
 ;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
-	;; assign
 	mov	r zero
-	L_6:
-	;; compare
+L_crc8_one00106:
 	mov	alus il ,9	; less-than 
 	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
-	;; If x
-	gotonz	L_26
-	goto	L_4
-	L_26:
+	gotonz	L_crc8_one00123
+	goto	L_crc8_one00104
+L_crc8_one00123:
 ;	t/tests/crc8one.c: 10: if (crc & 0x80)
-	;; assign
 	lad	_crc8_one_PARM_1
 	mov	x mem
 ;;	ALU and (0)
@@ -98,8 +91,7 @@ __sdcc_program_startup:
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
-	;; If x
-	gotonz	L_2
+	gotonz	L_crc8_one00102
 ;	t/tests/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
@@ -112,9 +104,8 @@ __sdcc_program_startup:
 	mov	alub il ,7
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
-	;; goto
-	goto	L_7
-	L_2:
+	goto	L_crc8_one00107
+L_crc8_one00102:
 ;	t/tests/crc8one.c: 16: crc <<= 1;
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
@@ -122,18 +113,16 @@ __sdcc_program_startup:
 	mov	alub x
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
-	L_7:
+L_crc8_one00107:
 ;	t/tests/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua r
 	mov	alub il ,1
 	mov	r aluc
-	;; goto
-	goto	L_6
-	L_4:
+	goto	L_crc8_one00106
+L_crc8_one00104:
 ;	t/tests/crc8one.c: 20: return crc;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_crc8_one_PARM_1
@@ -141,29 +130,32 @@ __sdcc_program_startup:
 	jump
 ;	t/tests/crc8one.c: 21: }
 ;; genEndFunction 
+	mov	jmpl stack
+	mov	jmph stack
+	jump
 ;	t/tests/crc8one.c: 23: uint8_t main(uint8_t argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	t/tests/crc8one.c: 24: return crc8_one(5);
-	;; assign
 	lad	_crc8_one_PARM_1
 	mov	mem il ,5
-	;; call function
-	mov	stack il ,hi8(L_ret_6)
-	mov	stack il ,lo8(L_ret_6)
+	mov	stack il ,hi8(L_main00103)
+	mov	stack il ,lo8(L_main00103)
 	goto	_crc8_one
-	L_ret_6:
+L_main00103:
 	mov	r stack
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
 	jump
 ;	t/tests/crc8one.c: 25: }
 ;; genEndFunction 
-	.section .text,"ax"
+	mov	jmpl stack
+	mov	jmph stack
+	jump
+	.section code,"ax"
 	.section const
 	.section initr
 	.section cabs

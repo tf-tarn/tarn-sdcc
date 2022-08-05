@@ -5,9 +5,6 @@
 	.file	"test_pointer_copy.c"
 	
 .include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
-.section .text
-ljmp _main
-jump
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -18,7 +15,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section .data,"w"
+	.section data,"w"
 _vvv:
 	.ds	2
 _main_PARM_1:
@@ -52,33 +49,29 @@ __interrupt_vect:
 ; global & static initialisations
 ;--------------------------------------------------------
 	.section home
-	.section static
-	.section post_static
-	.section static
-	.section post_static
-	ljmp	__sdcc_program_startup
+	.section static,"ax"
+	.section post_static,"ax"
+	.section static,"ax"
+	.section post_static,"ax"
+	goto	_main
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
 	.section home,"ax"
 	.section home,"ax"
 __sdcc_program_startup:
-	ljmp	_main
+	goto	_main
 ;	return from main will return to caller
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section .text,"ax"
+	.section code,"ax"
 ;	t/tests/test_pointer_copy.c: 3: int main (int argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	t/tests/test_pointer_copy.c: 4: const char *msg = "foo";
-;; genAddrOf: operand size 2, 4, 1
-	mov	r il ,lo8(___str_0 + 0)
-	mov	x il ,hi8(___str_0 + 0)
-;; genCast        
 ;	t/tests/test_pointer_copy.c: 7: pic = msg[(char)0];
 ;; genPointerGet: operand size 2, 1, 1
 	mov	adh il ,hi8(___str_0 + 0)
@@ -90,21 +83,15 @@ __sdcc_program_startup:
 	mov	adl il ,lo8(___str_0 + 1)
 	mov	pic mem
 ;	t/tests/test_pointer_copy.c: 15: vvv = msg;
-	;; assign
+;	remat: ___str_0 + 0
 	lad	_vvv
-	mov	mem x ; hi
+	mov	mem il ,hi8(___str_0 + 0) ; hi
 	lad	_vvv + 1
-	mov	mem r ; lo
+	mov	mem il ,lo8(___str_0 + 0) ; lo
 ;	t/tests/test_pointer_copy.c: 18: pic = vvv[(char)0];
 ;; genPointerGet: operand size 2, 1, 1
-	lad	_vvv + 0
-	mov	stack mem
-	lad	_vvv + 1
-	mov	stack mem
-	mov	adl stack
-	mov	adh stack
-	mov	stack mem
-	mov	pic stack
+	load_address_from_ptr	_vvv
+	mov	pic mem
 ;	t/tests/test_pointer_copy.c: 22: pic = vvv[(char)1];
 ;;	ALU plus (4)
 	lad	_vvv
@@ -112,32 +99,31 @@ __sdcc_program_startup:
 	lad	_vvv + 1
 	mov	stack mem
 	add_16s_16l	1
+;	result is pointer
+;	result has spill location: 1452
 	lad	_main_sloc0_1_0
 	mov	mem x
 	lad	_main_sloc0_1_0 + 1
 	mov	mem r
+	restore_rx
 ;; genPointerGet: operand size 2, 1, 1
-	lad	_main_sloc0_1_0 + 0
-	mov	stack mem
-	lad	_main_sloc0_1_0 + 1
-	mov	stack mem
-	mov	adl stack
-	mov	adh stack
-	mov	stack mem
-	mov	pic stack
+	load_address_from_ptr	_main_sloc0_1_0
+	mov	pic mem
 ;	t/tests/test_pointer_copy.c: 26: while (1);
-	L_2:
-	;; goto
-	goto	L_2
+L_main00102:
+	goto	L_main00102
 ;	t/tests/test_pointer_copy.c: 28: return 0;
 ;	t/tests/test_pointer_copy.c: 29: }
 ;; genEndFunction 
-	.section .text,"ax"
+	mov	jmpl stack
+	mov	jmph stack
+	jump
+	.section code,"ax"
 	.section const
 	.section const
 ___str_0:
 	.ascii	"foo"
 	.byte 0x00
-	.section .text,"ax"
+	.section code,"ax"
 	.section initr
 	.section cabs

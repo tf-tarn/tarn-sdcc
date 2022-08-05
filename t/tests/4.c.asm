@@ -5,9 +5,6 @@
 	.file	"4.c"
 	
 .include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
-.section .text
-ljmp _main
-jump
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -19,9 +16,8 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section .data,"w"
-_array:
-	.ds	4
+	.section data,"w"
+_array	=	0x8000
 _main_PARM_1:
 	.ds	1
 _main_PARM_2:
@@ -55,23 +51,23 @@ __interrupt_vect:
 ; global & static initialisations
 ;--------------------------------------------------------
 	.section home
-	.section static
-	.section post_static
-	.section static
-	.section post_static
-	ljmp	__sdcc_program_startup
+	.section static,"ax"
+	.section post_static,"ax"
+	.section static,"ax"
+	.section post_static,"ax"
+	goto	_main
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
 	.section home,"ax"
 	.section home,"ax"
 __sdcc_program_startup:
-	ljmp	_main
+	goto	_main
 ;	return from main will return to caller
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section .text,"ax"
+	.section code,"ax"
 ;	t/tests/4.c: 3: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
@@ -79,29 +75,33 @@ __sdcc_program_startup:
 	_main:
 ;	t/tests/4.c: 4: array[index] = 5;
 ;;	ALU plus (4)
-	; remat: _array + 0
+	mov	stack il ,hi8(_array + 0)
+	mov	stack il ,lo8(_array + 0)
 	lad	_index
 	mov	stack mem
-	mov	stack il ,lo8(_array + 0)
-	mov	stack il ,hi8(_array + 0)
 	add_8s_16s
+;	result is pointer
+;	result has spill location: 1452
 	lad	_main_sloc0_1_0
 	mov	mem x
 	lad	_main_sloc0_1_0 + 1
 	mov	mem r
+	restore_rx
 ;; genPointerSet: operand size 2, 1
-	mov	adh x
-	mov	adl r
+;	left is pointer: 845
+	load_address_from_ptr _main_sloc0_1_0
 	mov	mem il ,5
 ;	t/tests/4.c: 5: return 0;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero
 	jump
 ;	t/tests/4.c: 6: }
 ;; genEndFunction 
-	.section .text,"ax"
+	mov	jmpl stack
+	mov	jmph stack
+	jump
+	.section code,"ax"
 	.section const
 	.section initr
 __xinit__index:

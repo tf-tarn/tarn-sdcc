@@ -510,8 +510,8 @@ static const ASM_MAPPING _asxxxx_smallpdk_mapping[] = {
 static const ASM_MAPPING _gas_mapping[] = {
   {"labeldef", "%s:"},
   {"slabeldef", "%s:"},
-  {"tlabeldef", "%05d$:"},
-  {"tlabel", "%05d$"},
+  { "tlabeldef", "L%N%05d:" },
+  { "tlabel", "L%N%05d" },
   {"immed", "#"},
   {"zero", "#0x00"},
   {"one", "#0x01"},

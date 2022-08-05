@@ -17,7 +17,7 @@ build/%.elf: build/%.o build/ram-boot.ld.txt
 	tarn-elf32-nm $@ | sort
 
 build/%.ihex: build/%.elf
-	@echo $@; tarn-elf32-objcopy -O ihex $< $@
+	@echo $@; tarn-elf32-objcopy --keep-section .init -O ihex $< $@
 
 build/ram-boot.ld.txt: ram-boot.ld.txt
 	TEXT=0x4000 envsubst < $< > $@

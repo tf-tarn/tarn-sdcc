@@ -5,9 +5,6 @@
 	.file	"crc8.c"
 	
 .include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
-.section .text
-ljmp _main
-jump
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -22,7 +19,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section .data,"w"
+	.section data,"w"
 _crc8_one_PARM_1:
 	.ds	1
 _crc8_PARM_1:
@@ -36,6 +33,8 @@ _crc8_sloc1_1_0:
 _main_PARM_1:
 	.ds	1
 _main_PARM_2:
+	.ds	2
+_main_sloc2_1_0:
 	.ds	2
 ;--------------------------------------------------------
 ; ram data
@@ -61,43 +60,39 @@ __interrupt_vect:
 ; global & static initialisations
 ;--------------------------------------------------------
 	.section home
-	.section static
-	.section post_static
-	.section static
-	.section post_static
-	ljmp	__sdcc_program_startup
+	.section static,"ax"
+	.section post_static,"ax"
+	.section static,"ax"
+	.section post_static,"ax"
+	goto	_main
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
 	.section home,"ax"
 	.section home,"ax"
 __sdcc_program_startup:
-	ljmp	_main
+	goto	_main
 ;	return from main will return to caller
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section .text,"ax"
+	.section code,"ax"
 ;	t/tests/crc8.c: 5: uint8_t crc8_one(uint8_t crc)
 ;	-----------------------------------------
 ;	 function crc8_one
 ;	-----------------------------------------
 	_crc8_one:
 ;	t/tests/crc8.c: 8: for (uint8_t i = 0; i < 8; i++)
-	;; assign
 	mov	r zero
-	L_6:
-	;; compare
+L_crc8_one00106:
 	mov	alus il ,9	; less-than 
 	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
-	;; If x
-	gotonz	L_26
-	goto	L_4
-	L_26:
+	gotonz	L_crc8_one00123
+	goto	L_crc8_one00104
+L_crc8_one00123:
 ;	t/tests/crc8.c: 10: if (crc & 0x80)
-	;; assign
 	lad	_crc8_one_PARM_1
 	mov	x mem
 ;;	ALU and (0)
@@ -109,8 +104,7 @@ __sdcc_program_startup:
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
-	;; If x
-	gotonz	L_2
+	gotonz	L_crc8_one00102
 ;	t/tests/crc8.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
@@ -123,9 +117,8 @@ __sdcc_program_startup:
 	mov	alub il ,7
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
-	;; goto
-	goto	L_7
-	L_2:
+	goto	L_crc8_one00107
+L_crc8_one00102:
 ;	t/tests/crc8.c: 16: crc <<= 1;
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
@@ -133,18 +126,16 @@ __sdcc_program_startup:
 	mov	alub x
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
-	L_7:
+L_crc8_one00107:
 ;	t/tests/crc8.c: 8: for (uint8_t i = 0; i < 8; i++)
 ;;	ALU plus (4)
 	mov	alus il ,4	; plus 
 	mov	alua r
 	mov	alub il ,1
 	mov	r aluc
-	;; goto
-	goto	L_6
-	L_4:
+	goto	L_crc8_one00106
+L_crc8_one00104:
 ;	t/tests/crc8.c: 20: return crc;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_crc8_one_PARM_1
@@ -152,45 +143,43 @@ __sdcc_program_startup:
 	jump
 ;	t/tests/crc8.c: 21: }
 ;; genEndFunction 
+	mov	jmpl stack
+	mov	jmph stack
+	jump
 ;	t/tests/crc8.c: 23: uint8_t crc8(const uint8_t *data, uint8_t len)
 ;	-----------------------------------------
 ;	 function crc8
 ;	-----------------------------------------
 	_crc8:
 ;	t/tests/crc8.c: 25: uint8_t crc = 0; /* start with 0 so first uint8_t can be 'xored' in */
-	;; assign
 	mov	r zero
 ;	t/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
-	;; assign
 	mov	x zero
-	L_3:
-	;; compare
+L_crc800103:
 	mov	alus il ,9	; less-than 
 	mov	alua x
 	lad	_crc8_PARM_2
 	mov	alub mem
 	mov	test aluc
-	;; If x
-	gotonz	L_42
-	goto	L_1
-	L_42:
+	gotonz	L_crc800118
+	goto	L_crc800101
+L_crc800118:
 ;	t/tests/crc8.c: 28: crc ^= data[i]; /* XOR-in the next input uint8_t */
 ;;	ALU plus (4)
-	add_8r_16	x _crc8_PARM_1 ; 2
+	load_stack_from_ptr	_crc8_PARM_1
+	mov	stack x
+	add_8s_16s
+;	result is pointer
+;	result has spill location: 1452
 	lad	_crc8_sloc0_1_0
 	mov	mem x
 	lad	_crc8_sloc0_1_0 + 1
 	mov	mem r
+	restore_rx
 ;; genPointerGet: operand size 2, 1, 1
-	lad	_crc8_sloc0_1_0 + 0
-	mov	stack mem
-	lad	_crc8_sloc0_1_0 + 1
-	mov	stack mem
-	mov	adl stack
-	mov	adh stack
-	mov	stack mem
+	load_address_from_ptr	_crc8_sloc0_1_0
 	lad	_crc8_sloc1_1_0
-	mov	mem stack
+	mov	mem mem
 ;;	ALU xor (2)
 	mov	alus il ,2	; xor 
 	mov	alua r
@@ -199,13 +188,13 @@ __sdcc_program_startup:
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 ;	t/tests/crc8.c: 29: crc = crc8_one(crc);
-	;; call function
-	mov	stack il ,hi8(L_ret_43)
-	mov	stack il ,lo8(L_ret_43)
+	mov	stack x
+	mov	stack il ,hi8(L_crc800119)
+	mov	stack il ,lo8(L_crc800119)
 	goto	_crc8_one
-	L_ret_43:
+L_crc800119:
 	mov	r stack
-	;; assign
+	mov	x stack
 ;	genAssign: registers r, r same; skipping assignment
 ;	t/tests/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
 ;;	ALU plus (4)
@@ -213,47 +202,46 @@ __sdcc_program_startup:
 	mov	alua x
 	mov	alub il ,1
 	mov	x aluc
-	;; goto
-	goto	L_3
-	L_1:
+	goto	L_crc800103
+L_crc800101:
 ;	t/tests/crc8.c: 32: return crc;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
 	jump
 ;	t/tests/crc8.c: 33: }
 ;; genEndFunction 
+	mov	jmpl stack
+	mov	jmph stack
+	jump
 ;	t/tests/crc8.c: 35: uint8_t main(uint8_t argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	t/tests/crc8.c: 36: return crc8(argv[0], 200);
-	;; assign
-; implement me (gen.c:952)
+; implement me (gen.c:1169)
 ;; genPointerGet: operand size 2, 1, 2
+	load_address_from_ptr	_main_sloc2_1_0
 	lad	_crc8_PARM_1
-	mov	mem r
-	lad	_crc8_PARM_1 + 1
-	mov	mem x
-	;; assign
+	mov	mem mem
 	lad	_crc8_PARM_2
 	mov	mem il ,200
-	;; call function
-	mov	stack il ,hi8(L_ret_6)
-	mov	stack il ,lo8(L_ret_6)
+	mov	stack il ,hi8(L_main00103)
+	mov	stack il ,lo8(L_main00103)
 	goto	_crc8
-	L_ret_6:
+L_main00103:
 	mov	r stack
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
 	jump
 ;	t/tests/crc8.c: 37: }
 ;; genEndFunction 
-	.section .text,"ax"
+	mov	jmpl stack
+	mov	jmph stack
+	jump
+	.section code,"ax"
 	.section const
 	.section initr
 	.section cabs

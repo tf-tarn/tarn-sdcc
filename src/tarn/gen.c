@@ -81,28 +81,35 @@ const tarn_reg_list_entry_t tarn_src_registers[TARN_SRC_REG_COUNT] = {
     { 15, "aluc" }
 };
 
-#define ALUS_AND  0
-#define ALUS_XOR  2
-#define ALUS_PLUS 4
-#define ALUS_LT   9
-#define ALUS_EQ   10
-#define ALUS_GT   11
+#define ALUS_AND   0
+#define ALUS_XOR   2
+#define ALUS_PLUS  4
+#define ALUS_LT    9
+#define ALUS_EQ    10
+#define ALUS_GT    11
+#define ALUS_MINUS 16
 
 const char *alu_operations[] = {
     "and",
     "?",
     "xor",
     "?",
+
     "plus",
+    "?",
+    "?",
+    "?",
 
     "?",
-    "?",
-    "?",
-    "?",
-
     "less-than",
     "equal-to",
     "greater-than",
+
+    "?",
+    "?",
+    "?",
+    "?",
+    "minus",
 
 };
 
@@ -177,6 +184,14 @@ symbol *new_label(const char *s) {
         return NULL;
     }
     return newiTempLabel(s);
+}
+
+static bool
+regDead (int idx, const iCode *ic)
+{
+  wassert (idx == R_IDX || idx == X_IDX);
+
+  return (!bitVectBitValue (ic->rSurv, idx));
 }
 
 /*---------------------------------------------------------------------*/
@@ -404,7 +419,6 @@ static void genCpl         (iCode *ic)                   { if (!regalloc_dry_run
 static void genGetByte     (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genGetByte      = "); piCode (ic, stderr); } emit2(";; genGetByte     ", ""); }
 static void genIpush       (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genIpush        = "); piCode (ic, stderr); } emit2(";; genIpush       ", ""); }
 static void genJumpTab     (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genJumpTab      = "); piCode (ic, stderr); } emit2(";; genJumpTab     ", ""); }
-static void genMinus       (iCode *ic, iCode *ifx) { if (!regalloc_dry_run) { fprintf(stderr, "genMinus        = "); piCode (ic, stderr); } emit2(";; genMinus       ", ""); }
 static void genMult        (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genMult         = "); piCode (ic, stderr); } emit2(";; genMult        ", ""); }
 static void genNot         (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genNot          = "); piCode (ic, stderr); } emit2(";; genNot         ", ""); }
 static void genOr          (iCode *ic)                   { if (!regalloc_dry_run) { fprintf(stderr, "genOr           = "); piCode (ic, stderr); } emit2(";; genOr          ", ""); }
@@ -498,6 +512,7 @@ void read_reg(const char *reg, operand *op) {
             emit2("mov", "test %s", reg);
             cost(1);
         } else if (OP_SYMBOL(op)->isspilt) {
+            emit2(";", "read_reg: spilt");
             load_address_16(OP_SYMBOL(op)->usl.spillLoc->rname);
             emit2("mov", "mem %s", reg);
             cost(1);
@@ -815,6 +830,9 @@ static void genPointerSet(iCode *ic) {
             int val = operandLitValue(right);
             if (IS_SYMOP(left)) {
                 if (OP_SYMBOL(left)->remat) {
+                    if (IS_PTR(operandType(left))) {
+                        emit2(";", "left is pointer: %d", __LINE__);
+                    }
                     remat_result_t *result = resolve_remat(OP_SYMBOL(left));
                     D2(printf("has remat: %s + %d\n", result->name, result->offset));
                     emit2("mov", "adh il ,hi8(%s + %d)", result->name, result->offset);
@@ -823,6 +841,9 @@ static void genPointerSet(iCode *ic) {
                     cost(3);
                 } else if (OP_SYMBOL(left)->isspilt) {
                     // two-byte value is spilled...
+                    if (IS_PTR(operandType(left))) {
+                        emit2(";", "left is pointer: %d", __LINE__);
+                    }
                     emit2("", "load_address_from_ptr %s", op_get_mem_label(left));
                     load_reg("mem", right);
                     cost(3);
@@ -866,6 +887,23 @@ static void genPointerSet(iCode *ic) {
                 emit2("mov", "mem stack");
                 cost(3);
             } else if (is_mem(left)) {
+                if (!regalloc_dry_run) {
+                    if (OP_SYMBOL(left)->isspilt) {
+                        emit2(";", "left is spilt: %d", __LINE__);
+                    }
+                    if (IS_PTR(operandType(left))) {
+                        emit2(";", "left is pointer: %d", __LINE__);
+                    }
+                    if (IS_TRUE_SYMOP(left)) {
+                        emit2(";", "left is true symop: %d", __LINE__);
+                    }
+                    if (OP_SYMBOL(left)->remat) {
+                        emit2(";", "left is remat: %d", __LINE__);
+                    }
+                    if (OP_SYMBOL(left)->usl.spillLoc) {
+                        emit2(";", "left has spill location: %d", __LINE__);
+                    }
+                }
                 // left has the address to write to
                 // right is the value to write
                 // first load the value
@@ -918,6 +956,18 @@ genCall (const iCode *ic)
   if (ic->op == PCALL) {
       emit2("; What is a PCALL?", "");
   } else {
+      bool pushed_r = false;
+      bool pushed_x = false;
+
+      if (!regDead (R_IDX, ic)) {
+          emit2("mov", "stack r");
+          pushed_r = true;
+      }
+      if (!regDead (X_IDX, ic)) {
+          emit2("mov", "stack x");
+          pushed_x = true;
+      }
+
       symbol *label = new_label(NULL);
       emit2("mov", "stack il ,hi8(!tlabel)", label_num(label));
       emit2("mov", "stack il ,lo8(!tlabel)", label_num(label));
@@ -941,6 +991,22 @@ genCall (const iCode *ic)
       } else {
           emit2("\t; function returns nothing", "");
       }
+      if (pushed_x) {
+          if (!regDead (X_IDX, ic)) {
+              emit2("mov", "x stack");
+          } else  {
+              emit2("mov", "nop stack");
+          }
+          cost(1);
+      }
+      if (pushed_r) {
+          if (!regDead (R_IDX, ic)) {
+              emit2("mov", "r stack");
+          } else  {
+              emit2("mov", "nop stack");
+          }
+          cost(1);
+      }
   }
 
 }
@@ -948,26 +1014,29 @@ genCall (const iCode *ic)
 
 /*-----------------------------------------------------------------*/
 /* genReturn - generate code for return statement                  */
+/* Is called iff a function DOES return a value.                   */
 /*-----------------------------------------------------------------*/
 static void
 genReturn (iCode *ic)
 {
     operand *left = IC_LEFT (ic);
 
-    D2(emit2("\t;; return", ""));
-    piCode(ic, stderr);
-
-    emit2("mov", "jmpl stack");
-    emit2("mov", "jmph stack");
-    cost(2);
-
     if (left) {
-        load_reg("stack", left);
+        D2(emit2("\t;; return", ""));
+        piCode(ic, stderr);
+
+        emit2("mov", "jmpl stack");
+        emit2("mov", "jmph stack");
+
+        if (left) {
+            load_reg("stack", left);
+        }
+
+        emit2("jump", "");
+        cost(3);
     }
 
     /* if (!(ic->next && ic->next->op == LABEL && IC_LABEL (ic->next) == returnLabel)) { */
-        emit2("jump", "");
-        cost(1);
     /* } */
 
   /* if (!(ic->next && ic->next->op == LABEL && IC_LABEL (ic->next) == returnLabel)) */
@@ -981,10 +1050,21 @@ genReturn (iCode *ic)
 
 }
 
+/*-----------------------------------------------------------------*/
+/* genEndFunction - generates epilogue for functions               */
+/* Is called iff a function DOESN'T return a value.                */
+/*-----------------------------------------------------------------*/
 static void genEndFunction (iCode *ic)                   {
     if (!regalloc_dry_run) { fprintf(stderr, "genEndFunction  = "); piCode (ic, stderr); }
 
+    // TODO don't generate for a function that has a return value...
+
     emit2(";; genEndFunction ", "");
+
+    emit2("mov", "jmpl stack");
+    emit2("mov", "jmph stack");
+    emit2("jump", "");
+    cost(3);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1228,12 +1308,22 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
 
 
     if ((size_result == 1 || result_is_cond) && size_left == 1 && size_right == 1) {
-        emit2("", "; here (%s:%d)", __FILE__, __LINE__);
-        emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
-        cost(1);
+        if (op == ALUS_MINUS) {
+            if (IS_OP_LITERAL(right)) {
+                op = ALUS_PLUS;
+                emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
+                load_reg("alua", left);
+                emit2("mov", "alub il ,%d", -byteOfVal(OP_VALUE(right), 0));
+            } else {
+                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+            }
+        } else {
+            emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
+            cost(1);
 
-        load_reg("alua", left);
-        load_reg("alub", right);
+            load_reg("alua", left);
+            load_reg("alub", right);
+        }
 
         if (ifx) {
             // TODO: optimize?
@@ -1253,10 +1343,8 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
             read_reg("aluc", result);
         }
     } else if (size_result == 2 && size_left == 2 && size_right == 1) {
-        emit2("", "; here (%s:%d)", __FILE__, __LINE__);
         if (op == ALUS_PLUS) {
             if (is_reg(right)) {
-                emit2("", "; here (%s:%d)", __FILE__, __LINE__);
                 if (OP_SYMBOL(left)->remat) {
                     remat_result_t *result = resolve_remat(OP_SYMBOL(left));
                     D2(emit2(";", "remat: %s + %d", result->name, result->offset));
@@ -1272,7 +1360,6 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
                     emit2("add_8s_16s", "");
                     cost(3);
                 } else if (is_mem(left)) {
-                    emit2("", "; here (%s:%d)", __FILE__, __LINE__);
                     emit2("load_stack_from_ptr", "%s", op_get_mem_label(left));
                     /* load_address_16(op_get_mem_label(left)); */
                     /* emit2("mov", "stack mem"); */
@@ -1356,7 +1443,25 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
                 && !strcmp(op_get_register_name_i(result, 1), "x")) {
                 emit2(";", "result is already in r x");
             } else {
-                if (is_mem(result)) {
+                if (!regalloc_dry_run) {
+                    if (IS_TRUE_SYMOP(result)) {
+                        emit2(";", "result is true symop: %d", __LINE__);
+                    }
+                    if (IS_PTR(operandType(result))) {
+                        emit2(";", "result is pointer");
+                    }
+                    if (OP_SYMBOL(result)->usl.spillLoc) {
+                        emit2(";", "result has spill location: %d", __LINE__);
+                    }
+                }
+                /* if (OP_SYMBOL(result)->isspilt) { */
+                /*     emit2(";", "result is spilt: %d", __LINE__); */
+                /*     emit2("load_address_from_ptr", "%s", OP_SYMBOL(result)->usl.spillLoc->rname); */
+                /*     emit2("mov", "mem x"); */
+                /*     emit2("load_address_from_ptr", "%s + 1", OP_SYMBOL(result)->usl.spillLoc->rname); */
+                /*     emit2("mov", "mem r"); */
+                /* } else */
+                    if (is_mem(result)) {
                     emit2("lad", "%s",     op_get_mem_label(result));
                     emit2("mov", "mem x");
                     emit2("lad", "%s + 1", op_get_mem_label(result));
@@ -1403,9 +1508,10 @@ static void genALUOp(int op, iCode *ic, iCode *ifx)
 /*-----------------------------------------------------------------*/
 /* genAnd - code for and                                           */
 /*-----------------------------------------------------------------*/
-static void genAnd  (iCode *ic, iCode *ifx) { genALUOp(ALUS_AND,  ic, ifx ); }
-static void genPlus (iCode *ic)             { genALUOp(ALUS_PLUS, ic, NULL); }
-static void genXor  (iCode *ic)             { genALUOp(ALUS_XOR,  ic, NULL); }
+static void genAnd   (iCode *ic, iCode *ifx) { genALUOp(ALUS_AND,   ic, ifx ); }
+static void genPlus  (iCode *ic)             { genALUOp(ALUS_PLUS,  ic, NULL); }
+static void genXor   (iCode *ic)             { genALUOp(ALUS_XOR,   ic, NULL); }
+static void genMinus (iCode *ic, iCode *ifx) { genALUOp(ALUS_MINUS, ic, ifx); }
 
 /*-----------------------------------------------------------------*/
 /* genLeftShift - generates code for right shifting                */

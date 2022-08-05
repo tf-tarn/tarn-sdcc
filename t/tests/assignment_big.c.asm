@@ -5,9 +5,6 @@
 	.file	"assignment_big.c"
 	
 .include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
-.section .text
-ljmp _main
-jump
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -18,7 +15,7 @@ jump
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section .data,"w"
+	.section data,"w"
 _vvv:
 	.ds	2
 _main_PARM_1:
@@ -49,53 +46,56 @@ __interrupt_vect:
 ; global & static initialisations
 ;--------------------------------------------------------
 	.section home
-	.section static
-	.section post_static
-	.section static
-	.section post_static
-	ljmp	__sdcc_program_startup
+	.section static,"ax"
+	.section post_static,"ax"
+	.section static,"ax"
+	.section post_static,"ax"
+	goto	_main
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
 	.section home,"ax"
 	.section home,"ax"
 __sdcc_program_startup:
-	ljmp	_main
+	goto	_main
 ;	return from main will return to caller
 ;--------------------------------------------------------
 ; code
 ;--------------------------------------------------------
-	.section .text,"ax"
+	.section code,"ax"
 ;	t/tests/assignment_big.c: 2: char main (char argc, char **argv) {
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	t/tests/assignment_big.c: 3: const char *msg = "foo";
+;; genAddrOf: operand size 2, 4, 1
+	mov	r il ,lo8(___str_0 + 0)
+	mov	x il ,hi8(___str_0 + 0)
 ;; genCast        
+	lad	_vvv
+	mov	mem x ; hi
+	lad	_vvv + 1
+	mov	mem r ; lo
 ;	t/tests/assignment_big.c: 7: return vvv[0];
 ;; genPointerGet: operand size 2, 1, 1
-	lad	_vvv + 0
-	mov	stack mem
-	lad	_vvv + 1
-	mov	stack mem
-	mov	adl stack
-	mov	adh stack
-	mov	stack mem
-	mov	nop stack
-	;; return
+	load_address_from_ptr	_vvv
+	mov	r mem
 	mov	jmpl stack
 	mov	jmph stack
-	mov	stack nop
+	mov	stack r
 	jump
 ;	t/tests/assignment_big.c: 8: }
 ;; genEndFunction 
-	.section .text,"ax"
+	mov	jmpl stack
+	mov	jmph stack
+	jump
+	.section code,"ax"
 	.section const
 	.section const
 ___str_0:
 	.ascii	"foo"
 	.byte 0x00
-	.section .text,"ax"
+	.section code,"ax"
 	.section initr
 	.section cabs

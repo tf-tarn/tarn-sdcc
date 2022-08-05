@@ -38,8 +38,10 @@ for srcfile in $(find t/tests/ -type f -name "*.c" | sort); do
     diff_output=$(mktemp)
     # grep -v $'[\t ]*;.*$' < $expectfile > $expectfile_clean
     # grep -v $'[\t ]*;.*$' < $output > $output_clean
-    diff --label $expectfile --label $output -B -w -U4 $expectfile $output > $diff_output || true
+    set +e
+    diff --label $expectfile --label $output -B -w -U4 $expectfile $output > $diff_output
     RET=$?
+    set -e
     if [[ 0 == $RET ]]; then
         true
     else

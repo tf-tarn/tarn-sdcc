@@ -25,7 +25,7 @@ for srcfile in $(find t/tests/ -type f -name "*.c" | sort); do
     if [ ! -f $expectfile ]; then
         continue
     fi
-    output=testruns/$name.asm
+    output=t/build/$name.asm
     rm -f $output
     (
         echo

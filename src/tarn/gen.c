@@ -194,6 +194,15 @@ regDead (int idx, const iCode *ic)
   return (!bitVectBitValue (ic->rSurv, idx));
 }
 
+static void
+cost(unsigned int words)
+{
+  /* regalloc_dry_run_cost_words += words; */
+  /* regalloc_dry_run_cost_cycles += cycles * regalloc_dry_run_cycle_scale; */
+  regalloc_dry_run_cost_words += words;
+  regalloc_dry_run_cost_cycles += words * regalloc_dry_run_cycle_scale;
+}
+
 /*---------------------------------------------------------------------*/
 /* emit2                                                               */
 /*---------------------------------------------------------------------*/
@@ -214,8 +223,8 @@ static void emit2 (const char *inst, const char *fmt, ...)
 /*---------------------------------------------------------------------*/
 static void emit_mov(const char *dreg, const char *sreg) {
     emit2("mov", "%s %s", dreg, sreg);
+    cost(1);
 }
-
 
 
 static void tarn_emit_label(symbol *label) {
@@ -244,15 +253,6 @@ static void tarn_emit_label_f(const char *format, symbol *label) {
     emitLabel(label);
     /* emit2("", format, label_num(label)); */
     //genLine.lineCurr->isLabel = 1;
-}
-
-static void
-cost(unsigned int words)
-{
-  /* regalloc_dry_run_cost_words += words; */
-  /* regalloc_dry_run_cost_cycles += cycles * regalloc_dry_run_cycle_scale; */
-  regalloc_dry_run_cost_words += words;
-  regalloc_dry_run_cost_cycles += words * regalloc_dry_run_cycle_scale;
 }
 
 static int is_mem(operand *op) {
@@ -357,6 +357,55 @@ const char *op_get_mem_label(operand *op) {
     }
     return NULL;
 }
+
+const char *sprint_regs(operand *op) {
+    static char buf[256];
+    *buf = 0;
+    if (is_reg(op)) {
+        int offset = 0;
+        if (OP_SYMBOL(op)->nRegs) {
+            for (int i = 0; i < OP_SYMBOL(op)->nRegs; ++i) {
+                snprintf(buf + offset, 256 - offset, "%s,", op_get_register_name_i(op, i));
+            }
+        } else {
+            return op_get_register_name(op);
+        }
+        offset = strlen(buf);
+    }
+    /* if (!*buf) { */
+    /*     strcpy(buf, "none"); */
+    /* } */
+    return buf;
+}
+
+void print_op_diagnostics(const char *tag, operand *op) {
+    static char buf[256];
+    if (IS_SYMOP(op)) {
+        size_t padlen = strlen(tag) + 2;
+        snprintf(buf, 256, "%s: reg? mem? remat? spilt? nregs regs label", tag);
+        emit2(";", "%s", buf);
+        {
+            size_t i = 0;
+            for (; i < padlen; ++i) {
+                buf[i] = ' ';
+            }
+            buf[i] = 0;
+        }
+        const char *mem_label = op_get_mem_label(op);
+        snprintf(buf + padlen, 256, "%-4s %-4s %-6s %-6s %-5d %-4s %-5s",
+                 is_reg(op) ? "yes" : "",
+                 is_mem(op) ? "yes" : "",
+                 OP_SYMBOL(op)->remat ? "yes" : "",
+                 OP_SYMBOL(op)->isspilt ? "yes" : "",
+                 OP_SYMBOL(op)->nRegs,
+                 sprint_regs(op),
+                 mem_label ? mem_label : "");
+        emit2(";", "%s", buf);
+    } else {
+        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+    }
+}
+
 
 /*---------------------------------------------------------------------*/
 /* tarn_emitDebuggerSymbol - associate the current code location       */
@@ -470,6 +519,11 @@ void load_reg(const char *reg, operand *op) {
                 emit2("mov", "%s mem", reg);
                 cost(1);
             }
+        } else if (OP_SYMBOL(op)->isspilt) {
+            emit2(";", "load_reg: spilt");
+            load_address_16(OP_SYMBOL(op)->usl.spillLoc->rname);
+            emit2("mov", "%s mem", reg);
+            cost(1);
         } else if (is_mem(op)) {
             if (!strcmp(reg, "mem")) {
                 load_reg("stack", op);
@@ -683,25 +737,157 @@ static void genAddrOf (iCode *ic) {
 
 /*-----------------------------------------------------------------*/
 /* genPointerGet - generate code for pointer get                   */
+/* i.e. result = *(left + right);                                  */
 /*-----------------------------------------------------------------*/
 static void genPointerGet(iCode *ic) {
-    if (!regalloc_dry_run) { fprintf(stderr, "genPointerGet   = "); piCode (ic, stderr); }
+    if (!regalloc_dry_run) {
+        fprintf(stderr, "genPointerGet   = ");
+        piCode (ic, stderr);
+    }
 
     operand *left = IC_LEFT (ic);
     operand *right = IC_RIGHT (ic);
     operand *result = IC_RESULT (ic);
     int size_left = operandSize(left);
+    int size_result = operandSize(result);
+    int size_right = operandSize(right);
+
 
     wassertl (right, "GET_VALUE_AT_ADDRESS without right operand");
     wassertl (IS_OP_LITERAL (right), "GET_VALUE_AT_ADDRESS with non-literal right operand");
 
     emit2("", ";; genPointerGet: operand size %d, %d, %d",
+          operandSize(result),
           operandSize(left),
-          operandSize(right),
-          operandSize(result)
+          operandSize(right)
           );
 
-    if (size_left == 1) {
+    if (IS_OP_LITERAL(right)) {
+        int val = operandLitValue(right);
+        if (size_result == 1) {
+            if (size_left == 2) {
+                if (OP_SYMBOL(left)->remat) {
+                    remat_result_t *remat_result = resolve_remat(OP_SYMBOL(left));
+                    D2(printf("has remat: %s + %d\n", remat_result->name, remat_result->offset));
+                    emit2("mov", "adh il ,hi8(%s + %d)", remat_result->name, remat_result->offset);
+                    emit2("mov", "adl il ,lo8(%s + %d)", remat_result->name, remat_result->offset);
+                    if (is_mem(result)) {
+                        emit2("mov", "stack mem");
+                        read_reg("stack", result);
+                    } else {
+                        read_reg("mem", result);
+                    }
+                } else if (OP_SYMBOL(left)->isspilt) {
+                    if (!val) {
+                        if (!regalloc_dry_run) {
+                            print_op_diagnostics("left", left);
+                        }
+                        emit2("load_address_from_ptr", "%s", op_get_mem_label(left));
+                        read_reg("mem", result);
+                    } else {
+                        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                    }
+                } else if (is_mem(left)) {
+                    emit2("mov", "adh il ,hi8(%s + %d)", op_get_mem_label(left), val);
+                    emit2("mov", "adl il ,lo8(%s + %d)", op_get_mem_label(left), val);
+                    read_reg("mem", result);
+                } else if (is_reg(left)) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                } else {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                }
+            } else {
+                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+            }
+        } else if (size_result == 2) {
+            if (size_left == 2) {
+                if (OP_SYMBOL(left)->remat) {
+                    remat_result_t *remat_result = resolve_remat(OP_SYMBOL(left));
+                    D2(printf("has remat: %s + %d\n", remat_result->name, remat_result->offset));
+                    emit2("mov", "adh il ,hi8(%s + %d)", remat_result->name, remat_result->offset);
+                    emit2("mov", "adl il ,lo8(%s + %d)", remat_result->name, remat_result->offset);
+                    if (is_mem(result)) {
+                        emit2("mov", "stack mem");
+                        read_reg("stack", result);
+                    } else {
+                        read_reg("mem", result);
+                    }
+                } else {
+                    if (!val) {
+                        if (OP_SYMBOL(left)->isspilt) {
+                            if (!regalloc_dry_run) {
+                                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                                print_op_diagnostics("left", left);
+                            }
+                            /* emit2("load_address_from_ptr", "%s", op_get_mem_label(left)); */
+                            /* emit_mov("stack", "mem"); */
+                            /* emit2("load_address_from_ptr", "%s + 1", op_get_mem_label(left)); */
+                            /* emit_mov("stack", "mem"); */
+
+                        } else
+                            if (is_mem(left)) {
+                                emit2("load_address_from_ptr", "%s", op_get_mem_label(left));
+                                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+
+                                /* { // read 2 to stack */
+                                /*     load_address_16o(op_get_mem_label(left), 0); */
+                                /*     emit2("mov", "stack mem"); */
+                                /*     load_address_16o(op_get_mem_label(left), 1); */
+                                /*     emit2("mov", "stack mem"); */
+                                /*     cost(2); */
+                                /* } */
+                                /* emit2("mov", "adl stack"); */
+                                /* emit2("mov", "adh stack"); */
+                                /* emit2("mov", "stack mem"); */
+                                /* cost(3); */
+
+                                /* { // read 2 to stack */
+                                /*     load_address_16o(op_get_mem_label(left), 0); */
+                                /*     emit2("mov", "stack mem"); */
+                                /*     load_address_16o(op_get_mem_label(left), 1); */
+                                /*     emit2("mov", "stack mem"); */
+                                /*     cost(2); */
+                                /* } */
+
+                                /* emit2("add_16s_8", "%d", 1); */
+
+                                /* emit2("mov", "adl stack"); */
+                                /* emit2("mov", "adh stack"); */
+                                /* emit2("mov", "stack mem"); */
+
+                                /* emit2("mov", "adl stack"); */
+                                /* emit2("mov", "adh stack"); */
+
+                                /* cost(5); */
+
+
+                                read_reg("mem", result);
+
+                            } else if (is_reg(left)) {
+                                emit2("lad", "%s",     op_get_mem_label(result));
+                                emit2("mov", "mem %s", op_get_register_name_i(left, 0));
+                                emit2("lad", "%s + 1", op_get_mem_label(result));
+                                emit2("mov", "mem %s", op_get_register_name_i(left, 1));
+                            } else {
+                                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                            }
+                    } else {
+                        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                    }
+                }
+            } else {
+                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+            }
+        } else {
+            emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+        }
+    } else {
+        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+    }
+
+    return;
+
+    if (size_result == 1 && size_left == 1) {
         if (IS_OP_LITERAL(right)) {
             emit2(";; genPointerGet: literal right not implemented(1)", "");
         } else if (is_mem(right)) {
@@ -713,7 +899,7 @@ static void genPointerGet(iCode *ic) {
         } else {
             emit2(";; genPointerGet: non-memory right not implemented(1)", "");
         }
-    } else if (size_left == 2) {
+    } else if (size_result == 2 && size_left == 2) {
         if (IS_OP_LITERAL(right)) {
             int val = operandLitValue(right);
             if (OP_SYMBOL(left)->remat) {
@@ -730,10 +916,12 @@ static void genPointerGet(iCode *ic) {
             } else {
                 if (!val) {
                     if (OP_SYMBOL(left)->isspilt) {
+                        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                         emit2("load_address_from_ptr", "%s", op_get_mem_label(left));
                         read_reg("mem", result);
                     } else if (is_mem(left)) {
                         emit2("load_address_from_ptr", "%s", op_get_mem_label(left));
+                        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
 
                         /* { // read 2 to stack */
                         /*     load_address_16o(op_get_mem_label(left), 0); */
@@ -1070,54 +1258,6 @@ genFunction (iCode *ic)
 }
 
 
-const char *sprint_regs(operand *op) {
-    static char buf[256];
-    *buf = 0;
-    if (is_reg(op)) {
-        int offset = 0;
-        if (OP_SYMBOL(op)->nRegs) {
-            for (int i = 0; i < OP_SYMBOL(op)->nRegs; ++i) {
-                snprintf(buf + offset, 256 - offset, "%s,", op_get_register_name_i(op, i));
-            }
-        } else {
-            return op_get_register_name(op);
-        }
-        offset = strlen(buf);
-    }
-    /* if (!*buf) { */
-    /*     strcpy(buf, "none"); */
-    /* } */
-    return buf;
-}
-
-void print_op_diagnostics(const char *tag, operand *op) {
-    static char buf[256];
-    if (IS_SYMOP(op)) {
-        size_t padlen = strlen(tag) + 2;
-        snprintf(buf, 256, "%s: reg? mem? remat? spilt? nregs regs label", tag);
-        emit2(";", "%s", buf);
-        {
-            size_t i = 0;
-            for (; i < padlen; ++i) {
-                buf[i] = ' ';
-            }
-            buf[i] = 0;
-        }
-        const char *mem_label = op_get_mem_label(op);
-        snprintf(buf + padlen, 256, "%-4s %-4s %-6s %-6s %-5d %-4s %-5s",
-                 is_reg(op) ? "yes" : "",
-                 is_mem(op) ? "yes" : "",
-                 OP_SYMBOL(op)->remat ? "yes" : "",
-                 OP_SYMBOL(op)->isspilt ? "yes" : "",
-                 OP_SYMBOL(op)->nRegs,
-                 sprint_regs(op),
-                 mem_label ? mem_label : "");
-        emit2(";", "%s", buf);
-    } else {
-        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-    }
-}
-
 /*-----------------------------------------------------------------*/
 /* genAssign - generate code for assignment                        */
 /*-----------------------------------------------------------------*/
@@ -1197,16 +1337,15 @@ genAssign (iCode *ic)
     } else if (size_result == 2 && size_right == 2) {
         if (is_mem(result)) {
             if (is_mem(right)) {
-                load_address_16(right);
+                load_address_16(op_get_mem_label(right));
                 emit_mov("stack", "mem");
-                load_address_16o(right, 1);
+                load_address_16o(op_get_mem_label(right), 1);
                 emit_mov("stack", "mem");
 
-                load_address_16o(result, 1);
+                load_address_16o(op_get_mem_label(result), 1);
                 emit_mov("mem", "stack");
-                load_address_16(result);
+                load_address_16(op_get_mem_label(result));
                 emit_mov("mem", "stack");
-                cost(4);
             } else if (is_reg(right)) {
                 load_address_16(op_get_mem_label(result));
                 emit2("mov", "mem %s ; hi", op_get_register_name_i(right, 1));
@@ -1261,16 +1400,36 @@ static void genCast(iCode *ic) {
     int size_right = operandSize(right);
 
     if (size_result == 2 && size_right == 1) {
-        if (is_mem(right)) {
+        if (is_mem(result)) {
+            // store zero in high byte
+            load_address_16(op_get_mem_label(result));
+            emit_mov("mem", "zero");
+        } else if (is_reg(result)) {
+            // store zero in high byte
+            emit_mov(op_get_register_name_i(result, 1), "zero");
+        } else {
             emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+        }
+        if (is_mem(right)) {
+            if (is_mem(result)) {
+                // store right in low byte
+                load_address_16(op_get_mem_label(right));
+                emit_mov("stack", "mem");
+                load_address_16o(op_get_mem_label(result), 1);
+                emit_mov("mem", "stack");
+            } else if (is_reg(result)) {
+                load_address_16(op_get_mem_label(right));
+                emit_mov(op_get_register_name_i(result, 0), "mem");
+            } else {
+                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+            }
         } else if (is_reg(right)) {
             if (is_mem(result)) {
-                // store zero in high byte
-                load_address_16(op_get_mem_label(result));
-                emit_mov("mem", "zero");
                 // store right in low byte
                 load_address_16o(op_get_mem_label(result), 1);
                 load_reg("mem", right);
+            } else if (is_reg(result)) {
+                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
             } else {
                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
             }
@@ -1285,7 +1444,6 @@ static void genCast(iCode *ic) {
                 emit_mov("stack", "mem");
                 load_address_16(op_get_mem_label(result));
                 emit_mov("mem", "stack");
-                cost(2);
             } else if (is_reg(result)) {
                 // store only low byte
                 load_address_16o(op_get_mem_label(right), 1);
@@ -1393,6 +1551,7 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
     int size_result = operandSize(result);
     int size_left = operandSize(left);
     int size_right = operandSize(right);
+    emit2(";;", "ALU operand size %d %d %d", size_result, size_left, size_right);
 
 
     if ((size_result == 1 || result_is_cond) && size_left == 1 && size_right == 1) {
@@ -1434,52 +1593,57 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
         if (op == ALUS_PLUS) {
             if (is_reg(right)) {
                 if (OP_SYMBOL(left)->remat) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                     remat_result_t *result = resolve_remat(OP_SYMBOL(left));
-                    D2(emit2(";", "remat: %s + %d", result->name, result->offset));
                     piCode(OP_SYMBOL(left)->rematiCode, stdout);
                     emit2("mov", "stack %s", op_get_register_name(right));
                     emit2("add_8s_16", "%s ; 1", result->name);
+                    cost(1+15);
                 } else if (OP_SYMBOL(left)->isspilt) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                     emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
                     emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
                     load_address_16(op_get_mem_label(right));
                     emit2("mov", "stack mem");
                     emit2("add_8s_16s", "");
-                    cost(3);
+                    cost(3+15);
                 } else if (is_mem(left)) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                     emit2("load_stack_from_ptr", "%s", op_get_mem_label(left));
                     emit2("mov", "stack %s", op_get_register_name(right));
                     emit2("add_8s_16s", "");
-                    cost(1);
+                    cost(1+15);
                 } else {
                     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                 }
             } else if (is_mem(right)) {
                 if (OP_SYMBOL(left)->remat) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                     remat_result_t *result = resolve_remat(OP_SYMBOL(left));
-                    D2(emit2("", "\t; remat: %s + %d", result->name, result->offset));
                     emit2("mov", "stack il ,hi8(%s + %d)", result->name, result->offset);
                     emit2("mov", "stack il ,lo8(%s + %d)", result->name, result->offset);
                     load_address_16(op_get_mem_label(right));
                     emit2("mov", "stack mem");
                     emit2("add_8s_16s", "");
-                    cost(3);
+                    cost(3+15);
                 } else if (OP_SYMBOL(left)->isspilt) {
-                    emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
-                    emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
+                    emit2("load_stack_from_ptr", "%s", OP_SYMBOL(left)->usl.spillLoc->rname);
+                    /* emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); */
+                    /* emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); */
                     load_address_16(op_get_mem_label(right));
                     emit2("mov", "stack mem");
                     emit2("add_8s_16s", "");
-                    cost(3);
+                    cost(6+1+15);
                 } else if (is_mem(left)) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                     if (!regalloc_dry_run) {
                         emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->rname);
                         emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->rname);
                         load_address_16(op_get_mem_label(right));
                         emit2("mov", "stack mem");
                         emit2("add_8s_16s", "");
-                        cost(3);
                     }
+                    cost(3+15);
                 } else {
                     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                 }
@@ -1563,20 +1727,68 @@ static void genMinus (iCode *ic, iCode *ifx) { genALUOp(ALUS_MINUS, ic, ifx); }
 static void
 genLeftShift (const iCode *ic)
 {
-  operand *result = IC_RESULT (ic);
-  operand *left = IC_LEFT (ic);
-  operand *right = IC_RIGHT (ic);
+    operand *result = IC_RESULT (ic);
+    operand *left = IC_LEFT (ic);
+    operand *right = IC_RIGHT (ic);
 
-  if (IS_OP_LITERAL(right)) {
-      if (byteOfVal(OP_VALUE(right), 0) == 1) {
-          // one bit, multiply by two, ie. add self to self.
-          genALUOp_impl(ALUS_PLUS, left, left, result, NULL);
-      } else {
-          wassertl(0, "Left shift by more than one not implemented.");
-      }
-  } else {
-      wassertl(0, "Left shift by non-literal not implemented.");
-  }
+    emit2(";;", "genLeftShift");
+
+    if (IS_OP_LITERAL(right)) {
+        if (byteOfVal(OP_VALUE(right), 0) == 1) {
+            // one bit, multiply by two, ie. add self to self.
+            genALUOp_impl(ALUS_PLUS, left, left, result, NULL);
+        } else if (byteOfVal(OP_VALUE(right), 0) == 8) {
+            // special case! just move low byte(s) up.
+            int size_result = operandSize(result);
+            int size_left = operandSize(left);
+
+            if (size_result == 1 && size_left == 2) {
+                // uh, well, low byte of 8-bit shifted value is zero.
+                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+            } else  if (size_result == 2 && size_left == 2) {
+                if (is_mem(result)) {
+                    // zero to low
+                    load_address_16o(op_get_mem_label(result), 1);
+                    emit_mov("mem", "zero");
+                }
+                // just copy low to high and zero to low
+                if (is_mem(left)) {
+                    if (is_mem(result)) {
+                        // low to high
+                        load_address_16o(op_get_mem_label(left), 1);
+                        emit_mov("stack", "mem");
+                        load_address_16(op_get_mem_label(result));
+                        emit_mov("mem", "stack");
+                    } else if (is_reg(result)) {
+                        /* // low to high */
+                        /* load_address_16o(op_get_mem_label(left), 1); */
+                        /* emit_mov(op_get_register_name_i(result, 0), "mem"); */
+                        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                    } else {
+                        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                        /* const char *result_reg = op_get_register_name(result); */
+                        /* load_reg(result_reg, left); */
+                    }
+                } else if (is_reg(left)) {
+                    if (is_mem(result)) {
+                        // low to high
+                        load_address_16(op_get_mem_label(result));
+                        emit_mov("mem", op_get_register_name_i(left, 0));
+                    } else if (is_reg(result)) {
+                        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                    } else {
+                        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                    }
+                }
+            } else {
+                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+            }
+        } else {
+            wassertl(0, "Left shift by other than 1 or 8 not implemented.");
+        }
+    } else {
+        wassertl(0, "Left shift by non-literal not implemented.");
+    }
 }
 
 

@@ -282,7 +282,7 @@ PORT tarn_port =
             1,                         /* sp points to next free stack location */
         },
         {
-            1,    /* Size of the biggest shift the port can handle. -1 if port can handle shifts of arbitrary size. */
+            8,    /* Size of the biggest shift the port can handle. -1 if port can handle shifts of arbitrary size. */
             false /* no int x int -> long multiplication support routine. */
         },
         { tarn_emitDebuggerSymbol,

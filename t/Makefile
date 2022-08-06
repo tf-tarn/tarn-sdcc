@@ -6,7 +6,9 @@ clean:
 .SECONDARY: # don't rm all "intermediate" targets
 
 build/%.asm: src/%.c
-	@echo $@; sdcc -S $< -o $@
+	which sdcc
+	# @echo $@;
+	sdcc -S $< -o $@
 
 build/%.o: build/%.asm
 	@echo $@;

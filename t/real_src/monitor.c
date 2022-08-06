@@ -7,6 +7,44 @@ char linebuf[LINEBUFLEN];
 
 __sfr __at(7) pic;
 
+////////////////////////////////////////////////////////////////////////////////
+
+typedef unsigned char uint8_t;
+
+#define POLYNOMIAL 0x07
+
+uint8_t crc8_one(uint8_t crc)
+ {
+
+     for (uint8_t i = 0; i < 8; i++)
+     {
+         if (crc & 0x80)
+         { /* most significant bit set, shift crc register and perform XOR operation, taking not-saved 9th set bit into account */
+             crc = (crc << 1) ^ POLYNOMIAL;
+         }
+         else
+         { /* most significant bit not set, go to next bit */
+             crc <<= 1;
+         }
+     }
+
+     return crc;
+ }
+
+uint8_t crc8(const uint8_t *data, uint8_t len)
+{
+    uint8_t crc = 0; /* start with 0 so first uint8_t can be 'xored' in */
+
+    for (uint8_t i = 0; i < len; ++i) {
+        crc ^= data[i]; /* XOR-in the next input uint8_t */
+        crc = crc8_one(crc);
+    }
+
+    return crc;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void print(const char *s) {
     for (char i = 0; s[i]; ++i) {
         pic = s[i];
@@ -67,9 +105,22 @@ char to_upper_nibble(char digit) {
 
 char read_mem_adh;
 
+const char *msg_too_short;
+const char *msg_bad_command;
+
+char validate_command() {
+    if (inputlen < 4) {
+        print(msg_too_short);
+        return 0;
+    }
+    if (linebuf[1] != ' ') {
+        print(msg_bad_command);
+        return 0;
+    }
+    return 1;
+}
+
 void execute_command() {
-    const char *msg_too_short = "Too short.\n";
-    const char *msg_bad_command = "Huh!?\n";
     const char *msg_bad_number = "Bad number.\n";
 
     if (inputlen < 1) {
@@ -82,15 +133,7 @@ void execute_command() {
         print("CRC coming soon.\n");
         break;
     case 'r':
-        if (inputlen < 4) {
-            print(msg_too_short);
-            return;
-        }
-        if (linebuf[1] != ' ') {
-            print(msg_bad_command);
-            return;
-        }
-        {
+        if (validate_command()) {
             /* char adh = 0; */
             char digit = parse_hex_digit(linebuf[2]);
             if (digit == 0xff) {
@@ -145,6 +188,10 @@ void execute_command() {
 #define LINEBUFLEN 6
 uint8_t main (uint8_t argc, char **argv) {
     volatile uint8_t byte;
+
+    msg_too_short = "Too short.\n";
+    msg_bad_command = "Huh!?\n";
+
 
     pic = 'H';
     pic = 'e';

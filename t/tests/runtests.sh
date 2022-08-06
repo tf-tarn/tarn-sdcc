@@ -42,10 +42,10 @@ for srcfile in $(find t/tests/ -type f -name "*.c" | sort); do
     diff --label $expectfile --label $output -B -w -U4 $expectfile $output > $diff_output
     RET=$?
     set -e
+    cat $diff_output | colordiff
     if [[ 0 == $RET ]]; then
         true
     else
-        cat $diff_output | colordiff
         echo "$output" > testruns/failed
         echo "$expectfile" > testruns/failed_expect
         break

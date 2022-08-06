@@ -75,8 +75,6 @@ L_main00103:
 ;;	ALU plus (4)
 	mov	stack r
 	add_8s_16	___str_0 ; 1
-;	result is pointer
-;	result has spill location: 1452
 	lad	_main_sloc0_1_0
 	mov	mem x
 	lad	_main_sloc0_1_0 + 1

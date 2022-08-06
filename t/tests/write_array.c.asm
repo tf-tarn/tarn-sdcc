@@ -142,15 +142,12 @@ __sdcc_program_startup:
 ;;	ALU plus (4)
 	mov	stack r
 	add_8s_16	_array ; 1
-;	result is pointer
-;	result has spill location: 1452
 	lad	_main_sloc0_1_0
 	mov	mem x
 	lad	_main_sloc0_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerSet: operand size 2, 1
-;	left is pointer: 845
 	load_address_from_ptr _main_sloc0_1_0
 	mov	mem il ,5
 ;	t/tests/write_array.c: 23: array[index++] = 4;
@@ -166,15 +163,12 @@ __sdcc_program_startup:
 ;;	ALU plus (4)
 	mov	stack r
 	add_8s_16	_array ; 1
-;	result is pointer
-;	result has spill location: 1452
 	lad	_main_sloc1_1_0
 	mov	mem x
 	lad	_main_sloc1_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerSet: operand size 2, 1
-;	left is pointer: 845
 	load_address_from_ptr _main_sloc1_1_0
 	mov	mem il ,4
 ;	t/tests/write_array.c: 24: array[index++] = 3;
@@ -190,15 +184,12 @@ __sdcc_program_startup:
 ;;	ALU plus (4)
 	mov	stack r
 	add_8s_16	_array ; 1
-;	result is pointer
-;	result has spill location: 1452
 	lad	_main_sloc2_1_0
 	mov	mem x
 	lad	_main_sloc2_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerSet: operand size 2, 1
-;	left is pointer: 845
 	load_address_from_ptr _main_sloc2_1_0
 	mov	mem il ,3
 ;	t/tests/write_array.c: 25: array[index++] = 2;
@@ -214,15 +205,12 @@ __sdcc_program_startup:
 ;;	ALU plus (4)
 	mov	stack r
 	add_8s_16	_array ; 1
-;	result is pointer
-;	result has spill location: 1452
 	lad	_main_sloc3_1_0
 	mov	mem x
 	lad	_main_sloc3_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerSet: operand size 2, 1
-;	left is pointer: 845
 	load_address_from_ptr _main_sloc3_1_0
 	mov	mem il ,2
 ;	t/tests/write_array.c: 26: array[index++] = 1;
@@ -238,15 +226,12 @@ __sdcc_program_startup:
 ;;	ALU plus (4)
 	mov	stack r
 	add_8s_16	_array ; 1
-;	result is pointer
-;	result has spill location: 1452
 	lad	_main_sloc4_1_0
 	mov	mem x
 	lad	_main_sloc4_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerSet: operand size 2, 1
-;	left is pointer: 845
 	load_address_from_ptr _main_sloc4_1_0
 	mov	mem il ,1
 ;	t/tests/write_array.c: 28: pic = 0x0e;

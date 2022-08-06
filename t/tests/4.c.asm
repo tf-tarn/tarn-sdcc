@@ -80,15 +80,12 @@ __sdcc_program_startup:
 	lad	_index
 	mov	stack mem
 	add_8s_16s
-;	result is pointer
-;	result has spill location: 1452
 	lad	_main_sloc0_1_0
 	mov	mem x
 	lad	_main_sloc0_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerSet: operand size 2, 1
-;	left is pointer: 845
 	load_address_from_ptr _main_sloc0_1_0
 	mov	mem il ,5
 ;	t/tests/4.c: 5: return 0;

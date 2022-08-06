@@ -70,7 +70,6 @@ __sdcc_program_startup:
 	_main:
 ;	t/tests/3.c: 3: array[1] = 5;
 ;; genPointerSet: operand size 2, 1
-;	left is pointer: 834
 	mov	adh il ,hi8(_array + 1)
 	mov	adl il ,lo8(_array + 1)
 	mov	mem il ,5

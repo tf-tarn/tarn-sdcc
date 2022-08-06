@@ -79,8 +79,6 @@ __sdcc_program_startup:
 	lad	_var
 	mov	stack mem
 	add_8s_16s
-;	result is true symop: 1446
-;	result is pointer
 	lad	_vvv
 	mov	mem x
 	lad	_vvv + 1

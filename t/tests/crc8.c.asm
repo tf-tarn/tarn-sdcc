@@ -34,8 +34,6 @@ _main_PARM_1:
 	.ds	1
 _main_PARM_2:
 	.ds	2
-_main_sloc2_1_0:
-	.ds	2
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
@@ -169,8 +167,6 @@ L_crc800118:
 	load_stack_from_ptr	_crc8_PARM_1
 	mov	stack x
 	add_8s_16s
-;	result is pointer
-;	result has spill location: 1452
 	lad	_crc8_sloc0_1_0
 	mov	mem x
 	lad	_crc8_sloc0_1_0 + 1
@@ -220,11 +216,15 @@ L_crc800101:
 ;	-----------------------------------------
 	_main:
 ;	t/tests/crc8.c: 36: return crc8(argv[0], 200);
-; implement me (gen.c:1169)
+	lad	_main_PARM_2
+	mov	x mem ; hi
+	lad	_main_PARM_2 + 1
+	mov	r mem ; lo
 ;; genPointerGet: operand size 2, 1, 2
-	load_address_from_ptr	_main_sloc2_1_0
 	lad	_crc8_PARM_1
-	mov	mem mem
+	mov	mem r
+	lad	_crc8_PARM_1 + 1
+	mov	mem x
 	lad	_crc8_PARM_2
 	mov	mem il ,200
 	mov	stack il ,hi8(L_main00103)

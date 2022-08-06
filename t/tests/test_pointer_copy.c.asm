@@ -99,8 +99,6 @@ __sdcc_program_startup:
 	lad	_vvv + 1
 	mov	stack mem
 	add_16s_16l	1
-;	result is pointer
-;	result has spill location: 1452
 	lad	_main_sloc0_1_0
 	mov	mem x
 	lad	_main_sloc0_1_0 + 1

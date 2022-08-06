@@ -1,0 +1,1 @@
+./sim/sim -q -h -s 90000 $program_file < $input | head -n 256 > $output

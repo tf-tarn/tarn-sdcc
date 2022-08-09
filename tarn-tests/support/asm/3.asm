@@ -25,7 +25,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
@@ -37,6 +37,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -45,7 +49,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -64,11 +68,13 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/3.c: 2: char main (char argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	src/3.c: 3: array[1] = 5;
+;; genPointerSet
 ;; genPointerSet: operand size 2, 1
 	mov	adh il ,hi8(_array + 1)
 	mov	adl il ,lo8(_array + 1)
@@ -78,12 +84,14 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack zero
 	jump
+;; genLabel
 ;	src/3.c: 6: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 	.section code,"ax"
 	.section const
-	.section initr
+	.section initr,"a"
 	.section cabs

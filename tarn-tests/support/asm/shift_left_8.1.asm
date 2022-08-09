@@ -28,7 +28,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
@@ -40,6 +40,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -48,7 +52,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -67,19 +71,21 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/shift_left_8.1.c: 4: int main (int argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	src/shift_left_8.1.c: 5: val1 = pic;
+;; genAssign
 	lad	_val1
 	mov	mem pic
 ;	src/shift_left_8.1.c: 6: val3 = val1 << 8;
-;; genCast        
+;; genCast
 	mov	x zero
 	lad	_val1
 	mov	r mem
-;;	genLeftShift
+;; genLeftShift
 	lad	_val3 + 1
 	mov	mem zero
 	lad	_val3
@@ -89,12 +95,14 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack r
 	jump
+;; genLabel
 ;	src/shift_left_8.1.c: 9: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 	.section code,"ax"
 	.section const
-	.section initr
+	.section initr,"a"
 	.section cabs

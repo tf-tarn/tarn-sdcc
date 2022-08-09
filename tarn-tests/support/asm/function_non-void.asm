@@ -23,7 +23,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
@@ -35,6 +35,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -43,7 +47,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -62,6 +66,7 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/function_non-void.c: 1: char f() {
+;; genLabel
 ;	-----------------------------------------
 ;	 function f
 ;	-----------------------------------------
@@ -71,12 +76,15 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack il ,9
 	jump
+;; genLabel
 ;	src/function_non-void.c: 3: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 ;	src/function_non-void.c: 4: char main (char argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
@@ -87,18 +95,21 @@ __sdcc_program_startup:
 	goto	_f
 L_main00103:
 	mov	r stack
+;; genAssign
 ;	genAssign: registers r, r same; skipping assignment
 ;	src/function_non-void.c: 6: return val;
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
 	jump
+;; genLabel
 ;	src/function_non-void.c: 7: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 	.section code,"ax"
 	.section const
-	.section initr
+	.section initr,"a"
 	.section cabs

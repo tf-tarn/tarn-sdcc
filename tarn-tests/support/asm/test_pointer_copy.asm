@@ -25,7 +25,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
@@ -40,6 +40,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -48,7 +52,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -67,33 +71,39 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/test_pointer_copy.c: 3: int main (int argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	src/test_pointer_copy.c: 4: const char *msg = "foo";
 ;	src/test_pointer_copy.c: 7: pic = msg[(char)0];
+;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adh il ,hi8(___str_0 + 0)
 	mov	adl il ,lo8(___str_0 + 0)
 	mov	pic mem
 ;	src/test_pointer_copy.c: 11: pic = msg[(char)1];
+;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adh il ,hi8(___str_0 + 1)
 	mov	adl il ,lo8(___str_0 + 1)
 	mov	pic mem
 ;	src/test_pointer_copy.c: 15: vvv = msg;
+;; genAssign
 ;	remat: ___str_0 + 0
 	lad	_vvv
 	mov	mem il ,hi8(___str_0 + 0) ; hi
 	lad	_vvv + 1
 	mov	mem il ,lo8(___str_0 + 0) ; lo
 ;	src/test_pointer_copy.c: 18: pic = vvv[(char)0];
+;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adh il ,hi8(_vvv + 0)
 	mov	adl il ,lo8(_vvv + 0)
 	mov	pic mem
 ;	src/test_pointer_copy.c: 22: pic = vvv[(char)1];
+;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
 	lad	_vvv
@@ -106,16 +116,21 @@ __sdcc_program_startup:
 	lad	_main_sloc0_1_0 + 1
 	mov	mem r
 	restore_rx
+;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _main_sloc0_1_0
 	load_address_from_ptr	_main_sloc0_1_0
 	mov	pic mem
 ;	src/test_pointer_copy.c: 26: while (1);
+;; genLabel
 L_main00102:
+;; genGoto
 	goto	L_main00102
 ;	src/test_pointer_copy.c: 28: return 0;
+;; genLabel
 ;	src/test_pointer_copy.c: 29: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
@@ -127,5 +142,5 @@ ___str_0:
 	.ascii	"foo"
 	.byte 0x00
 	.section code,"ax"
-	.section initr
+	.section initr,"a"
 	.section cabs

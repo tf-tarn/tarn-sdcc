@@ -82,6 +82,7 @@ OPT_DISABLE_PDK14    = @OPT_DISABLE_PDK14@
 OPT_DISABLE_PDK15    = @OPT_DISABLE_PDK15@
 OPT_DISABLE_MOS6502  = @OPT_DISABLE_MOS6502@
 OPT_DISABLE_MOS65C02 = @OPT_DISABLE_MOS65C02@
+OPT_DISABLE_TARN     = @OPT_DISABLE_TARN@
 
 SOURCES_FLOAT = $(COMMON_FLOAT) \
   _fscmp.c \
@@ -269,6 +270,10 @@ endif
 ifeq ($(OPT_DISABLE_PDK15), 0)
 TARGETS        += model-pdk15
 TARGETS        += model-pdk15-stack-auto
+endif
+
+ifeq ($(OPT_DISABLE_TARN), 0)
+TARGETS        += model-tarn
 endif
 
 # Compiling entire program or any subproject
@@ -509,6 +514,16 @@ objects-pic14:
 	$(MAKE) port-specific-objects-pic14
 	$(MAKE) clean_intermediate-pic14
 
+model-tarn:
+	if grep '^tarn$$' $(top_builddir)/ports.build > /dev/null; then \
+	  $(MAKE) PORT=tarn objects-tarn; \
+	fi
+
+objects-tarn:
+	$(MAKE) build-dir
+	$(MAKE) port-specific-objects
+	$(MAKE) clean_intermediate
+
 build-dir:
 	$(MAKE) $(PORTDIR)
 	$(MAKE) $(PORT)
@@ -645,7 +660,7 @@ install: all installdirs
 	                     $(srcdir)/mos6502 $(srcdir)/mos65c02 \
 	                     $(srcdir)/stm8 \
 	                     $(srcdir)/pdk13 $(srcdir)/pdk14 $(srcdir)/pdk15 \
-	                     $(srcdir)/pic14 $(srcdir)/pic16 $(srcdir)/*.c $(sdcc_libdir)/src
+	                     $(srcdir)/pic14 $(srcdir)/pic16 $(srcdir)/tarn $(srcdir)/*.c $(sdcc_libdir)/src
 	$(CP_U) -r $(MODELS) mcs51 ds390 ds400 z80 z180 ez80_z80 z80n r2k r2ka r3ka tlcs90 sm83 hc08 s08 stm8 pdk13 pdk14 pdk15 $(sdcc_libdir)/src
 
 	for src in $(MODELS) ds390 ds400 z80 z180 ez80_z80 z80n r2k r2ka r3ka tlcs90 sm83 hc08 s08 mos6502 mos65c02 stm8 pdk13 pdk14 pdk15 pic14 pic16; do \

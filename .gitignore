@@ -3,11 +3,9 @@
 *.dep
 *.a
 
-support/
 sim/
 bin/
 debugger/
-device/
 sdas/*/Makefile
 sdas/*/obj/
 src/Makefile
@@ -19,6 +17,11 @@ src/version.h
 sdas/linksrc/asxxxx_config.h
 doc/Makefile
 testruns/
+build/
+
+/support/sdbinutils/
+/support/cpp/
+/support/**/Makefile
 
 /sdccconf.h
 /config.log
@@ -27,4 +30,5 @@ testruns/
 /ports.build
 /main.mk
 /Makefile
+/device/**/Makefile
 /Makefile.common

@@ -556,6 +556,7 @@ static const ASM_MAPPING _gas_mapping[] = {
   {"hil", "%05d$ >> 8"},
   {"hihil", "%05d$ >> 16"},
   {"hihihil", "%05d$ >> 24"},
+  {"org", "; FIXME .org 0x%04X FIXME"},
   {NULL, NULL}
 };
 

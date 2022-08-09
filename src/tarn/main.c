@@ -41,6 +41,8 @@ static char *tarn_keywords[] = {
   "at",
   "code",
   "data",
+  "xdata",
+  "idata",
   "interrupt",
   "naked",
   "near",
@@ -176,7 +178,7 @@ static const char *_linkCmd[] =
 /* $3 is replaced by assembler.debug_opts resp. port->assembler.plain_opts */
 static const char *tarnAsmCmd[] =
 {
-  "sdastarn", "$l", "$3", "\"$1.asm\"", NULL
+  "tarn-elf32-as", "$l", "$3", "\"$1.asm\"", NULL
 };
 
 static const char *const _libs_tarn[] = { "tarn", NULL, };
@@ -197,8 +199,8 @@ PORT tarn_port =
         {                             /* Assembler */
             tarnAsmCmd,
             0,
-            "-plosgffwy",               /* Options with debug */
-            "-plosgffw",                /* Options without debug */
+            "",               /* Options with debug */
+            "",                /* Options without debug */
             0,
             ".asm"
         },
@@ -246,9 +248,9 @@ PORT tarn_port =
             "istack",                   // istack_name;
             "code",                     // code_name;
             "data",                     // data_name;
-            NULL,                       // idata_name;
+            "idata",                    // idata_name;
             NULL,                       // pdata_name;
-            NULL,                       // xdata_name;
+            "xdata",                    // xdata_name;
             NULL,                       // bit_name;
             "sfr",                      // reg_name;
             "static,\"ax\"",            // static_name;
@@ -261,8 +263,8 @@ PORT tarn_port =
             "cabs",                     // cabs_name;        // const absolute data (code or not)
             NULL,                       // xabs_name;        // absolute xdata/pdata
             NULL,                       // iabs_name;        // absolute idata/data
-            "initd",                    // initialized_name; // Initialized global (and static local) variables.
-            "initr",                    // initializer_name; // A code copy of initialized_name (to be copied for fast initialization).
+            "initd,\"a\"",                    // initialized_name; // Initialized global (and static local) variables.
+            "initr,\"a\"",                    // initializer_name; // A code copy of initialized_name (to be copied for fast initialization).
 
             0,
             0,

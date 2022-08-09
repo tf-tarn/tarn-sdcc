@@ -24,7 +24,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 _var:
 	.ds	1
 ;--------------------------------------------------------
@@ -38,6 +38,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -46,7 +50,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -65,19 +69,24 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/function_void.c: 2: void g() {
+;; genLabel
 ;	-----------------------------------------
 ;	 function g
 ;	-----------------------------------------
 	_g:
 ;	src/function_void.c: 3: var = 1;
+;; genAssign
 	lad	_var
 	mov	mem il ,1
+;; genLabel
 ;	src/function_void.c: 4: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 ;	src/function_void.c: 5: char main (char argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
@@ -94,14 +103,16 @@ L_main00103:
 	lad	_var
 	mov	stack mem
 	jump
+;; genLabel
 ;	src/function_void.c: 8: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 	.section code,"ax"
 	.section const
-	.section initr
+	.section initr,"a"
 __xinit__var:
 	.byte	#0x00	; 0
 	.section cabs

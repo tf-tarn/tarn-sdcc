@@ -815,7 +815,7 @@ _printPointerType (struct dbuf_s *oBuf, const char *name, int size)
       if (port->little_endian)
         dbuf_printf (oBuf, "\t.byte %s, (%s >> 8)", name, name);
       else
-        dbuf_printf (oBuf, "\t.byte (%s >> 8), %s", name, name);
+        dbuf_printf (oBuf, "\t.byte hi8(%s), %s", name, name);
     }
 }
 
@@ -1945,7 +1945,9 @@ emitStaticSeg (memmap *map, struct dbuf_s *oBuf)
             {
               if (SPEC_ABSA (sym->etype))
                 {
-                  dbuf_tprintf (oBuf, "\t!org\n", SPEC_ADDR (sym->etype));
+                    /* TODO: sort sections in ascending order, or GAS can't deal with them! */
+                    /* This makes the absolute/absolute_mem___code.asm test fail. */
+                    dbuf_tprintf (oBuf, "\t!org\n", SPEC_ADDR (sym->etype));
                 }
               if (options.debug)
                 {
@@ -2587,7 +2589,8 @@ glue (void)
    * the post_static_name area will immediately follow the static_name
    * area.
    */
-  tfprintf (asmFile, "\t!area\n", port->mem.home_name);
+  // '.section home' causes errors with gas when '.section home,"ax"' is used later.
+  tfprintf (asmFile, "\t!areahome\n", port->mem.home_name);
   tfprintf (asmFile, "\t!area\n", port->mem.static_name);       /* MOF */
   tfprintf (asmFile, "\t!area\n", port->mem.post_static_name);
   tfprintf (asmFile, "\t!area\n", port->mem.static_name);

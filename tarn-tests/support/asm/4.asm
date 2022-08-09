@@ -25,7 +25,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 _index:
 	.ds	1
 ;--------------------------------------------------------
@@ -42,6 +42,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -50,7 +54,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -69,11 +73,13 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/4.c: 3: char main (char argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	src/4.c: 4: array[index] = 5;
+;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
 	mov	stack il ,hi8(_array + 0)
@@ -86,6 +92,7 @@ __sdcc_program_startup:
 	lad	_main_sloc0_1_0 + 1
 	mov	mem r
 	restore_rx
+;; genPointerSet
 ;; genPointerSet: operand size 2, 1
 	load_address_from_ptr _main_sloc0_1_0
 	mov	mem il ,5
@@ -94,14 +101,16 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack zero
 	jump
+;; genLabel
 ;	src/4.c: 6: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 	.section code,"ax"
 	.section const
-	.section initr
+	.section initr,"a"
 __xinit__index:
 	.byte	#0x01	; 1
 	.section cabs

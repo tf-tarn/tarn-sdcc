@@ -29,7 +29,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
@@ -44,6 +44,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -52,7 +56,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -71,13 +75,17 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/string_loop_function.c: 3: void print(const char *s) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function print
 ;	-----------------------------------------
 	_print:
 ;	src/string_loop_function.c: 4: for (char i = 0; s[i]; ++i) {
+;; genAssign
 	mov	r zero
+;; genLabel
 L_print00103:
+;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
 	load_stack_from_ptr	_print_PARM_1
@@ -88,34 +96,43 @@ L_print00103:
 	lad	_print_sloc0_1_0 + 1
 	mov	mem r
 	restore_rx
+;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _print_sloc0_1_0
 	load_address_from_ptr	_print_sloc0_1_0
 	mov	x mem
+;; genIfx
 	mov	alua x
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
 	gotonz	L_print00101
 ;	src/string_loop_function.c: 5: pic = s[i];
+;; genAssign
 	mov	pic x ; here
 ;	src/string_loop_function.c: 4: for (char i = 0; s[i]; ++i) {
+;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
 	mov	alus il ,4	; plus 
 	mov	alua r
 	mov	alub il ,1
 	mov	r aluc
+;; genGoto
 	goto	L_print00103
+;; genLabel
 L_print00101:
 ;	src/string_loop_function.c: 7: return;
+;; genLabel
 ;	src/string_loop_function.c: 8: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 ;	src/string_loop_function.c: 12: char main (char argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
@@ -123,6 +140,7 @@ L_print00101:
 ;	src/string_loop_function.c: 13: const char *msg = "Hello, world!\n";
 ;	src/string_loop_function.c: 14: const char *msg_too_short = "Too short.\n";
 ;	src/string_loop_function.c: 18: if (argc) {
+;; genIfx
 	lad	_main_PARM_1
 	mov	alua mem
 	mov	alus il ,10	; equal-to 
@@ -130,37 +148,51 @@ L_print00101:
 	mov	test aluc
 	gotonz	L_main00102
 ;	src/string_loop_function.c: 19: var = 1;
+;; genAssign
 	lad	_var
 	mov	mem il ,1
+;; genGoto
 	goto	L_main00103
+;; genLabel
 L_main00102:
 ;	src/string_loop_function.c: 21: var = 1;
+;; genAssign
 	lad	_var
 	mov	mem il ,1
+;; genLabel
 L_main00103:
 ;	src/string_loop_function.c: 24: switch (var) {
+;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 	lad	_var
 	mov	alua mem
 	mov	alub zero
 	mov	test aluc
+;; genIfx
 	gotonz	L_main00104
+;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 	lad	_var
 	mov	alua mem
 	mov	alub il ,1
 	mov	test aluc
+;; genIfx
 	gotonz	L_main00105
+;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 	lad	_var
 	mov	alua mem
 	mov	alub il ,2
 	mov	test aluc
+;; genIfx
 	gotonz	L_main00106
+;; genGoto
 	goto	L_main00109
 ;	src/string_loop_function.c: 25: case 0:
+;; genLabel
 L_main00104:
 ;	src/string_loop_function.c: 26: print(msg_too_short);
+;; genAssign
 ;	remat: ___str_1 + 0
 	lad	_print_PARM_1
 	mov	mem il ,hi8(___str_1 + 0) ; hi
@@ -172,10 +204,13 @@ L_main00104:
 L_main00133:
 	; function returns nothing
 ;	src/string_loop_function.c: 27: break;
+;; genGoto
 	goto	L_main00109
 ;	src/string_loop_function.c: 28: case 1:
+;; genLabel
 L_main00105:
 ;	src/string_loop_function.c: 29: print(msg);
+;; genAssign
 ;	remat: ___str_0 + 0
 	lad	_print_PARM_1
 	mov	mem il ,hi8(___str_0 + 0) ; hi
@@ -187,10 +222,13 @@ L_main00105:
 L_main00134:
 	; function returns nothing
 ;	src/string_loop_function.c: 30: break;
+;; genGoto
 	goto	L_main00109
 ;	src/string_loop_function.c: 31: case 2:
+;; genLabel
 L_main00106:
 ;	src/string_loop_function.c: 32: print(msg_too_short);
+;; genAssign
 ;	remat: ___str_1 + 0
 	lad	_print_PARM_1
 	mov	mem il ,hi8(___str_1 + 0) ; hi
@@ -202,9 +240,13 @@ L_main00106:
 L_main00135:
 	; function returns nothing
 ;	src/string_loop_function.c: 35: while (1);
+;; genLabel
 L_main00109:
+;; genGoto
 	goto	L_main00109
+;; genLabel
 ;	src/string_loop_function.c: 36: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
@@ -223,5 +265,5 @@ ___str_1:
 	.byte 0x0A
 	.byte 0x00
 	.section code,"ax"
-	.section initr
+	.section initr,"a"
 	.section cabs

@@ -974,6 +974,7 @@ if test $OPT_DISABLE_TARN = 0; then
     # Doesn't really exist
     # AC_CONFIG_FILES([sdas/astarn/Makefile])
     # What is that device/lib stuff?
+    test $OPT_DISABLE_DEVICE_LIB = 0 && AC_CONFIG_FILES([device/lib/tarn/Makefile])
 fi
 
 

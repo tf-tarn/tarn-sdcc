@@ -31,7 +31,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
@@ -46,6 +46,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -54,7 +58,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -73,31 +77,35 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/shift_left_8.2.c: 5: int main (int argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	src/shift_left_8.2.c: 6: val1 = pic;
+;; genAssign
 	lad	_val1
 	mov	mem pic
 ;	src/shift_left_8.2.c: 7: val2 = pic;
+;; genAssign
 	lad	_val2
 	mov	mem pic
 ;	src/shift_left_8.2.c: 8: val3 = (val1 << 8) + val2;
-;; genCast        
+;; genCast
 	lad	_main_sloc0_1_0
 	mov	mem zero
 	lad	_val1
 	mov	stack mem
 	lad	_main_sloc0_1_0 + 1
 	mov	mem stack
-;;	genLeftShift
+;; genLeftShift
 	mov	r mem
 	lad	_main_sloc0_1_0 + 1
 	mov	x mem
+;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:1649)
+; implement me (gen.c:1706)
 	mov	stack x
 	mov	stack r
 	lad	_val2
@@ -115,12 +123,14 @@ __sdcc_program_startup:
 	lad	_main_sloc0_1_0
 	mov	stack mem
 	jump
+;; genLabel
 ;	src/shift_left_8.2.c: 11: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 	.section code,"ax"
 	.section const
-	.section initr
+	.section initr,"a"
 	.section cabs

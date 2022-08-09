@@ -30,7 +30,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 _var:
 	.ds	1
 ;--------------------------------------------------------
@@ -44,6 +44,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -52,7 +56,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -71,11 +75,13 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/function_void_args.c: 2: void g(char a, char b) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function g
 ;	-----------------------------------------
 	_g:
 ;	src/function_void_args.c: 3: var = a+b;
+;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
 	mov	alus il ,4	; plus 
@@ -85,19 +91,24 @@ __sdcc_program_startup:
 	mov	alub mem
 	lad	_var
 	mov	mem aluc
+;; genLabel
 ;	src/function_void_args.c: 4: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 ;	src/function_void_args.c: 5: char main (char argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	src/function_void_args.c: 6: g(1, 2);
+;; genAssign
 	lad	_g_PARM_1
 	mov	mem il ,1
+;; genAssign
 	lad	_g_PARM_2
 	mov	mem il ,2
 	mov	stack il ,hi8(L_main00103)
@@ -111,14 +122,16 @@ L_main00103:
 	lad	_var
 	mov	stack mem
 	jump
+;; genLabel
 ;	src/function_void_args.c: 8: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 	.section code,"ax"
 	.section const
-	.section initr
+	.section initr,"a"
 __xinit__var:
 	.byte	#0x00	; 0
 	.section cabs

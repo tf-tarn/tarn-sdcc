@@ -25,7 +25,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
@@ -37,6 +37,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -45,7 +49,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -64,18 +68,21 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/assignment_big.c: 2: char main (char argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	src/assignment_big.c: 3: const char *msg = "foo";
-;; genCast        
+;; genCast
+;; genAssign
 ;	remat: ___str_0 + 0
 	lad	_vvv
 	mov	mem il ,hi8(___str_0 + 0) ; hi
 	lad	_vvv + 1
 	mov	mem il ,lo8(___str_0 + 0) ; lo
 ;	src/assignment_big.c: 7: return vvv[0];
+;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adh il ,hi8(_vvv + 0)
 	mov	adl il ,lo8(_vvv + 0)
@@ -84,7 +91,9 @@ __sdcc_program_startup:
 	mov	jmph stack
 	mov	stack r
 	jump
+;; genLabel
 ;	src/assignment_big.c: 8: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
@@ -96,5 +105,5 @@ ___str_0:
 	.ascii	"foo"
 	.byte 0x00
 	.section code,"ax"
-	.section initr
+	.section initr,"a"
 	.section cabs

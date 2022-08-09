@@ -26,7 +26,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
-	.section initd
+	.section initd,"a"
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
@@ -38,6 +38,10 @@ __start__stack:
 	.ds	1
 
 ;--------------------------------------------------------
+; indirectly addressable internal ram data
+;--------------------------------------------------------
+	.section idata
+;--------------------------------------------------------
 ; interrupt vector
 ;--------------------------------------------------------
 	.section home,"ax"
@@ -46,7 +50,7 @@ __interrupt_vect:
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
-	.section home
+	.section home,"ax"
 	.section static,"ax"
 	.section post_static,"ax"
 	.section static,"ax"
@@ -65,23 +69,30 @@ __sdcc_program_startup:
 ;--------------------------------------------------------
 	.section code,"ax"
 ;	src/crc8one.c: 5: uint8_t crc8_one(uint8_t crc)
+;; genLabel
 ;	-----------------------------------------
 ;	 function crc8_one
 ;	-----------------------------------------
 	_crc8_one:
 ;	src/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
+;; genAssign
 	mov	r zero
+;; genLabel
 L_crc8_one00106:
+;; genCmp
 	mov	alus il ,9	; less-than 
 	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
+;; genIfx
 	gotonz	L_crc8_one00123
 	goto	L_crc8_one00104
 L_crc8_one00123:
 ;	src/crc8one.c: 10: if (crc & 0x80)
+;; genAssign
 	lad	_crc8_one_PARM_1
 	mov	x mem
+;; genALUOp
 ;;	ALU and (0)
 ;;	ALU operand size 2 1 1
 	mov	alus il ,0	; and 
@@ -92,15 +103,17 @@ L_crc8_one00123:
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
+;; genIfx
 	gotonz	L_crc8_one00102
 ;	src/crc8one.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
-;;	genLeftShift
+;; genLeftShift
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
 	mov	alus il ,4	; plus 
 	mov	alua x
 	mov	alub x
 	mov	x aluc
+;; genALUOp
 ;;	ALU xor (2)
 ;;	ALU operand size 1 1 1
 	mov	alus il ,2	; xor 
@@ -108,10 +121,12 @@ L_crc8_one00123:
 	mov	alub il ,7
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
+;; genGoto
 	goto	L_crc8_one00107
+;; genLabel
 L_crc8_one00102:
 ;	src/crc8one.c: 16: crc <<= 1;
-;;	genLeftShift
+;; genLeftShift
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
 	mov	alus il ,4	; plus 
@@ -119,15 +134,19 @@ L_crc8_one00102:
 	mov	alub x
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
+;; genLabel
 L_crc8_one00107:
 ;	src/crc8one.c: 8: for (uint8_t i = 0; i < 8; i++)
+;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
 	mov	alus il ,4	; plus 
 	mov	alua r
 	mov	alub il ,1
 	mov	r aluc
+;; genGoto
 	goto	L_crc8_one00106
+;; genLabel
 L_crc8_one00104:
 ;	src/crc8one.c: 20: return crc;
 	mov	jmpl stack
@@ -135,17 +154,21 @@ L_crc8_one00104:
 	lad	_crc8_one_PARM_1
 	mov	stack mem
 	jump
+;; genLabel
 ;	src/crc8one.c: 21: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 ;	src/crc8one.c: 23: uint8_t main(uint8_t argc, char **argv) {
+;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
 ;	src/crc8one.c: 24: return crc8_one(5);
+;; genAssign
 	lad	_crc8_one_PARM_1
 	mov	mem il ,5
 	mov	stack il ,hi8(L_main00103)
@@ -157,12 +180,14 @@ L_main00103:
 	mov	jmph stack
 	mov	stack r
 	jump
+;; genLabel
 ;	src/crc8one.c: 25: }
+;; genEndFunction  = 
 ;; genEndFunction 
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 	.section code,"ax"
 	.section const
-	.section initr
+	.section initr,"a"
 	.section cabs

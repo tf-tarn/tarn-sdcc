@@ -157,12 +157,6 @@ hasExtBitOp (int op, int size)
   return (op == GETBYTE || op == SWAP && size == 1);
 }
 
-static const char *
-get_model (void)
-{
-    return(options.stackAuto ? "tarn15-stack-auto" : "tarn15");
-}
-
 /** $1 is always the basename.
     $2 is always the output file.
     $3 varies

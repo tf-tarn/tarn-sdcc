@@ -2,6 +2,9 @@
 #
 #
 
+.SECONDARY: # don't rm all "intermediate" targets
+
+
 VERSION         = @VERSION@
 VERSIONHI       = @VERSIONHI@
 VERSIONLO       = @VERSIONLO@

@@ -19,6 +19,7 @@ doc/Makefile
 testruns/
 build/
 
+/device/lib/**/*.asm
 /support/sdbinutils/
 /support/cpp/
 /support/**/Makefile

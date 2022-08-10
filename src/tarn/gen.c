@@ -789,7 +789,7 @@ void print_op_diagnostics(const char *tag, operand *op) {
                  mem_label ? mem_label : "");
         emit2(";", "%s", buf);
     } else {
-        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+        emit2("", "; implement me (%s:%d) (print)", __FILE__, __LINE__);
     }
 }
 
@@ -1812,6 +1812,8 @@ void move_aop(asmop *a1, asmop *a2) {
                 } else {
                     emit_mov(a1->aopu.bytes[0].byteu.reg->name, "zero");
                 }
+            } else if (AOP_IS_SFR(a2)) {
+                emit_mov(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.aop_dir);
             } else {
                 MOVE_AOP_DEBUG;
             }

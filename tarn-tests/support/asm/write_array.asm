@@ -89,7 +89,7 @@ __sdcc_program_startup:
 	_main:
 ;	src/write_array.c: 5: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 6: pic = array[0];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -98,10 +98,10 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 7: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 8: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 9: pic = array[1];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -110,10 +110,10 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 10: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 11: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 12: pic = array[2];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -122,10 +122,10 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 13: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 14: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 15: pic = array[3];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -134,10 +134,10 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 16: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 17: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 18: pic = array[4];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -146,10 +146,10 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 19: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 21: pic = '\n';
 ;; genAssign
-	mov	pic il, 10
+	mov	pic il ,10
 ;	src/write_array.c: 22: array[index++] = 5;
 ;; genAssign
 	lad	_index
@@ -297,7 +297,7 @@ __sdcc_program_startup:
 	mov	mem il ,1
 ;	src/write_array.c: 28: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 29: pic = array[0];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -306,10 +306,10 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 30: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 31: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 32: pic = array[1];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -318,10 +318,10 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 33: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 34: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 35: pic = array[2];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -330,10 +330,10 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 36: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 37: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 38: pic = array[3];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -342,10 +342,10 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 39: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 40: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 41: pic = array[4];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
@@ -354,23 +354,23 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 42: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 44: pic = '\n';
 ;; genAssign
-	mov	pic il, 10
+	mov	pic il ,10
 ;	src/write_array.c: 46: pic = 0x0e;
 ;; genAssign
-	mov	pic il, 14
+	mov	pic il ,14
 ;	src/write_array.c: 47: pic = index;
 ;; genAssign
 	lad	_index
 	mov	pic mem
 ;	src/write_array.c: 48: pic = 0x0f;
 ;; genAssign
-	mov	pic il, 15
+	mov	pic il ,15
 ;	src/write_array.c: 50: pic = '\n';
 ;; genAssign
-	mov	pic il, 10
+	mov	pic il ,10
 ;	src/write_array.c: 52: while (1);
 ;; genLabel
 L_main00102:

@@ -105,7 +105,6 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:1706)
 	mov	stack x
 	mov	stack r
 	lad	_val2
@@ -119,14 +118,11 @@ __sdcc_program_startup:
 ;	src/shift_left_8.2.c: 10: return val1;
 	mov	jmpl stack
 	mov	jmph stack
-;	load_reg: spilt
-	lad	_main_sloc0_1_0
-	mov	stack mem
+; implement me (gen.c:1297)
 	jump
 ;; genLabel
 ;	src/shift_left_8.2.c: 11: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

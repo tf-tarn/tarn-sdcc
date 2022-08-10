@@ -120,6 +120,7 @@ __sdcc_program_startup:
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _main_sloc0_1_0
+; implement me (gen.c:801)
 	load_address_from_ptr	_main_sloc0_1_0
 	mov	pic mem
 ;	src/test_pointer_copy.c: 26: while (1);
@@ -130,8 +131,7 @@ L_main00102:
 ;	src/test_pointer_copy.c: 28: return 0;
 ;; genLabel
 ;	src/test_pointer_copy.c: 29: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

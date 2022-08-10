@@ -94,12 +94,11 @@ __sdcc_program_startup:
 ;	src/addition_large_2.c: 6: return 0;
 	mov	jmpl stack
 	mov	jmph stack
-	mov	stack zero
+; implement me (gen.c:1302)
 	jump
 ;; genLabel
 ;	src/addition_large_2.c: 7: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

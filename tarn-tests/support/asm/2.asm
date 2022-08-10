@@ -113,10 +113,13 @@ L_multiply_or_divide00101:
 	mov	stack mem
 	lad	__muluchar_PARM_2
 	mov	mem stack
+;; genCall
 	mov	stack il ,hi8(L_multiply_or_divide00121)
 	mov	stack il ,lo8(L_multiply_or_divide00121)
 	goto	__muluchar
 L_multiply_or_divide00121:
+;	result: reg? mem? remat? spilt? nregs regs label
+;	        yes                     1     r,        
 	mov	r stack
 	mov	jmpl stack
 	mov	jmph stack
@@ -136,10 +139,13 @@ L_multiply_or_divide00102:
 	mov	stack mem
 	lad	__divuchar_PARM_2
 	mov	mem stack
+;; genCall
 	mov	stack il ,hi8(L_multiply_or_divide00122)
 	mov	stack il ,lo8(L_multiply_or_divide00122)
 	goto	__divuchar
 L_multiply_or_divide00122:
+;	result: reg? mem? remat? spilt? nregs regs label
+;	        yes                     1     r,        
 	mov	r stack
 	mov	jmpl stack
 	mov	jmph stack
@@ -180,8 +186,7 @@ L_multiply_or_divide00106:
 	jump
 ;; genLabel
 ;	src/2.c: 18: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
@@ -198,8 +203,7 @@ L_multiply_or_divide00106:
 	jump
 ;; genLabel
 ;	src/2.c: 22: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

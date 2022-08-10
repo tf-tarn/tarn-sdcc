@@ -156,8 +156,7 @@ L_crc8_one00104:
 	jump
 ;; genLabel
 ;	src/crc8one.c: 21: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
@@ -171,6 +170,7 @@ L_crc8_one00104:
 ;; genAssign
 	lad	_crc8_one_PARM_1
 	mov	mem il ,5
+;; genCall
 	mov	stack il ,hi8(L_main00103)
 	mov	stack il ,lo8(L_main00103)
 	goto	_crc8_one
@@ -182,8 +182,7 @@ L_main00103:
 	jump
 ;; genLabel
 ;	src/crc8one.c: 25: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

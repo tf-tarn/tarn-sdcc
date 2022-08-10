@@ -80,8 +80,7 @@ __sdcc_program_startup:
 	mov	mem il ,1
 ;; genLabel
 ;	src/function_void.c: 4: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
@@ -92,6 +91,7 @@ __sdcc_program_startup:
 ;	-----------------------------------------
 	_main:
 ;	src/function_void.c: 6: g();
+;; genCall
 	mov	stack il ,hi8(L_main00103)
 	mov	stack il ,lo8(L_main00103)
 	goto	_g
@@ -105,8 +105,7 @@ L_main00103:
 	jump
 ;; genLabel
 ;	src/function_void.c: 8: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

@@ -95,13 +95,11 @@ __sdcc_program_startup:
 ;	src/casting2.c: 8: return val1;
 	mov	jmpl stack
 	mov	jmph stack
-	lad	_val1
-	mov	stack mem
+; implement me (gen.c:1297)
 	jump
 ;; genLabel
 ;	src/casting2.c: 9: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

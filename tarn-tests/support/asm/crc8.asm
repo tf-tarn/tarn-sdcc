@@ -167,8 +167,7 @@ L_crc8_one00104:
 	jump
 ;; genLabel
 ;	src/crc8.c: 21: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
@@ -212,6 +211,7 @@ L_crc800118:
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _crc8_sloc0_1_0
+; implement me (gen.c:801)
 	load_address_from_ptr	_crc8_sloc0_1_0
 	lad	_crc8_sloc1_1_0
 	mov	mem mem
@@ -226,6 +226,7 @@ L_crc800118:
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 ;	src/crc8.c: 29: crc = crc8_one(crc);
+;; genCall
 	mov	stack x
 	mov	stack il ,hi8(L_crc800119)
 	mov	stack il ,lo8(L_crc800119)
@@ -254,8 +255,7 @@ L_crc800101:
 	jump
 ;; genLabel
 ;	src/crc8.c: 33: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
@@ -267,7 +267,7 @@ L_crc800101:
 	_main:
 ;	src/crc8.c: 36: return crc8(argv[0], 200);
 ;; genAssign
-; implement me (gen.c:1421)
+; implement me (gen.c:1496)
 ;; genPointerGet
 ;; genPointerGet: operand size 2, 2, 1
 	lad	_crc8_PARM_1
@@ -277,6 +277,7 @@ L_crc800101:
 ;; genAssign
 	lad	_crc8_PARM_2
 	mov	mem il ,200
+;; genCall
 	mov	stack il ,hi8(L_main00103)
 	mov	stack il ,lo8(L_main00103)
 	goto	_crc8
@@ -288,8 +289,7 @@ L_main00103:
 	jump
 ;; genLabel
 ;	src/crc8.c: 37: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

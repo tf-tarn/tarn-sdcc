@@ -166,7 +166,6 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:1660)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc0_1_0
@@ -176,6 +175,8 @@ __sdcc_program_startup:
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
+;	left: reg? mem? remat? spilt? nregs regs label
+;	           yes         yes    2          _main_sloc0_1_0
 	load_address_from_ptr _main_sloc0_1_0
 	mov	mem il ,5
 ;	src/write_array.c: 23: array[index++] = 4;
@@ -194,7 +195,6 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:1660)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc1_1_0
@@ -204,6 +204,8 @@ __sdcc_program_startup:
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
+;	left: reg? mem? remat? spilt? nregs regs label
+;	           yes         yes    2          _main_sloc1_1_0
 	load_address_from_ptr _main_sloc1_1_0
 	mov	mem il ,4
 ;	src/write_array.c: 24: array[index++] = 3;
@@ -222,7 +224,6 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:1660)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc2_1_0
@@ -232,6 +233,8 @@ __sdcc_program_startup:
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
+;	left: reg? mem? remat? spilt? nregs regs label
+;	           yes         yes    2          _main_sloc2_1_0
 	load_address_from_ptr _main_sloc2_1_0
 	mov	mem il ,3
 ;	src/write_array.c: 25: array[index++] = 2;
@@ -250,7 +253,6 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:1660)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc3_1_0
@@ -260,6 +262,8 @@ __sdcc_program_startup:
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
+;	left: reg? mem? remat? spilt? nregs regs label
+;	           yes         yes    2          _main_sloc3_1_0
 	load_address_from_ptr _main_sloc3_1_0
 	mov	mem il ,2
 ;	src/write_array.c: 26: array[index++] = 1;
@@ -278,7 +282,6 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:1660)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc4_1_0
@@ -288,6 +291,8 @@ __sdcc_program_startup:
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
+;	left: reg? mem? remat? spilt? nregs regs label
+;	           yes         yes    2          _main_sloc4_1_0
 	load_address_from_ptr _main_sloc4_1_0
 	mov	mem il ,1
 ;	src/write_array.c: 28: pic = 0x0e;
@@ -374,8 +379,7 @@ L_main00102:
 ;	src/write_array.c: 54: return 0;
 ;; genLabel
 ;	src/write_array.c: 55: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

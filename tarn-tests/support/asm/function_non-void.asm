@@ -78,8 +78,7 @@ __sdcc_program_startup:
 	jump
 ;; genLabel
 ;	src/function_non-void.c: 3: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
@@ -90,6 +89,7 @@ __sdcc_program_startup:
 ;	-----------------------------------------
 	_main:
 ;	src/function_non-void.c: 5: char val = f();
+;; genCall
 	mov	stack il ,hi8(L_main00103)
 	mov	stack il ,lo8(L_main00103)
 	goto	_f
@@ -104,8 +104,7 @@ L_main00103:
 	jump
 ;; genLabel
 ;	src/function_non-void.c: 7: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

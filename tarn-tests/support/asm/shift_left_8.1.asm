@@ -93,12 +93,12 @@ __sdcc_program_startup:
 ;	src/shift_left_8.1.c: 8: return val1;
 	mov	jmpl stack
 	mov	jmph stack
+	mov	stack x
 	mov	stack r
 	jump
 ;; genLabel
 ;	src/shift_left_8.1.c: 9: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

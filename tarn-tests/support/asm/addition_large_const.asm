@@ -74,15 +74,12 @@ __sdcc_program_startup:
 ;	src/addition_large_const.c: 4: return msg + 1;
 	mov	jmpl stack
 	mov	jmph stack
-;; load_reg remat + N
-	mov	adh il ,hi8(___str_0 + 1)
-	mov	adl il ,lo8(___str_0 + 1)
-	mov	stack mem
+	mov	stack il ,lo8(___str_0 + 1)
+	mov	stack il ,hi8(___str_0 + 1)
 	jump
 ;; genLabel
 ;	src/addition_large_const.c: 5: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

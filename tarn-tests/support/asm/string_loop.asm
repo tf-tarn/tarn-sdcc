@@ -82,7 +82,6 @@ L_main00106:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:1660)
 	mov	stack r
 	add_8s_16	___str_0 ; 1
 	lad	_main_sloc0_1_0
@@ -94,6 +93,7 @@ L_main00106:
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _main_sloc0_1_0
+; implement me (gen.c:801)
 	load_address_from_ptr	_main_sloc0_1_0
 	mov	x mem
 ;; genIfx
@@ -123,8 +123,7 @@ L_main00103:
 ;	src/string_loop.c: 10: return 0;
 ;; genLabel
 ;	src/string_loop.c: 11: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

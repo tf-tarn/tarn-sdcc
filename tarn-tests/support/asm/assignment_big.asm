@@ -93,8 +93,7 @@ __sdcc_program_startup:
 	jump
 ;; genLabel
 ;	src/assignment_big.c: 8: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

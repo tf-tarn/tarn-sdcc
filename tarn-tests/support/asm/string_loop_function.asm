@@ -100,6 +100,7 @@ L_print00103:
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _print_sloc0_1_0
+; implement me (gen.c:801)
 	load_address_from_ptr	_print_sloc0_1_0
 	mov	x mem
 ;; genIfx
@@ -126,8 +127,7 @@ L_print00101:
 ;	src/string_loop_function.c: 7: return;
 ;; genLabel
 ;	src/string_loop_function.c: 8: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
@@ -198,6 +198,7 @@ L_main00104:
 	mov	mem il ,hi8(___str_1 + 0) ; hi
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_1 + 0) ; lo
+;; genCall
 	mov	stack il ,hi8(L_main00133)
 	mov	stack il ,lo8(L_main00133)
 	goto	_print
@@ -216,6 +217,7 @@ L_main00105:
 	mov	mem il ,hi8(___str_0 + 0) ; hi
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_0 + 0) ; lo
+;; genCall
 	mov	stack il ,hi8(L_main00134)
 	mov	stack il ,lo8(L_main00134)
 	goto	_print
@@ -234,6 +236,7 @@ L_main00106:
 	mov	mem il ,hi8(___str_1 + 0) ; hi
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_1 + 0) ; lo
+;; genCall
 	mov	stack il ,hi8(L_main00135)
 	mov	stack il ,lo8(L_main00135)
 	goto	_print
@@ -246,8 +249,7 @@ L_main00109:
 	goto	L_main00109
 ;; genLabel
 ;	src/string_loop_function.c: 36: }
-;; genEndFunction  = 
-;; genEndFunction 
+;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump

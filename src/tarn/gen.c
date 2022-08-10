@@ -1701,13 +1701,13 @@ static void genIfx (iCode *ic)
 static void genUminus(iCode *ic) {
     if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genUminus", ic); }
 
-    operand *result = IC_RESULT (ic);
-    operand *left = IC_LEFT (ic);
-    int size_left = operandSize(left);
+    /* operand *result = IC_RESULT (ic); */
+    /* operand *left = IC_LEFT (ic); */
+    /* int size_left = operandSize(left); */
 
-    if (size_left == 1) {
+    /* if (size_left == 1) { */
         
-    }
+    /* } */
     
 
 }

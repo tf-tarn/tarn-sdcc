@@ -100,7 +100,7 @@ L_print00103:
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _print_sloc0_1_0
-; implement me (gen.c:801)
+; implement me (gen.c:1183) BROKEN
 	load_address_from_ptr	_print_sloc0_1_0
 	mov	x mem
 ;; genIfx
@@ -111,7 +111,7 @@ L_print00103:
 	gotonz	L_print00101
 ;	src/string_loop_function.c: 5: pic = s[i];
 ;; genAssign
-	mov	pic x ; here
+	mov	pic x
 ;	src/string_loop_function.c: 4: for (char i = 0; s[i]; ++i) {
 ;; genALUOp
 ;;	ALU plus (4)
@@ -193,7 +193,6 @@ L_main00103:
 L_main00104:
 ;	src/string_loop_function.c: 26: print(msg_too_short);
 ;; genAssign
-;	remat: ___str_1 + 0
 	lad	_print_PARM_1
 	mov	mem il ,hi8(___str_1 + 0) ; hi
 	lad	_print_PARM_1 + 1
@@ -212,7 +211,6 @@ L_main00133:
 L_main00105:
 ;	src/string_loop_function.c: 29: print(msg);
 ;; genAssign
-;	remat: ___str_0 + 0
 	lad	_print_PARM_1
 	mov	mem il ,hi8(___str_0 + 0) ; hi
 	lad	_print_PARM_1 + 1
@@ -231,7 +229,6 @@ L_main00134:
 L_main00106:
 ;	src/string_loop_function.c: 32: print(msg_too_short);
 ;; genAssign
-;	remat: ___str_1 + 0
 	lad	_print_PARM_1
 	mov	mem il ,hi8(___str_1 + 0) ; hi
 	lad	_print_PARM_1 + 1

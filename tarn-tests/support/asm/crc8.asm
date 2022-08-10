@@ -211,7 +211,7 @@ L_crc800118:
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _crc8_sloc0_1_0
-; implement me (gen.c:801)
+; implement me (gen.c:1183) BROKEN
 	load_address_from_ptr	_crc8_sloc0_1_0
 	lad	_crc8_sloc1_1_0
 	mov	mem mem
@@ -267,7 +267,10 @@ L_crc800101:
 	_main:
 ;	src/crc8.c: 36: return crc8(argv[0], 200);
 ;; genAssign
-; implement me (gen.c:1496)
+	lad	_main_PARM_2 + 0
+	mov	r mem
+	lad	_main_PARM_2 + 1
+	mov	x mem
 ;; genPointerGet
 ;; genPointerGet: operand size 2, 2, 1
 	lad	_crc8_PARM_1

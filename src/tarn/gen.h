@@ -67,6 +67,7 @@ typedef struct asmop
 {
   AOP_TYPE type;
   short size;
+    bool regalloc_dry_run;
   union
   {
     value *aop_lit;

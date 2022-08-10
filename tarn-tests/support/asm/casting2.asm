@@ -85,17 +85,17 @@ __sdcc_program_startup:
 ;	src/casting2.c: 6: val2 = val1;
 ;; genAssign
 	lad	_val1
-	mov	stack mem
+	mov	stack mem ; hi
 	lad	_val1 + 1
-	mov	stack mem
+	mov	stack mem ; lo
 	lad	_val2 + 1
-	mov	mem stack
+	mov	mem stack ; lo
 	lad	_val2
-	mov	mem stack
+	mov	mem stack ; hi
 ;	src/casting2.c: 8: return val1;
 	mov	jmpl stack
 	mov	jmph stack
-; implement me (gen.c:1297)
+; implement me (gen.c:1679)
 	jump
 ;; genLabel
 ;	src/casting2.c: 9: }

@@ -118,7 +118,7 @@ __sdcc_program_startup:
 ;	src/shift_left_8.2.c: 10: return val1;
 	mov	jmpl stack
 	mov	jmph stack
-; implement me (gen.c:1297)
+; implement me (gen.c:1679)
 	jump
 ;; genLabel
 ;	src/shift_left_8.2.c: 11: }

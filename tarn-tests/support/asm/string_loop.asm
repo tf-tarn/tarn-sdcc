@@ -93,7 +93,7 @@ L_main00106:
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _main_sloc0_1_0
-; implement me (gen.c:801)
+; implement me (gen.c:1183) BROKEN
 	load_address_from_ptr	_main_sloc0_1_0
 	mov	x mem
 ;; genIfx
@@ -104,7 +104,7 @@ L_main00106:
 	gotonz	L_main00103
 ;	src/string_loop.c: 5: pic = msg[i];
 ;; genAssign
-	mov	pic x ; here
+	mov	pic x
 ;	src/string_loop.c: 4: for (char i = 0; msg[i]; ++i) {
 ;; genALUOp
 ;;	ALU plus (4)

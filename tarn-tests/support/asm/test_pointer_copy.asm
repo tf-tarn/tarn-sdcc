@@ -91,7 +91,6 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/test_pointer_copy.c: 15: vvv = msg;
 ;; genAssign
-;	remat: ___str_0 + 0
 	lad	_vvv
 	mov	mem il ,hi8(___str_0 + 0) ; hi
 	lad	_vvv + 1
@@ -120,7 +119,7 @@ __sdcc_program_startup:
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _main_sloc0_1_0
-; implement me (gen.c:801)
+; implement me (gen.c:1183) BROKEN
 	load_address_from_ptr	_main_sloc0_1_0
 	mov	pic mem
 ;	src/test_pointer_copy.c: 26: while (1);

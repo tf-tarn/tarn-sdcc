@@ -157,15 +157,16 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_index
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	lad	_index
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
+; implement me (gen.c:2353)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc0_1_0
@@ -186,15 +187,16 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_index
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	lad	_index
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
+; implement me (gen.c:2353)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc1_1_0
@@ -215,15 +217,16 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_index
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	lad	_index
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
+; implement me (gen.c:2353)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc2_1_0
@@ -244,15 +247,16 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_index
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	lad	_index
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
+; implement me (gen.c:2353)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc3_1_0
@@ -273,15 +277,16 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_index
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	lad	_index
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
+; implement me (gen.c:2353)
 	mov	stack r
 	add_8s_16	_array ; 1
 	lad	_main_sloc4_1_0

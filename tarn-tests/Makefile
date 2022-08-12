@@ -3,12 +3,12 @@ all: build/echo.ihex build/monitor.ihex
 clean:
 	@rm -Rf build/*
 
+CC=/home/tarn/projects/tarnos/sdcc/sdcc-4.2.0/bin/sdcc
+
 .SECONDARY: # don't rm all "intermediate" targets
 
 build/%.asm: src/%.c
-	which sdcc
-	# @echo $@;
-	sdcc -S $< -o $@
+	$(CC) -S $< -o $@
 
 build/%.o: build/%.asm
 	@echo $@;

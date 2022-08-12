@@ -121,9 +121,9 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,-48
 	mov	r aluc
 	mov	jmpl stack
@@ -153,9 +153,9 @@ L_parse_hex_digit00102:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,169
 	mov	r aluc
 	mov	jmpl stack
@@ -185,9 +185,9 @@ L_parse_hex_digit00105:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,201
 	mov	r aluc
 	mov	jmpl stack

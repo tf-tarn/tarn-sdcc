@@ -106,8 +106,8 @@ L_crc8_one00123:
 ;; genALUOp
 ;;	ALU and (0)
 ;;	ALU operand size 2 1 1
-	mov	alus il ,0	; and 
 	mov	alua x
+	mov	alus il ,0	; and 
 	mov	alub il ,128
 ;; ALU op has ifx!
 	mov	alua aluc
@@ -120,15 +120,15 @@ L_crc8_one00123:
 ;; genLeftShift
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	mov	alua x
+	mov	alus il ,4	; plus 
 	mov	alub x
 	mov	x aluc
 ;; genALUOp
 ;;	ALU xor (2)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,2	; xor 
 	mov	alua x
+	mov	alus il ,2	; xor 
 	mov	alub il ,7
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
@@ -140,8 +140,8 @@ L_crc8_one00102:
 ;; genLeftShift
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	mov	alua x
+	mov	alus il ,4	; plus 
 	mov	alub x
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
@@ -151,8 +151,8 @@ L_crc8_one00107:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	mov	alua r
+	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	mov	r aluc
 ;; genGoto
@@ -202,8 +202,8 @@ L_crc800118:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	mov	stack il ,hi8(_crc8_PARM_1)
-	mov	stack il ,lo8(_crc8_PARM_1)
+; implement me (gen.c:2353)
+	load_stack_from_ptr	_crc8_PARM_1
 	lad	_crc8_sloc0_1_0
 	mov	stack mem
 	add_8s_16s
@@ -221,8 +221,8 @@ L_crc800118:
 ;; genALUOp
 ;;	ALU xor (2)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,2	; xor 
 	mov	alua r
+	mov	alus il ,2	; xor 
 	mov	alub x
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
@@ -239,9 +239,9 @@ L_crc800119:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_crc8_sloc0_1_0
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	lad	_crc8_sloc0_1_0
 	mov	mem aluc

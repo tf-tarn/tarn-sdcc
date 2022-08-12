@@ -84,6 +84,7 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
+; implement me (gen.c:2353)
 	mov	stack il ,hi8(_array + 0)
 	mov	stack il ,lo8(_array + 0)
 	lad	_index
@@ -104,6 +105,7 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
+; implement me (gen.c:2353)
 	mov	stack il ,hi8(_array + 0)
 	mov	stack il ,lo8(_array + 0)
 	lad	_index

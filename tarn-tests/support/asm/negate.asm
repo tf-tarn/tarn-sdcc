@@ -2,27 +2,19 @@
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
-	.file	"function_void_args.c"
+	.file	"negate.c"
 	
 .include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
 	.globl	_main
-	.globl	_g
-	.globl	_var
 	.globl	_main_PARM_2
 	.globl	_main_PARM_1
-	.globl	_g_PARM_2
-	.globl	_g_PARM_1
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
 	.section data,"w"
-_g_PARM_1:
-	.ds	1
-_g_PARM_2:
-	.ds	1
 _main_PARM_1:
 	.ds	1
 _main_PARM_2:
@@ -31,8 +23,6 @@ _main_PARM_2:
 ; ram data
 ;--------------------------------------------------------
 	.section initd,"a"
-_var:
-	.ds	1
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
@@ -74,56 +64,69 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section code,"ax"
-;	src/function_void_args.c: 2: void g(char a, char b) {
-;; genLabel
-;	-----------------------------------------
-;	 function g
-;	-----------------------------------------
-	_g:
-;	src/function_void_args.c: 3: var = a+b;
-;; genALUOp
-;;	ALU plus (4)
-;;	ALU operand size 1 1 1
-	lad	_g_PARM_1
-	mov	alua mem
-	mov	alus il ,4	; plus 
-	lad	_g_PARM_2
-	mov	alub mem
-	lad	_var
-	mov	mem aluc
-;; genLabel
-;	src/function_void_args.c: 4: }
-;; genEndFunction
-	mov	jmpl stack
-	mov	jmph stack
-	jump
-;	src/function_void_args.c: 5: char main (char argc, char **argv) {
+;	src/negate.c: 3: char main(char argc, char **argv) {
 ;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/function_void_args.c: 6: g(1, 2);
+;	src/negate.c: 6: x = pic;
 ;; genAssign
-	lad	_g_PARM_1
-	mov	mem il ,1
+	mov	r pic
+;	src/negate.c: 7: pic = -x;
+;; genUminus
+	mov	alua r
+	mov	alus il ,3	; not 
+	mov	alua aluc
+	mov	alus il ,4	; plus 
+	mov	alub il ,1
+	mov	pic aluc
+;	src/negate.c: 8: x = pic;
 ;; genAssign
-	lad	_g_PARM_2
-	mov	mem il ,2
-;; genCall
-	mov	stack il ,hi8(L_main00103)
-	mov	stack il ,lo8(L_main00103)
-	goto	_g
-L_main00103:
-	; function returns nothing
-;	src/function_void_args.c: 7: return var;
-	mov	jmpl stack
-	mov	jmph stack
-	lad	_var
-	mov	stack mem
-	jump
+	mov	r pic
+;	src/negate.c: 9: pic = -x;
+;; genUminus
+	mov	alua r
+	mov	alus il ,3	; not 
+	mov	alua aluc
+	mov	alus il ,4	; plus 
+	mov	alub il ,1
+	mov	pic aluc
+;	src/negate.c: 10: x = pic;
+;; genAssign
+	mov	r pic
+;	src/negate.c: 11: pic = -x;
+;; genUminus
+	mov	alua r
+	mov	alus il ,3	; not 
+	mov	alua aluc
+	mov	alus il ,4	; plus 
+	mov	alub il ,1
+	mov	pic aluc
+;	src/negate.c: 12: x = pic;
+;; genAssign
+	mov	r pic
+;	src/negate.c: 13: pic = -x;
+;; genUminus
+	mov	alua r
+	mov	alus il ,3	; not 
+	mov	alua aluc
+	mov	alus il ,4	; plus 
+	mov	alub il ,1
+	mov	pic aluc
+;	src/negate.c: 14: x = pic;
+;; genAssign
+	mov	r pic
+;	src/negate.c: 15: pic = -x;
+;; genUminus
+	mov	alua r
+	mov	alus il ,3	; not 
+	mov	alua aluc
+	mov	alus il ,4	; plus 
+	mov	alub il ,1
+	mov	pic aluc
 ;; genLabel
-;	src/function_void_args.c: 8: }
+;	src/negate.c: 16: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
@@ -131,6 +134,4 @@ L_main00103:
 	.section code,"ax"
 	.section const
 	.section initr,"a"
-__xinit__var:
-	.byte	#0x00	; 0
 	.section cabs

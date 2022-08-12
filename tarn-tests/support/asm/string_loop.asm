@@ -82,6 +82,7 @@ L_main00106:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
+; implement me (gen.c:2353)
 	mov	stack r
 	add_8s_16	___str_0 ; 1
 	lad	_main_sloc0_1_0
@@ -108,8 +109,8 @@ L_main00106:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	mov	alua r
+	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	mov	r aluc
 ;; genGoto

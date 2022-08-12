@@ -89,6 +89,7 @@ const tarn_reg_list_entry_t tarn_src_registers[TARN_SRC_REG_COUNT] = {
 
 #define ALUS_AND   0
 #define ALUS_XOR   2
+#define ALUS_NOT   3
 #define ALUS_PLUS  4
 #define ALUS_LT    9
 #define ALUS_EQ    10
@@ -99,7 +100,7 @@ const char *alu_operations[] = {
     "and",
     "?",
     "xor",
-    "?",
+    "not",
 
     "plus",
     "?",
@@ -153,6 +154,7 @@ static struct asmop asmop_rx;
 static struct asmop asmop_xr;
 static struct asmop asmop_zero;
 static struct asmop asmop_one;
+static struct asmop asmop_two;
 static struct asmop asmop_mone;
 static struct asmop asmop_alua;
 static struct asmop asmop_alub;
@@ -166,6 +168,7 @@ static struct asmop *const ASMOP_RX = &asmop_rx;
 static struct asmop *const ASMOP_XR = &asmop_xr;
 static struct asmop *const ASMOP_ZERO = &asmop_zero;
 static struct asmop *const ASMOP_ONE = &asmop_one;
+static struct asmop *const ASMOP_TWO = &asmop_two;
 static struct asmop *const ASMOP_MONE = &asmop_mone;
 static struct asmop *const ASMOP_ALUA = &asmop_alua;
 static struct asmop *const ASMOP_ALUB = &asmop_alub;
@@ -232,6 +235,10 @@ tarn_init_asmops (void)
   asmop_one.type = AOP_LIT;
   asmop_one.size = 1;
   asmop_one.aopu.aop_lit = constVal ("1");
+  
+  asmop_two.type = AOP_LIT;
+  asmop_two.size = 1;
+  asmop_two.aopu.aop_lit = constVal ("2");
   
   asmop_mone.type = AOP_LIT;
   asmop_mone.size = 8; // Maximum size for asmop.
@@ -2307,54 +2314,61 @@ static void genIfx (iCode *ic)
     genIfx_impl(ic, 0);
 }
 
-static void genUminus(iCode *ic) {
-    if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genUminus", ic); }
-
-    /* operand *result = IC_RESULT (ic); */
-    /* operand *left = IC_LEFT (ic); */
-    /* int size_left = operandSize(left); */
-
-    /* if (size_left == 1) { */
-        
-    /* } */
-    
-
-}
-
-void aop_alu(int op, operand *left, operand *right, operand *result, iCode *ifx) {
+void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
 #define MOVE_AOP_DEBUG { emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); emit_asmop("left ", left); emit_asmop("right", right); }
 
-    bool result_is_cond = OP_SYMBOL(result)->regType == REG_CND;
-    int size_result = operandSize(result);
-    int size_left = operandSize(left);
-    int size_right = operandSize(right);
+    int size_left = left->size;
+    int size_right = right ? right->size : 0;
 
-    if ((size_result == 1 || result_is_cond) && size_left == 1 && size_right == 1) {
-        aopOp(result);
-        aopOp(left);
-        aopOp(right);
+    wassertl(size_right > 0 || op == ALUS_NOT, "Binary ALU operation with NULL right!");
 
+    if (size_left == 1 && size_right < 2) {
         if (op == ALUS_MINUS) {
-            if (AOP_IS_LIT(right->aop)) {
+            if (AOP_IS_LIT(right)) {
                 op = ALUS_PLUS;
+                aop_move(ASMOP_ALUA, left);
+                // In general, it doesn't matter when alus is
+                // set.. except when reading from aluc into alua or
+                // alub...
                 emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
-                aop_move(ASMOP_ALUA, left->aop);
-                emit2("mov", "alub il ,%d", -byteOfVal(OP_VALUE(right), 0));
+                emit2("mov", "alub il ,%d", -byteOfVal(right->aopu.aop_lit, 0));
                 cost(2);
             } else {
                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
             }
         } else {
-            emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
             cost(1);
-            aop_move(ASMOP_ALUA, left->aop);
-            aop_move(ASMOP_ALUB, right->aop);
+            aop_move(ASMOP_ALUA, left);
+            emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
+            if (right) {
+                aop_move(ASMOP_ALUB, right);
+            }
         }
         if (!ifx) {
-            aop_move(result->aop, ASMOP_ALUC);
+            if (result != ASMOP_ALUC) {
+                aop_move(result, ASMOP_ALUC);
+            }
         }
+    } else {
+        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
     }
 }
+
+
+static void genUminus(iCode *ic) {
+    if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genUminus", ic); }
+
+    operand *result = IC_RESULT (ic);
+    operand *left = IC_LEFT (ic);
+
+    aopOp(result);
+    aopOp(left);
+
+    aop_alu(ALUS_NOT, left->aop, NULL, ASMOP_ALUC, NULL);
+    aop_alu(ALUS_PLUS, ASMOP_ALUC, ASMOP_ONE, result->aop, NULL);
+
+}
+
 
 
 static void genALUOp_impl(int op, operand *left, operand *right, operand *result, iCode *ifx) {
@@ -2366,7 +2380,10 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
     int size_right = operandSize(right);
     emit2(";;", "ALU operand size %d %d %d", size_result, size_left, size_right);
 
-    aop_alu(op, left, right, result, ifx);
+    aopOp(result);
+    aopOp(left);
+    aopOp(right);
+    aop_alu(op, left->aop, right->aop, result->aop, ifx);
 
     if ((size_result == 1 || result_is_cond) && size_left == 1 && size_right == 1) {
         if (op == ALUS_MINUS) {
@@ -2446,8 +2463,9 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
                     emit2("add_8s_16s", "");
                     cost(6+1+15);
                 } else if (is_mem(left)) {
-                    emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->rname);
-                    emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->rname);
+                    emit2("load_stack_from_ptr", "%s", OP_SYMBOL(left)->rname);
+                    /* emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->rname); */
+                    /* emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->rname); */
                     load_address_16(op_get_mem_label(right));
                     emit_mov("stack", "mem");
                     emit2("add_8s_16s", "");

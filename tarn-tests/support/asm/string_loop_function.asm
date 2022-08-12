@@ -91,8 +91,8 @@ L_print00103:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	mov	stack il ,hi8(_print_PARM_1)
-	mov	stack il ,lo8(_print_PARM_1)
+; implement me (gen.c:2353)
+	load_stack_from_ptr	_print_PARM_1
 	lad	_print_sloc0_1_0
 	mov	stack mem
 	add_8s_16s
@@ -120,9 +120,9 @@ L_print00103:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alus il ,4	; plus 
 	lad	_print_sloc0_1_0
 	mov	alua mem
+	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	lad	_print_sloc0_1_0
 	mov	mem aluc

@@ -23,6 +23,32 @@ _main_PARM_1:
 	.ds	1
 _main_PARM_2:
 	.ds	2
+_main_sloc0_1_0:
+	.ds	1
+_main_sloc1_1_0:
+	.ds	1
+_main_sloc2_1_0:
+	.ds	1
+_main_sloc3_1_0:
+	.ds	1
+_main_sloc4_1_0:
+	.ds	1
+_main_sloc5_1_0:
+	.ds	1
+_main_sloc6_1_0:
+	.ds	1
+_main_sloc7_1_0:
+	.ds	1
+_main_sloc8_1_0:
+	.ds	1
+_main_sloc9_1_0:
+	.ds	1
+_main_sloc10_1_0:
+	.ds	1
+_main_sloc11_1_0:
+	.ds	1
+_main_sloc12_1_0:
+	.ds	1
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
@@ -324,12 +350,14 @@ L_main00116:
 L_main00117:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc0_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 32: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc0_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -345,12 +373,14 @@ L_main00117:
 L_main00118:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc1_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 34: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc1_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -366,12 +396,14 @@ L_main00118:
 L_main00119:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc2_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 36: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc2_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -387,12 +419,14 @@ L_main00119:
 L_main00120:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc3_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 38: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc3_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -408,12 +442,14 @@ L_main00120:
 L_main00121:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc4_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 40: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc4_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -429,12 +465,14 @@ L_main00121:
 L_main00122:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc5_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 42: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc5_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -450,12 +488,14 @@ L_main00122:
 L_main00123:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc6_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 44: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc6_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -471,12 +511,14 @@ L_main00123:
 L_main00124:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc7_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 46: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc7_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -492,12 +534,14 @@ L_main00124:
 L_main00125:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc8_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 48: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc8_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -513,12 +557,14 @@ L_main00125:
 L_main00126:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc9_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 50: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc9_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -534,12 +580,14 @@ L_main00126:
 L_main00127:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc10_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 52: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc10_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -555,12 +603,14 @@ L_main00127:
 L_main00128:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc11_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 54: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc11_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign
@@ -576,12 +626,14 @@ L_main00128:
 L_main00129:
 	mov	r stack
 ;; genAssign
-;	genAssign: registers r, r same; skipping assignment
+	lad	_main_sloc12_1_0
+	mov	mem r
 ;	src/parse_hex_digit.c: 56: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
 ;; genAssign
-	mov	pic r
+	lad	_main_sloc12_1_0
+	mov	pic mem
 ;; genAssign
 	mov	pic il ,15
 ;; genAssign

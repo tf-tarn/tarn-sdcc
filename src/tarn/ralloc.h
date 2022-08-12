@@ -30,15 +30,20 @@
 
 enum
 {
-  R_IDX = 0, // R
-  X_IDX,     // X
-  ALUC_IDX,  // ALU output (conditional register)
-  TEST_IDX,  // Test register
+  R_IDX     = 0,                // R
+  X_IDX     = 1,                // X
+  ALUA_IDX  = 2,                // ALU left  input
+  ALUB_IDX  = 3,                // ALU right input
+  ALUC_IDX  = 4,                // ALU output (also conditional register)
+  STACK_IDX = 5,                // Test register
+  MEM_IDX   = 6,                // Test register
+  TEST_IDX  = 7,                // Test register
 };
 
 enum
 {
   REG_GPR = 2,
+  REG_SFR = 3,
   REG_CND = 4,
 };
 

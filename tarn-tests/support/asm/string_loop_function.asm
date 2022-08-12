@@ -35,6 +35,8 @@ _main_PARM_2:
 ;--------------------------------------------------------
 	.area	_overlay
 _print_sloc0_1_0:
+	.ds	1
+_print_sloc1_1_0:
 	.ds	2
 ;--------------------------------------------------------
 ; Stack segment in internal ram
@@ -82,44 +84,48 @@ __sdcc_program_startup:
 	_print:
 ;	src/string_loop_function.c: 4: for (char i = 0; s[i]; ++i) {
 ;; genAssign
-	mov	r zero
+	lad	_print_sloc0_1_0
+	mov	mem zero
 ;; genLabel
 L_print00103:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	load_stack_from_ptr	_print_PARM_1
-	mov	stack r
-	add_8s_16s
+	mov	stack il ,hi8(_print_PARM_1)
+	mov	stack il ,lo8(_print_PARM_1)
 	lad	_print_sloc0_1_0
+	mov	stack mem
+	add_8s_16s
+	lad	_print_sloc1_1_0
 	mov	mem x
-	lad	_print_sloc0_1_0 + 1
+	lad	_print_sloc1_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          _print_sloc0_1_0
-; implement me (gen.c:1183) BROKEN
-	load_address_from_ptr	_print_sloc0_1_0
-	mov	x mem
+;	           yes         yes    2          _print_sloc1_1_0
+	load_address_from_ptr	_print_sloc1_1_0
+	mov	r mem
 ;; genIfx
-	mov	alua x
+	mov	alua r
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
 	gotonz	L_print00101
 ;	src/string_loop_function.c: 5: pic = s[i];
 ;; genAssign
-	mov	pic x
+	mov	pic r
 ;	src/string_loop_function.c: 4: for (char i = 0; s[i]; ++i) {
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
 	mov	alus il ,4	; plus 
-	mov	alua r
+	lad	_print_sloc0_1_0
+	mov	alua mem
 	mov	alub il ,1
-	mov	r aluc
+	lad	_print_sloc0_1_0
+	mov	mem aluc
 ;; genGoto
 	goto	L_print00103
 ;; genLabel

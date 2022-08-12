@@ -4,9 +4,13 @@
 
 reg_info tarn_regs[] =
 {
-  {REG_GPR, R_IDX,   "r"},
-  {REG_GPR, X_IDX,   "x"},
-  {REG_CND, ALUC_IDX,   "aluc"},
+  {REG_GPR, R_IDX,     "r"},
+  {REG_GPR, X_IDX,     "x"},
+  {REG_SFR, ALUA_IDX,  "alua"},
+  {REG_SFR, ALUB_IDX,  "alub"},
+  {REG_CND, ALUC_IDX,  "aluc"},
+  {REG_SFR, STACK_IDX, "stack"},
+  {REG_SFR, MEM_IDX,   "mem"},
 };
 
 /* Flags to turn on debugging code.

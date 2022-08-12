@@ -89,7 +89,7 @@ tarn_init (void)
   asm_addTree (&asm_gas_mapping);
   options.noOptsdccInAsm = true;
 
-  // tarn_init_asmops();
+  tarn_init_asmops();
 }
 
 static void

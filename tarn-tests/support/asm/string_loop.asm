@@ -93,7 +93,6 @@ L_main00106:
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _main_sloc0_1_0
-; implement me (gen.c:1183) BROKEN
 	load_address_from_ptr	_main_sloc0_1_0
 	mov	x mem
 ;; genIfx

@@ -27,9 +27,9 @@ _crc8_PARM_1:
 _crc8_PARM_2:
 	.ds	1
 _crc8_sloc0_1_0:
-	.ds	2
-_crc8_sloc1_1_0:
 	.ds	1
+_crc8_sloc1_1_0:
+	.ds	2
 _main_PARM_1:
 	.ds	1
 _main_PARM_2:
@@ -182,12 +182,15 @@ L_crc8_one00104:
 	mov	r zero
 ;	src/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
 ;; genAssign
-	mov	x zero
+	lad	_crc8_sloc0_1_0
+	mov	mem zero
 ;; genLabel
 L_crc800103:
 ;; genCmp
 	mov	alus il ,9	; less-than 
-	mov	alua x
+;	load_reg: spilt
+	lad	_crc8_sloc0_1_0
+	mov	alua mem
 	lad	_crc8_PARM_2
 	mov	alub mem
 	mov	test aluc
@@ -199,41 +202,37 @@ L_crc800118:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	load_stack_from_ptr	_crc8_PARM_1
-	mov	stack x
-	add_8s_16s
+	mov	stack il ,hi8(_crc8_PARM_1)
+	mov	stack il ,lo8(_crc8_PARM_1)
 	lad	_crc8_sloc0_1_0
+	mov	stack mem
+	add_8s_16s
+	lad	_crc8_sloc1_1_0
 	mov	mem x
-	lad	_crc8_sloc0_1_0 + 1
+	lad	_crc8_sloc1_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          _crc8_sloc0_1_0
-; implement me (gen.c:1183) BROKEN
-	load_address_from_ptr	_crc8_sloc0_1_0
-	lad	_crc8_sloc1_1_0
-	mov	mem mem
+;	           yes         yes    2          _crc8_sloc1_1_0
+	load_address_from_ptr	_crc8_sloc1_1_0
+	mov	x mem
 ;; genALUOp
 ;;	ALU xor (2)
 ;;	ALU operand size 1 1 1
 	mov	alus il ,2	; xor 
 	mov	alua r
-;	load_reg: spilt
-	lad	_crc8_sloc1_1_0
-	mov	alub mem
+	mov	alub x
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 ;	src/crc8.c: 29: crc = crc8_one(crc);
 ;; genCall
-	mov	stack x
 	mov	stack il ,hi8(L_crc800119)
 	mov	stack il ,lo8(L_crc800119)
 	goto	_crc8_one
 L_crc800119:
 	mov	r stack
-	mov	x stack
 ;; genAssign
 ;	genAssign: registers r, r same; skipping assignment
 ;	src/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
@@ -241,9 +240,11 @@ L_crc800119:
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
 	mov	alus il ,4	; plus 
-	mov	alua x
+	lad	_crc8_sloc0_1_0
+	mov	alua mem
 	mov	alub il ,1
-	mov	x aluc
+	lad	_crc8_sloc0_1_0
+	mov	mem aluc
 ;; genGoto
 	goto	L_crc800103
 ;; genLabel

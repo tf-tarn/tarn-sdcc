@@ -82,12 +82,14 @@ L_main00104:
 ;	src/echo.c: 9: if (byte != 0xff) {
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
+;	has ifx
+	mov	alua il ,255
 	lad	_main_byte_65536_2
-	mov	alua mem
-	mov	alub il ,255
+	mov	alub mem
 	mov	test aluc
-;; genIfx
 	gotonz	L_main00104
+	goto	L_main00117
+L_main00117:
 ;	src/echo.c: 10: pic = byte;
 ;; genAssign
 	lad	_main_byte_65536_2

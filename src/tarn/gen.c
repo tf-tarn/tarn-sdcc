@@ -286,7 +286,7 @@ freeAsmop (operand *op)
 /*-----------------------------------------------------------------*/
 /* aopForSym - for a true symbol                                   */
 /*-----------------------------------------------------------------*/
-static asmop *aopForSym (symbol *sym)
+static asmop *aopForSym (symbol *sym, bool is_spilled)
 {
   asmop *aop;
 
@@ -305,6 +305,13 @@ static asmop *aopForSym (symbol *sym)
       aop->size = getSize (sym->type);
     }
   /* Assign depending on the storage class */
+  else if (sym && is_spilled)
+    {
+      aop = newAsmop (AOP_IMMD);
+      aop->size = getSize (sym->type);
+      aop->aopu.immd = sym->rname;
+      aop->aopu.immd_off = 0;
+    }
   else if (sym && sym->onStack || sym && sym->iaccess)
     {
       aop = newAsmop (AOP_SPILL);
@@ -436,7 +443,7 @@ static void aopOp(operand *op)
 
     /* if this is a true symbol */
     if (IS_TRUE_SYMOP (op)) {
-        op->aop = aopForSym(sym);
+        op->aop = aopForSym(sym, false);
         return;
     }
 
@@ -454,6 +461,15 @@ static void aopOp(operand *op)
         }
     }
 
+    if (sym->isspilt) {
+        if (!regalloc_dry_run) {
+            printf("\033[0;31mWARNING:\033[0m spilled variable %8s %8s %8s\n",
+                   sym->name ? sym->name : "()",
+                   sym->rname ? sym->rname : "()",
+                   sym->usl.spillLoc->rname ? sym->usl.spillLoc->rname : "()");
+        }
+    }
+
     /* if the type is a conditional */
     if (sym->regType == REG_CND) {
         asmop *aop = newAsmop (AOP_CND);
@@ -466,7 +482,7 @@ static void aopOp(operand *op)
     if ((sym->isspilt || sym->nRegs == 0)
         && sym->usl.spillLoc
         && !(regalloc_dry_run && (options.stackAuto || reentrant))) {
-        sym->aop = op->aop = aopForSym(sym->usl.spillLoc);
+        sym->aop = op->aop = aopForSym(sym->usl.spillLoc, sym->isspilt);
         op->aop->size = getSize (sym->type);
         return;
     }
@@ -994,7 +1010,7 @@ void load_address_16o(const char *sym_name, int offset) {
 #define AOP_IS_CND(aop)       (aop->type == AOP_CND)
 
 
-void aop_move(asmop *a1, asmop *a2) {
+bool aop_move(asmop *a1, asmop *a2) {
     #define AOP_MOVE_DEBUG { emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); emit_asmop("dest", a1); emit_asmop("src ", a2); }
 
     if (AOP_IS_DIRECT(a1)) {
@@ -1127,6 +1143,7 @@ void aop_move(asmop *a1, asmop *a2) {
         } else if (AOP_IS_REG(a2)) {
             if (aopSame(a1, 0, a2, 0, a1->size)) {
                 emit2(";", "no need to move registers to themselves");
+                return false;
             } else {
                 AOP_MOVE_DEBUG;
             }
@@ -1143,6 +1160,8 @@ void aop_move(asmop *a1, asmop *a2) {
     } else {
         AOP_MOVE_DEBUG;
     }
+
+    return true;
 }
 
 void aop_move_byte(asmop *a1, asmop *a2, int index) {
@@ -1231,25 +1250,12 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
             if (AOP_IS_DIRECT(a2)) {
                 if (a2->size == 2) {
                     if (index == 0) {
-                        // means it must be spilled ?
-                        // gotta be a better way to do this...
-                        emit2("load_address_from_ptr", "%s", a2->aopu.aop_dir);
+                        load_address_16(a2->aopu.aop_dir);
                         cost(8);
                         aop_move(a1, ASMOP_MEM);
                     } else if (index == 1) {
-                        // means it must be spilled ?
-                        // gotta be a better way to do this...
-                        emit2("load_stack_from_ptr", "%s", a2->aopu.aop_dir);
-                        emit2("add_16s_8", "%d", 1);
-                        cost(15);
-                        emit2("mov", "adh x");
-                        emit2("mov", "adl r");
+                        load_address_16o(a2->aopu.aop_dir, 1);
                         aop_move(a1, ASMOP_MEM);
-                        emit2("restore_rx", "");
-                        /* emit2("mov", "stack mem"); */
-                        
-                        /* aop_move(result->aop, ASMOP_RX); */
-                        /* aop_move(a1, ASMOP_MEM); */
                     } else {
                         AOP_MOVE_DEBUG;
                     }
@@ -1276,6 +1282,9 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                 }
             } else if (AOP_IS_SFR(a2)) {
                 emit_mov(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.aop_dir);
+            } else if (AOP_IS_IMMEDIATE(a2)) {
+                load_address_16o(a2->aopu.immd, a2->aopu.immd_off + index);
+                aop_move(a1, ASMOP_MEM);
             } else {
                 AOP_MOVE_DEBUG;
             }
@@ -2564,6 +2573,19 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 aop_move(result, ASMOP_ALUC);
             }
         }
+    } else if (size_left > 1 && size_right == 1) {
+        if (AOP_IS_LIT(right)) {
+            for (int i = 0; i < size_left; ++i) {
+                aop_move_byte(ASMOP_STACK, left, i);
+            }
+            emit2("add_16s_8", "%d", byteOfVal(right->aopu.aop_lit, 0));
+            if (aop_move(result, ASMOP_RX)) {
+                emit2("restore_rx", "");
+            }
+        } else {
+            aop_move(ASMOP_STACK, right);
+            MOVE_AOP_DEBUG;
+        }
     } else {
         MOVE_AOP_DEBUG;
     }
@@ -2672,112 +2694,112 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
     } else if (size_result == 2 && size_left == 2 && size_right == 1) {
         
         if (op == ALUS_PLUS) {
-            if (is_reg(right)) {
-                if (OP_SYMBOL(left)->remat) {
-                    remat_result_t *result = resolve_remat(OP_SYMBOL(left));
-                    emit2("mov", "stack %s", op_get_register_name(right));
-                    emit2("add_8s_16", "%s ; 1", result->name);
-                    cost(3+15);
-                } else if (OP_SYMBOL(left)->isspilt) {
-                    emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
-                    emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname);
-                    load_address_16(op_get_mem_label(right));
-                    emit2("mov", "stack mem");
-                    emit2("add_8s_16s", "");
-                    cost(3+15);
-                } else if (is_mem(left)) {
-                    emit2("load_stack_from_ptr", "%s", op_get_mem_label(left));
-                    emit2("mov", "stack %s", op_get_register_name(right));
-                    emit2("add_8s_16s", "");
-                    cost(1+6+15);
-                } else {
-                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-                }
-            } else if (is_mem(right)) {
-                if (OP_SYMBOL(left)->remat) {
-                    remat_result_t *result = resolve_remat(OP_SYMBOL(left));
-                    /* emit2("load_stack_from_ptr", "%s + %d", result->name, result->offset); */
-                    emit2("mov", "stack il ,hi8(%s + %d)", result->name, result->offset);
-                    emit2("mov", "stack il ,lo8(%s + %d)", result->name, result->offset);
-                    load_address_16(op_get_mem_label(right));
-                    emit2("mov", "stack mem");
-                    emit2("add_8s_16s", "");
-                    cost(3+15);
-                } else if (OP_SYMBOL(left)->isspilt) {
-                    emit2("load_stack_from_ptr", "%s", OP_SYMBOL(left)->usl.spillLoc->rname);
-                    /* emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); */
-                    /* emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); */
-                    load_address_16(op_get_mem_label(right));
-                    emit2("mov", "stack mem");
-                    emit2("add_8s_16s", "");
-                    cost(6+1+15);
-                } else if (is_mem(left)) {
-                    emit2("load_stack_from_ptr", "%s", OP_SYMBOL(left)->rname);
-                    /* emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->rname); */
-                    /* emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->rname); */
-                    load_address_16(op_get_mem_label(right));
-                    emit_mov("stack", "mem");
-                    emit2("add_8s_16s", "");
-                    cost(3+15);
-                } else if (is_reg(left)) {
-                    emit_mov("stack", op_get_register_name_i(left, 1));
-                    emit_mov("stack", op_get_register_name_i(left, 0));
-                    load_address_16(op_get_mem_label(right));
-                    emit_mov("stack", "mem");
-                    emit2("add_8s_16s", "");
-                } else {
-                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-                }
-            } else if (IS_OP_LITERAL(right)) {
-                int right_val = byteOfVal(OP_VALUE(right), 0);
-                if (op == ALUS_MINUS && IS_OP_LITERAL(right)) {
-                    op = ALUS_PLUS;
-                    right_val = -right_val;
-                }
-                if (OP_SYMBOL(left)->remat) {
-                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-                } else if (OP_SYMBOL(left)->isspilt) {
-                    load_address_16(op_get_mem_label(left));
-                    emit2("mov", "stack mem");
-                    load_address_16o(op_get_mem_label(left), 1);
-                    emit2("mov", "stack mem");
-                    emit2("add_16s_16l", "%d", 0xff & right_val);
-                    cost(2+14);
-                } else if (is_mem(left)) {
-                    load_address_16(op_get_mem_label(left));
-                    emit2("mov", "stack mem");
-                    load_address_16o(op_get_mem_label(left), 1);
-                    emit2("mov", "stack mem");
-                    emit2("add_16s_16l", "%d", 0xff & right_val);
-                    cost(2+14);
-                } else {
-                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-                }
-            } else {
-                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-            }
+            /* if (is_reg(right)) { */
+            /*     if (OP_SYMBOL(left)->remat) { */
+            /*         remat_result_t *result = resolve_remat(OP_SYMBOL(left)); */
+            /*         emit2("mov", "stack %s", op_get_register_name(right)); */
+            /*         emit2("add_8s_16", "%s ; 1", result->name); */
+            /*         cost(3+15); */
+            /*     } else if (OP_SYMBOL(left)->isspilt) { */
+            /*         emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); */
+            /*         emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); */
+            /*         load_address_16(op_get_mem_label(right)); */
+            /*         emit2("mov", "stack mem"); */
+            /*         emit2("add_8s_16s", ""); */
+            /*         cost(3+15); */
+            /*     } else if (is_mem(left)) { */
+            /*         emit2("load_stack_from_ptr", "%s", op_get_mem_label(left)); */
+            /*         emit2("mov", "stack %s", op_get_register_name(right)); */
+            /*         emit2("add_8s_16s", ""); */
+            /*         cost(1+6+15); */
+            /*     } else { */
+            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
+            /*     } */
+            /* } else if (is_mem(right)) { */
+            /*     if (OP_SYMBOL(left)->remat) { */
+            /*         remat_result_t *result = resolve_remat(OP_SYMBOL(left)); */
+            /*         /\* emit2("load_stack_from_ptr", "%s + %d", result->name, result->offset); *\/ */
+            /*         emit2("mov", "stack il ,hi8(%s + %d)", result->name, result->offset); */
+            /*         emit2("mov", "stack il ,lo8(%s + %d)", result->name, result->offset); */
+            /*         load_address_16(op_get_mem_label(right)); */
+            /*         emit2("mov", "stack mem"); */
+            /*         emit2("add_8s_16s", ""); */
+            /*         cost(3+15); */
+            /*     } else if (OP_SYMBOL(left)->isspilt) { */
+            /*         emit2("load_stack_from_ptr", "%s", OP_SYMBOL(left)->usl.spillLoc->rname); */
+            /*         /\* emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); *\/ */
+            /*         /\* emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); *\/ */
+            /*         load_address_16(op_get_mem_label(right)); */
+            /*         emit2("mov", "stack mem"); */
+            /*         emit2("add_8s_16s", ""); */
+            /*         cost(6+1+15); */
+            /*     } else if (is_mem(left)) { */
+            /*         emit2("load_stack_from_ptr", "%s", OP_SYMBOL(left)->rname); */
+            /*         /\* emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->rname); *\/ */
+            /*         /\* emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->rname); *\/ */
+            /*         load_address_16(op_get_mem_label(right)); */
+            /*         emit_mov("stack", "mem"); */
+            /*         emit2("add_8s_16s", ""); */
+            /*         cost(3+15); */
+            /*     } else if (is_reg(left)) { */
+            /*         emit_mov("stack", op_get_register_name_i(left, 1)); */
+            /*         emit_mov("stack", op_get_register_name_i(left, 0)); */
+            /*         load_address_16(op_get_mem_label(right)); */
+            /*         emit_mov("stack", "mem"); */
+            /*         emit2("add_8s_16s", ""); */
+            /*     } else { */
+            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
+            /*     } */
+            /* } else if (IS_OP_LITERAL(right)) { */
+            /*     int right_val = byteOfVal(OP_VALUE(right), 0); */
+            /*     if (op == ALUS_MINUS && IS_OP_LITERAL(right)) { */
+            /*         op = ALUS_PLUS; */
+            /*         right_val = -right_val; */
+            /*     } */
+            /*     if (OP_SYMBOL(left)->remat) { */
+            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
+            /*     } else if (OP_SYMBOL(left)->isspilt) { */
+            /*         load_address_16(op_get_mem_label(left)); */
+            /*         emit2("mov", "stack mem"); */
+            /*         load_address_16o(op_get_mem_label(left), 1); */
+            /*         emit2("mov", "stack mem"); */
+            /*         emit2("add_16s_16l", "%d", 0xff & right_val); */
+            /*         cost(2+14); */
+            /*     } else if (is_mem(left)) { */
+            /*         load_address_16(op_get_mem_label(left)); */
+            /*         emit2("mov", "stack mem"); */
+            /*         load_address_16o(op_get_mem_label(left), 1); */
+            /*         emit2("mov", "stack mem"); */
+            /*         emit2("add_16s_16l", "%d", 0xff & right_val); */
+            /*         cost(2+14); */
+            /*     } else { */
+            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
+            /*     } */
+            /* } else { */
+            /*     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
+            /* } */
             // cost?
 
-            if (op_get_register_name_i(result, 0)
-                && op_get_register_name_i(result, 1)
-                && !strcmp(op_get_register_name_i(result, 0), "r")
-                && !strcmp(op_get_register_name_i(result, 1), "x")) {
-                emit2(";", "result is already in r x");
-            } else {
-                if (is_mem(result)) {
-                    emit2("lad", "%s",     op_get_mem_label(result));
-                    emit2("mov", "mem x");
-                    emit2("lad", "%s + 1", op_get_mem_label(result));
-                    emit2("mov", "mem r");
-                    cost(6);
-                } else {
-                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-                    cost(1000);
-                }
+            /* if (op_get_register_name_i(result, 0) */
+            /*     && op_get_register_name_i(result, 1) */
+            /*     && !strcmp(op_get_register_name_i(result, 0), "r") */
+            /*     && !strcmp(op_get_register_name_i(result, 1), "x")) { */
+            /*     emit2(";", "result is already in r x"); */
+            /* } else { */
+            /*     if (is_mem(result)) { */
+            /*         emit2("lad", "%s",     op_get_mem_label(result)); */
+            /*         emit2("mov", "mem x"); */
+            /*         emit2("lad", "%s + 1", op_get_mem_label(result)); */
+            /*         emit2("mov", "mem r"); */
+            /*         cost(6); */
+            /*     } else { */
+            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
+            /*         cost(1000); */
+            /*     } */
 
-                emit2("restore_rx", "");
-                cost(6);
-            }
+            /*     emit2("restore_rx", ""); */
+            /*     cost(6); */
+            /* } */
         } else {
             emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
         }
@@ -2967,8 +2989,6 @@ static void genCmpEQorNE   (iCode *ic, iCode *ifx)       {
         if (left->aop->size == right->aop->size) {
             for (int i = 0; i < left->aop->size; ++i) {
                 /* aop_alu(ALUS_NOT, left->aop, NULL, ASMOP_ALUC, NULL); */
-                emit2("", "; implement me (%s:%d) (i=%d)",
-                      __FILE__, __LINE__, i);
                 aop_move_byte(ASMOP_ALUA, right->aop, right->aop->size - i - 1);
                 aop_move_byte(ASMOP_ALUB, left->aop, left->aop->size - i - 1);
                 emit_mov("test", "aluc");

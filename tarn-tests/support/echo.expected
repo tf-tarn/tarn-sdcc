@@ -1,3 +1,6 @@
+Copy section of size 6 to 0x4000
+Copy section of size 54 to 0x4006
+Copy section of size 13 to 0x403c
 typedef unsigned char uint8_t;
 
 uint8_t main (uint8_t argc, char **argv) {

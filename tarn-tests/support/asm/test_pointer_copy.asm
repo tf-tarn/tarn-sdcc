@@ -29,9 +29,6 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
-	.area	_overlay
-_main_sloc0_1_0:
-	.ds	2
 ;--------------------------------------------------------
 ; Stack segment in internal ram
 ;--------------------------------------------------------
@@ -105,23 +102,15 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:2353)
 	lad	_vvv
 	mov	stack mem
 	lad	_vvv + 1
 	mov	stack mem
-	add_16s_16l	1
-	lad	_main_sloc0_1_0
-	mov	mem x
-	lad	_main_sloc0_1_0 + 1
-	mov	mem r
-	restore_rx
+	add_16s_8	1
+;	no need to move registers to themselves
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          _main_sloc0_1_0
-	load_address_from_ptr	_main_sloc0_1_0
-	mov	pic mem
+; implement me (gen.c:1658)
 ;	src/test_pointer_copy.c: 26: while (1);
 ;; genLabel
 L_main00102:

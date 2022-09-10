@@ -83,20 +83,24 @@ __sdcc_program_startup:
 ;	src/2.c: 4: switch(which) {
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
+;	has ifx
+	mov	alua zero
 	lad	_multiply_or_divide_PARM_1
-	mov	alua mem
-	mov	alub zero
+	mov	alub mem
 	mov	test aluc
-;; genIfx
 	gotonz	L_multiply_or_divide00101
+	goto	L_multiply_or_divide00122
+L_multiply_or_divide00122:
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
+;	has ifx
+	mov	alua il ,1
 	lad	_multiply_or_divide_PARM_1
-	mov	alua mem
-	mov	alub il ,1
+	mov	alub mem
 	mov	test aluc
-;; genIfx
 	gotonz	L_multiply_or_divide00102
+	goto	L_multiply_or_divide00124
+L_multiply_or_divide00124:
 ;; genGoto
 	goto	L_multiply_or_divide00103
 ;	src/2.c: 5: case 0:
@@ -114,10 +118,10 @@ L_multiply_or_divide00101:
 	lad	__muluchar_PARM_2
 	mov	mem stack
 ;; genCall
-	mov	stack il ,hi8(L_multiply_or_divide00121)
-	mov	stack il ,lo8(L_multiply_or_divide00121)
+	mov	stack il ,hi8(L_multiply_or_divide00125)
+	mov	stack il ,lo8(L_multiply_or_divide00125)
 	goto	__muluchar
-L_multiply_or_divide00121:
+L_multiply_or_divide00125:
 ;	result: reg? mem? remat? spilt? nregs regs label
 ;	        yes                     1     r,        
 	mov	r stack
@@ -140,10 +144,10 @@ L_multiply_or_divide00102:
 	lad	__divuchar_PARM_2
 	mov	mem stack
 ;; genCall
-	mov	stack il ,hi8(L_multiply_or_divide00122)
-	mov	stack il ,lo8(L_multiply_or_divide00122)
+	mov	stack il ,hi8(L_multiply_or_divide00126)
+	mov	stack il ,lo8(L_multiply_or_divide00126)
 	goto	__divuchar
-L_multiply_or_divide00122:
+L_multiply_or_divide00126:
 ;	result: reg? mem? remat? spilt? nregs regs label
 ;	        yes                     1     r,        
 	mov	r stack

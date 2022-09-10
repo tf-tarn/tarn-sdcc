@@ -30,8 +30,8 @@ typedef enum
   AOP_REG,
   /* Is partially in a register, partially in direct space */
   AOP_REGDIR,
-  /* Is on the stack */
-  AOP_STK,
+  /* Is spilled */
+  AOP_SPILL,
   /* Is a stack location */
   AOP_STL,
   /* Is an immediate value */

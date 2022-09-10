@@ -1147,7 +1147,6 @@ void aop_move(asmop *a1, asmop *a2) {
 
 void aop_move_byte(asmop *a1, asmop *a2, int index) {
     #define AOP_MOVE_DEBUG { emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); emit_asmop("dest", a1); emit_asmop("src ", a2); }
-
     if (AOP_IS_DIRECT(a1)) {
         if (AOP_IS_LIT(a2)) {
             if (a1->size == 1) {
@@ -1245,8 +1244,8 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                         cost(15);
                         emit2("mov", "adh x");
                         emit2("mov", "adl r");
-                        emit2("restore_rx", "");
                         aop_move(a1, ASMOP_MEM);
+                        emit2("restore_rx", "");
                         /* emit2("mov", "stack mem"); */
                         
                         /* aop_move(result->aop, ASMOP_RX); */
@@ -1257,6 +1256,9 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                 } else if (a2->size == 1) {
                     load_address_16(a2->aopu.aop_dir);
                     // aop->aopu.bytes[i].byteu.reg = sym->regs[i];
+                    emit_mov(a1->aopu.bytes[0].byteu.reg->name, "mem");
+                } else if (a2->size == 4) {
+                    load_address_16o(a2->aopu.aop_dir, index);
                     emit_mov(a1->aopu.bytes[0].byteu.reg->name, "mem");
                 } else {
                     AOP_MOVE_DEBUG;
@@ -2967,8 +2969,8 @@ static void genCmpEQorNE   (iCode *ic, iCode *ifx)       {
                 /* aop_alu(ALUS_NOT, left->aop, NULL, ASMOP_ALUC, NULL); */
                 emit2("", "; implement me (%s:%d) (i=%d)",
                       __FILE__, __LINE__, i);
-                aop_move_byte(ASMOP_ALUA, right->aop, i);
-                aop_move_byte(ASMOP_ALUB, left->aop, i);
+                aop_move_byte(ASMOP_ALUA, right->aop, right->aop->size - i - 1);
+                aop_move_byte(ASMOP_ALUB, left->aop, left->aop->size - i - 1);
                 emit_mov("test", "aluc");
                 if (i < left->aop->size - 1) {
                     emit_jump_to_label(result_is_eq_maybe, 1);

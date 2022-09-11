@@ -35,9 +35,11 @@ enum
   ALUA_IDX  = 2,                // ALU left  input
   ALUB_IDX  = 3,                // ALU right input
   ALUC_IDX  = 4,                // ALU output (also conditional register)
-  STACK_IDX = 5,                // Test register
-  MEM_IDX   = 6,                // Test register
+  STACK_IDX = 5,                // Stack
+  MEM_IDX   = 6,                // Memory
   TEST_IDX  = 7,                // Test register
+  ADH_IDX  =  8,                // Address high
+  ADL_IDX  =  9,                // Address low
 };
 
 enum

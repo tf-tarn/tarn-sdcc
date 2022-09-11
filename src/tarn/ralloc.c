@@ -10,7 +10,10 @@ reg_info tarn_regs[] =
   {REG_SFR, ALUB_IDX,  "alub"},
   {REG_CND, ALUC_IDX,  "aluc"},
   {REG_SFR, STACK_IDX, "stack"},
-  {REG_SFR, MEM_IDX,   "mem"},
+  {REG_SFR, MEM_IDX, "mem"},
+  {REG_CND, TEST_IDX,   "test"},
+  {REG_SFR, ADH_IDX,   "adh"},
+  {REG_SFR, ADL_IDX,   "adl"},
 };
 
 /* Flags to turn on debugging code.

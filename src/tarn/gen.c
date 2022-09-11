@@ -25,7 +25,7 @@
 
 /* Use the D macro for basic (unobtrusive) debugging messages */
 #define D(x) do if (options.verboseAsm) { x; } while (0)
-#define D2(x) /*do { x; } while (0)*/
+#define D2(x) do { x; } while (0)
 
 #define PICODE(foo, bar) /* piCode(foo, bar) */
 /* #define DEBUG_GEN_FUNC(str, ic) { fprintf(stderr, "genCpl          = "); piCode (ic, stderr); } */
@@ -152,6 +152,7 @@ static struct asmop asmop_r;
 static struct asmop asmop_x;
 static struct asmop asmop_rx;
 static struct asmop asmop_xr;
+static struct asmop asmop_adhl;
 static struct asmop asmop_zero;
 static struct asmop asmop_one;
 static struct asmop asmop_two;
@@ -166,6 +167,7 @@ static struct asmop *const ASMOP_R = &asmop_r;
 static struct asmop *const ASMOP_X = &asmop_x;
 static struct asmop *const ASMOP_RX = &asmop_rx;
 static struct asmop *const ASMOP_XR = &asmop_xr;
+static struct asmop *const ASMOP_ADHL = &asmop_adhl;
 static struct asmop *const ASMOP_ZERO = &asmop_zero;
 static struct asmop *const ASMOP_ONE = &asmop_one;
 static struct asmop *const ASMOP_TWO = &asmop_two;
@@ -227,6 +229,13 @@ tarn_init_asmops (void)
   asmop_xr.aopu.bytes[0].byteu.reg = tarn_regs + X_IDX;
   asmop_xr.aopu.bytes[1].in_reg = true;
   asmop_xr.aopu.bytes[1].byteu.reg = tarn_regs + R_IDX;
+
+  asmop_adhl.type = AOP_REG;
+  asmop_adhl.size = 2;
+  asmop_adhl.aopu.bytes[0].in_reg = true;
+  asmop_adhl.aopu.bytes[0].byteu.reg = tarn_regs + ADH_IDX;
+  asmop_adhl.aopu.bytes[1].in_reg = true;
+  asmop_adhl.aopu.bytes[1].byteu.reg = tarn_regs + ADL_IDX;
 
   asmop_zero.type = AOP_LIT;
   asmop_zero.size = 1;
@@ -307,7 +316,7 @@ static asmop *aopForSym (symbol *sym, bool is_spilled)
   /* Assign depending on the storage class */
   else if (sym && is_spilled)
     {
-      aop = newAsmop (AOP_IMMD);
+      aop = newAsmop (AOP_SPILL);
       aop->size = getSize (sym->type);
       aop->aopu.immd = sym->rname;
       aop->aopu.immd_off = 0;
@@ -1008,12 +1017,29 @@ void load_address_16o(const char *sym_name, int offset) {
 #define AOP_IS_SFR(aop)       (aop->type == AOP_SFR)
 #define AOP_IS_REG(aop)       (aop->type == AOP_REG)
 #define AOP_IS_CND(aop)       (aop->type == AOP_CND)
+#define AOP_IS_SPILL(aop)       (aop->type == AOP_SPILL)
 
+
+void aop_move_byte(asmop *a1, asmop *a2, int index);
 
 bool aop_move(asmop *a1, asmop *a2) {
     #define AOP_MOVE_DEBUG { emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); emit_asmop("dest", a1); emit_asmop("src ", a2); }
 
-    if (AOP_IS_DIRECT(a1)) {
+    if (AOP_IS_SPILL(a1)) {
+        if (a2->size == 1) {
+            if (AOP_IS_REG(a2)) {
+                load_address_16o(a1->aopu.immd, a1->aopu.immd_off);
+                aop_move(a1, ASMOP_MEM);
+            } else {
+                AOP_MOVE_DEBUG;
+            }
+        } else {
+            for (int i = 0; i < a2->size; ++i) {
+                load_address_16o(a1->aopu.immd, a1->aopu.immd_off + i);
+                aop_move_byte(ASMOP_MEM, a2, a2->size - i - 1);
+            }
+        }
+    } else if (AOP_IS_DIRECT(a1)) {
         if (AOP_IS_LIT(a2)) {
             if (a1->size == 1) {
                 load_address_16(a1->aopu.aop_dir);
@@ -1102,6 +1128,9 @@ bool aop_move(asmop *a1, asmop *a2) {
                 }
             } else if (AOP_IS_REG(a2)) {
                 emit_mov(a1->aopu.aop_dir, a2->aopu.bytes[0].byteu.reg->name);
+            } else if (AOP_IS_SPILL(a2)) {
+                load_address_16o(a2->aopu.immd, a2->aopu.immd_off);
+                emit_mov(a1->aopu.aop_dir, "mem");
             } else {
                 AOP_MOVE_DEBUG;
             }
@@ -1137,6 +1166,12 @@ bool aop_move(asmop *a1, asmop *a2) {
                 }
             } else if (AOP_IS_SFR(a2)) {
                 emit_mov(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.aop_dir);
+            } else if (a1 == ASMOP_STACK) {
+                // Special case: push all to stack.
+                // Push low bytes first.
+                for (int i = a2->size - 1; i >= 0; --i) {
+                    aop_move_byte(a1, a2, i);
+                }
             } else {
                 AOP_MOVE_DEBUG;
             }
@@ -1152,6 +1187,12 @@ bool aop_move(asmop *a1, asmop *a2) {
                 for (int i = 0; i < a2->size; ++i) {
                     load_address_16o(a2->aopu.aop_dir, i);
                     emit_mov(a1->aopu.bytes[i].byteu.reg->name, "mem");
+                }
+            } else if (AOP_IS_SPILL(a2)) {
+                if (a1 == ASMOP_ADHL && a1->size == 2) {
+                    emit2("load_address_from_ptr", "%s", a2->aopu.immd);
+                } else {
+                    AOP_MOVE_DEBUG;
                 }
             } else {
                 AOP_MOVE_DEBUG;
@@ -1270,8 +1311,10 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                     AOP_MOVE_DEBUG;
                 }
             } else if (AOP_IS_REG(a2)) {
-                if (strcmp(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.bytes[0].byteu.reg->name)) {
-                    emit_mov(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.bytes[0].byteu.reg->name);
+                if (strcmp(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.bytes[index].byteu.reg->name)) {
+                    emit_mov(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.bytes[index].byteu.reg->name);
+                } else {
+                    AOP_MOVE_DEBUG;
                 }
             } else if (AOP_IS_LIT(a2)) {
                 int val = byteOfVal(a2->aopu.aop_lit, index);
@@ -1636,7 +1679,10 @@ static void genPointerGet(iCode *ic) {
                             }
                             aopOp(result);
                             aopOp(left);
-                            aop_move(result->aop, left->aop);
+                            aop_move(ASMOP_ADHL, left->aop);
+                            aop_move(result->aop, ASMOP_MEM);
+                            /* aop_move(result->aop, left->aop); */
+
                             /* emit2("", "; implement me (%s:%d) BROKEN", __FILE__, __LINE__); */
                             /* emit2("load_address_from_ptr", "%s", op_get_mem_label(left)); */
                             /* cost(8); */
@@ -1655,7 +1701,17 @@ static void genPointerGet(iCode *ic) {
                         cost(2);
                         read_reg("mem", result);
                     } else if (is_reg(left)) {
-                        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                        if (!val) {
+                            /* emit2("lad", "%s",     op_get_mem_label(result)); */
+                            /* emit2("mov", "mem %s", op_get_register_name_i(left, 0)); */
+                            /* emit2("lad", "%s + 1", op_get_mem_label(result)); */
+                            /* emit2("mov", "mem %s", op_get_register_name_i(left, 1)); */
+                            aopOp(result);
+                            aopOp(left);
+                            aop_move(result->aop, left->aop);
+                        } else {
+                            emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                        }
                     } else {
                         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                     }
@@ -1910,7 +1966,13 @@ static void genPointerSet(iCode *ic) {
                     /* } */
 
                 } else {
+                    aopOp(left);
+                    aopOp(right);
+                    aop_move(ASMOP_ADHL, left->aop);
+                    aop_move(ASMOP_MEM, right->aop);
+                    /* if (!regalloc_dry_run) { */
                     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                    /* } */
                 }
                 /* printf("remat stuff\n"); */
                 /* printf("remat left = %p\n", OP_SYMBOL(left)->rematiCode); */
@@ -2579,12 +2641,27 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 aop_move_byte(ASMOP_STACK, left, i);
             }
             emit2("add_16s_8", "%d", byteOfVal(right->aopu.aop_lit, 0));
+            cost(15);
             if (aop_move(result, ASMOP_RX)) {
                 emit2("restore_rx", "");
+                cost(6);
             }
         } else {
-            aop_move(ASMOP_STACK, right);
-            MOVE_AOP_DEBUG;
+            if (AOP_IS_IMMEDIATE(right)) {
+                MOVE_AOP_DEBUG;
+            } if (AOP_IS_IMMEDIATE(left)) {
+                aop_move(ASMOP_STACK, right);
+                emit2("add_8s_16", "%s", left->aopu.aop_dir);
+                cost(15);
+                if (aop_move(result, ASMOP_RX)) {
+                    emit2("restore_rx", "");
+                    cost(6);
+                }
+            } else if (AOP_IS_DIRECT(right)) {
+                MOVE_AOP_DEBUG;
+            } else {
+                MOVE_AOP_DEBUG;
+            }
         }
     } else {
         MOVE_AOP_DEBUG;

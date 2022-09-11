@@ -82,6 +82,7 @@ __sdcc_program_startup:
 	_multiply_or_divide:
 ;	src/2.c: 4: switch(which) {
 ;; genCmpEQorNE
+	;; test equality
 	mov	alus il ,10	; equal-to 
 ;	has ifx
 	mov	alua zero
@@ -92,6 +93,7 @@ __sdcc_program_startup:
 	goto	L_multiply_or_divide00122
 L_multiply_or_divide00122:
 ;; genCmpEQorNE
+	;; test equality
 	mov	alus il ,10	; equal-to 
 ;	has ifx
 	mov	alua il ,1
@@ -125,6 +127,7 @@ L_multiply_or_divide00125:
 ;	result: reg? mem? remat? spilt? nregs regs label
 ;	        yes                     1     r,        
 	mov	r stack
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -151,6 +154,7 @@ L_multiply_or_divide00126:
 ;	result: reg? mem? remat? spilt? nregs regs label
 ;	        yes                     1     r,        
 	mov	r stack
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -160,6 +164,7 @@ L_multiply_or_divide00126:
 L_multiply_or_divide00103:
 ;	src/2.c: 11: if (a) {
 ;; genIfx
+	;; If x
 	lad	_multiply_or_divide_PARM_2
 	mov	alua mem
 	mov	alus il ,10	; equal-to 
@@ -183,6 +188,7 @@ L_multiply_or_divide00105:
 ;; genLabel
 L_multiply_or_divide00106:
 ;	src/2.c: 17: return a;
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_multiply_or_divide_PARM_2
@@ -201,6 +207,7 @@ L_multiply_or_divide00106:
 ;	-----------------------------------------
 	_main:
 ;	src/2.c: 21: return 0;
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero

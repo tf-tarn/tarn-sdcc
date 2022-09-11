@@ -27,9 +27,9 @@ _crc8_PARM_1:
 _crc8_PARM_2:
 	.ds	1
 _crc8_sloc0_1_0:
-	.ds	1
-_crc8_sloc1_1_0:
 	.ds	2
+_crc8_sloc1_1_0:
+	.ds	1
 _main_PARM_1:
 	.ds	1
 _main_PARM_2:
@@ -91,11 +91,13 @@ __sdcc_program_startup:
 ;; genLabel
 L_crc8_one00106:
 ;; genCmp
+	;; compare
 	mov	alus il ,9	; less-than 
 	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
 ;; genIfx
+	;; If x
 	gotonz	L_crc8_one00123
 	goto	L_crc8_one00104
 L_crc8_one00123:
@@ -115,6 +117,7 @@ L_crc8_one00123:
 	mov	alub zero
 	mov	test aluc
 ;; genIfx
+	;; If x
 	gotonz	L_crc8_one00102
 ;	src/crc8.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;; genLeftShift
@@ -160,6 +163,7 @@ L_crc8_one00107:
 ;; genLabel
 L_crc8_one00104:
 ;	src/crc8.c: 20: return crc;
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_crc8_one_PARM_1
@@ -182,19 +186,18 @@ L_crc8_one00104:
 	mov	r zero
 ;	src/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
 ;; genAssign
-	lad	_crc8_sloc0_1_0
-	mov	mem zero
+	mov	x zero
 ;; genLabel
 L_crc800103:
 ;; genCmp
+	;; compare
 	mov	alus il ,9	; less-than 
-;	load_reg: spilt
-	lad	_crc8_sloc0_1_0
-	mov	alua mem
+	mov	alua x
 	lad	_crc8_PARM_2
 	mov	alub mem
 	mov	test aluc
 ;; genIfx
+	;; If x
 	gotonz	L_crc800118
 	goto	L_crc800101
 L_crc800118:
@@ -202,54 +205,60 @@ L_crc800118:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:2353)
-	load_stack_from_ptr	_crc8_PARM_1
-	lad	_crc8_sloc0_1_0
+	lad	_crc8_PARM_1
 	mov	stack mem
+	lad	_crc8_PARM_1 + 1
+	mov	stack mem
+	mov	stack x
 	add_8s_16s
-	lad	_crc8_sloc1_1_0
+	lad	_crc8_sloc0_1_0 + 0
 	mov	mem x
-	lad	_crc8_sloc1_1_0 + 1
+	lad	_crc8_sloc0_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          _crc8_sloc1_1_0
-	load_address_from_ptr	_crc8_sloc1_1_0
-	mov	x mem
+;	           yes         yes    2          _crc8_sloc0_1_0
+	load_address_from_ptr	_crc8_sloc0_1_0
+	mov	stack mem
+	lad	_crc8_sloc1_1_0
+	mov	mem stack
 ;; genALUOp
 ;;	ALU xor (2)
 ;;	ALU operand size 1 1 1
 	mov	alua r
 	mov	alus il ,2	; xor 
-	mov	alub x
+	lad	_crc8_sloc1_1_0
+	mov	alub mem
 	lad	_crc8_one_PARM_1
 	mov	mem aluc
 ;	src/crc8.c: 29: crc = crc8_one(crc);
 ;; genCall
+	mov	stack x
 	mov	stack il ,hi8(L_crc800119)
 	mov	stack il ,lo8(L_crc800119)
 	goto	_crc8_one
 L_crc800119:
 	mov	r stack
+	mov	x stack
 ;; genAssign
+;	Not moving register r to itself...
 ;	genAssign: registers r, r same; skipping assignment
 ;	src/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_crc8_sloc0_1_0
-	mov	alua mem
+	mov	alua x
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
-	lad	_crc8_sloc0_1_0
-	mov	mem aluc
+	mov	x aluc
 ;; genGoto
 	goto	L_crc800103
 ;; genLabel
 L_crc800101:
 ;	src/crc8.c: 32: return crc;
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -287,6 +296,7 @@ L_crc800101:
 	goto	_crc8
 L_main00103:
 	mov	r stack
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r

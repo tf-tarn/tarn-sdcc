@@ -71,9 +71,11 @@ __sdcc_program_startup:
 ;	-----------------------------------------
 	_main:
 ;	src/1.c: 2: return 0;
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
-; implement me (gen.c:2150)
+	mov	stack il ,0
+	mov	stack il ,0
 	jump
 ;; genLabel
 ;	src/1.c: 3: }

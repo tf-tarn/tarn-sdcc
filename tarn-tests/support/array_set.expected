@@ -1,1 +1,4 @@
+Copy section of size 6 to 0x4000
+Copy section of size 30 to 0x4006
+Copy section of size 11 to 0x4024
 OUTPUT=05

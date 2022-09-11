@@ -81,6 +81,7 @@ L_main00104:
 	mov	mem pic
 ;	src/echo.c: 9: if (byte != 0xff) {
 ;; genCmpEQorNE
+	;; test equality
 	mov	alus il ,10	; equal-to 
 ;	has ifx
 	mov	alua il ,255

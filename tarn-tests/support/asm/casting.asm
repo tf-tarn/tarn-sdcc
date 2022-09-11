@@ -89,9 +89,11 @@ __sdcc_program_startup:
 	lad	_val2
 	mov	mem stack
 ;	src/casting.c: 8: return val1;
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
-; implement me (gen.c:1931)
+	mov	stack il ,lo8(_val1)
+	mov	stack il ,hi8(_val1)
 	jump
 ;; genLabel
 ;	src/casting.c: 9: }

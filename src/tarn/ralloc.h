@@ -39,7 +39,7 @@ enum
   MEM_IDX   = 6,                // Memory
   TEST_IDX  = 7,                // Test register
   ADH_IDX  =  8,                // Address high
-  ADL_IDX  =  9,                // Address low
+  ADL_IDX  =  9,                // Address low                                
 };
 
 enum

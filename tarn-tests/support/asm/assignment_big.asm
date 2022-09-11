@@ -86,6 +86,7 @@ __sdcc_program_startup:
 	mov	adh il ,hi8(_vvv + 0)
 	mov	adl il ,lo8(_vvv + 0)
 	mov	r mem
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r

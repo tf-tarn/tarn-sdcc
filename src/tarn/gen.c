@@ -1042,7 +1042,6 @@ bool aop_move(asmop *a1, asmop *a2) {
         if (a2->size == 1) {
             if (AOP_IS_REG(a2)) {
                 load_address_16o(a1->aopu.immd, a1->aopu.immd_off);
-                AOP_MOVE_DEBUG;
                 aop_move(ASMOP_MEM, a2);
             } else {
                 AOP_MOVE_DEBUG;
@@ -2328,7 +2327,9 @@ genAssign (iCode *ic)
     aopOp(result);
     aopOp(right);
 
-    aop_move(result->aop, right->aop);
+    if (aop_move(result->aop, right->aop)) {
+        return;
+    }
 
     int size_result = operandSize(result);
     int size_right = operandSize(right);
@@ -2553,7 +2554,9 @@ static void genCast(iCode *ic) {
                     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                 }
             } else if (is_reg(right)) {
-                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                aopOp(result);
+                aopOp(right);
+                aop_move(result->aop, right->aop);
             } else {
                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
             }
@@ -2704,31 +2707,54 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 cost(6);
             }
         } else if (AOP_IS_REG(right)) {
-            for (int i = 0; i < size_left; ++i) {
-                aop_move_byte(ASMOP_STACK, left, i);
-            }
-            aop_move(ASMOP_STACK, right);
-            emit2("add_8s_16s", "");
-            cost(15);
-            if (aop_move(result, ASMOP_RX)) {
-                emit2("restore_rx", "");
-                cost(6);
-            }
-        } else {
-            if (AOP_IS_IMMEDIATE(right)) {
-                MOVE_AOP_DEBUG;
-            } if (AOP_IS_IMMEDIATE(left)) {
+            if (AOP_IS_IMMEDIATE(left)) {
                 aop_move(ASMOP_STACK, right);
-                emit2("add_8s_16", "%s", left->aopu.aop_dir);
+                emit2("add_8s_16", "%s + %d", left->aopu.immd, left->aopu.immd_off);
                 cost(15);
                 if (aop_move(result, ASMOP_RX)) {
                     emit2("restore_rx", "");
                     cost(6);
                 }
-            } else if (AOP_IS_DIRECT(right)) {
-                MOVE_AOP_DEBUG;
             } else {
-                // here
+                for (int i = 0; i < size_left; ++i) {
+                    aop_move_byte(ASMOP_STACK, left, i);
+                }
+                aop_move(ASMOP_STACK, right);
+                emit2("add_8s_16s", "");
+                cost(15);
+                if (aop_move(result, ASMOP_RX)) {
+                    emit2("restore_rx", "");
+                    cost(6);
+                }
+            }
+        } else {
+            if (AOP_IS_IMMEDIATE(left)) {
+                aop_move(ASMOP_STACK, right);
+                emit2("add_8s_16", "%s", left->aopu.immd);
+                cost(15);
+                if (aop_move(result, ASMOP_RX)) {
+                    emit2("restore_rx", "");
+                    cost(6);
+                }
+            } else if (AOP_IS_SPILL(left)) {
+                if (AOP_IS_DIRECT(right)) {
+                    load_address_16(right->aopu.aop_dir);
+                    aop_move(ASMOP_STACK, ASMOP_MEM);
+
+                    // push dir right onto stack
+                    emit2("load_stack_from_ptr", "%s", left->aopu.immd);
+                    cost(6);
+
+                    emit2("add_8s_16s", "");
+                    cost(15);
+                    if (aop_move(result, ASMOP_RX)) {
+                        emit2("restore_rx", "");
+                        cost(6);
+                    }
+                } else {
+                    MOVE_AOP_DEBUG;
+                }
+            } else {
                 MOVE_AOP_DEBUG;
             }
         }

@@ -1,3 +1,6 @@
+Copy section of size 6 to 0x4000
+Copy section of size 824 to 0x4006
+Copy section of size 39 to 0x433e
 00
 01
 02

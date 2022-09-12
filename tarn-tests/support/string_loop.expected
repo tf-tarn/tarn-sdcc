@@ -1,1 +1,4 @@
+Copy section of size 6 to 0x4000
+Copy section of size 124 to 0x4006
+Copy section of size 28 to 0x4082
 Executed!

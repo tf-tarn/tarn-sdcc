@@ -84,6 +84,7 @@ __sdcc_program_startup:
 	mov	adl il ,lo8(___str_0 + 1)
 	mov	pic mem
 ;	src/string.c: 6: return 0;
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero

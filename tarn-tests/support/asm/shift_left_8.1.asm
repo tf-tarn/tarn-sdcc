@@ -80,7 +80,13 @@ __sdcc_program_startup:
 ;; genAssign
 	lad	_val1
 	mov	mem pic
-;	src/shift_left_8.1.c: 6: val3 = val1 << 8;
+;	src/shift_left_8.1.c: 6: val3 = 0;
+;; genAssign
+	lad	_val3 + 0
+	mov	mem il ,0
+	lad	_val3 + 1
+	mov	mem il ,0
+;	src/shift_left_8.1.c: 7: val3 = val1 << 8;
 ;; genCast
 	mov	x zero
 	lad	_val1
@@ -90,14 +96,27 @@ __sdcc_program_startup:
 	mov	mem zero
 	lad	_val3
 	mov	mem r
-;	src/shift_left_8.1.c: 8: return val1;
+;	src/shift_left_8.1.c: 9: pic = *(0 + (char*)(&val3));
+;; genPointerGet
+;; genPointerGet: operand size 1, 2, 1
+	mov	adh il ,hi8(_val3 + 0)
+	mov	adl il ,lo8(_val3 + 0)
+	mov	pic mem
+;	src/shift_left_8.1.c: 10: pic = *(1 + (char*)(&val3));
+;; genPointerGet
+;; genPointerGet: operand size 1, 2, 1
+	mov	adh il ,hi8(_val3 + 1)
+	mov	adl il ,lo8(_val3 + 1)
+	mov	pic mem
+;	src/shift_left_8.1.c: 11: return val1;
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack x
 	mov	stack r
 	jump
 ;; genLabel
-;	src/shift_left_8.1.c: 9: }
+;	src/shift_left_8.1.c: 12: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

@@ -82,47 +82,57 @@ __sdcc_program_startup:
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/shift_left_8.c: 6: val1 = pic;
+;	src/shift_left_8.c: 6: val1 = pic; // a
 ;; genAssign
 	lad	_val1
 	mov	mem pic
-;	src/shift_left_8.c: 7: val2 = pic;
+;	src/shift_left_8.c: 7: val2 = pic; // b
 ;; genAssign
 	lad	_val2
 	mov	mem pic
 ;	src/shift_left_8.c: 8: val3 = (val1 << 8) + val2;
 ;; genCast
-	lad	_main_sloc0_1_0
-	mov	mem zero
+	mov	x zero
 	lad	_val1
-	mov	stack mem
-	lad	_main_sloc0_1_0 + 1
-	mov	mem stack
-;; genLeftShift
 	mov	r mem
+;; genLeftShift
 	lad	_main_sloc0_1_0 + 1
-	mov	x mem
+	mov	mem zero
+	lad	_main_sloc0_1_0
+	mov	mem r
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:2353)
-	mov	stack x
-	mov	stack r
 	lad	_val2
 	mov	stack mem
+	load_stack_from_ptr	_main_sloc0_1_0
 	add_8s_16s
-	lad	_val3
-	mov	mem x
 	lad	_val3 + 1
 	mov	mem r
+	lad	_val3 + 0
+	mov	mem x
 	restore_rx
-;	src/shift_left_8.c: 10: return val1;
+;	src/shift_left_8.c: 12: pic = *(0 + (char*)(&val3)); // b
+;; genPointerGet
+;; genPointerGet: operand size 1, 2, 1
+	mov	adh il ,hi8(_val3 + 0)
+	mov	adl il ,lo8(_val3 + 0)
+	mov	pic mem
+;	src/shift_left_8.c: 13: pic = *(1 + (char*)(&val3)); // a
+;; genPointerGet
+;; genPointerGet: operand size 1, 2, 1
+	mov	adh il ,hi8(_val3 + 1)
+	mov	adl il ,lo8(_val3 + 1)
+	mov	pic mem
+;	src/shift_left_8.c: 14: return val1;
+	;; return
 	mov	jmpl stack
 	mov	jmph stack
-; implement me (gen.c:1931)
+	mov	stack x
+	mov	stack r
 	jump
 ;; genLabel
-;	src/shift_left_8.c: 11: }
+;	src/shift_left_8.c: 15: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

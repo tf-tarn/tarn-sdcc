@@ -35,8 +35,6 @@ _main_PARM_2:
 ;--------------------------------------------------------
 	.area	_overlay
 _print_sloc0_1_0:
-	.ds	1
-_print_sloc1_1_0:
 	.ds	2
 ;--------------------------------------------------------
 ; Stack segment in internal ram
@@ -84,48 +82,47 @@ __sdcc_program_startup:
 	_print:
 ;	src/string_loop_function.c: 4: for (char i = 0; s[i]; ++i) {
 ;; genAssign
-	lad	_print_sloc0_1_0
-	mov	mem zero
+	mov	r zero
 ;; genLabel
 L_print00103:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-; implement me (gen.c:2353)
-	load_stack_from_ptr	_print_PARM_1
-	lad	_print_sloc0_1_0
+	lad	_print_PARM_1
 	mov	stack mem
+	lad	_print_PARM_1 + 1
+	mov	stack mem
+	mov	stack r
 	add_8s_16s
-	lad	_print_sloc1_1_0
+	lad	_print_sloc0_1_0 + 0
 	mov	mem x
-	lad	_print_sloc1_1_0 + 1
+	lad	_print_sloc0_1_0 + 1
 	mov	mem r
 	restore_rx
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          _print_sloc1_1_0
-	load_address_from_ptr	_print_sloc1_1_0
-	mov	r mem
+;	           yes         yes    2          _print_sloc0_1_0
+	load_address_from_ptr	_print_sloc0_1_0
+	mov	x mem
 ;; genIfx
-	mov	alua r
+	;; If x
+	mov	alua x
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
 	gotonz	L_print00101
 ;	src/string_loop_function.c: 5: pic = s[i];
 ;; genAssign
-	mov	pic r
+	mov	pic x
 ;	src/string_loop_function.c: 4: for (char i = 0; s[i]; ++i) {
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_print_sloc0_1_0
-	mov	alua mem
+	mov	alua r
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
-	lad	_print_sloc0_1_0
-	mov	mem aluc
+	mov	r aluc
 ;; genGoto
 	goto	L_print00103
 ;; genLabel
@@ -147,6 +144,7 @@ L_print00101:
 ;	src/string_loop_function.c: 14: const char *msg_too_short = "Too short.\n";
 ;	src/string_loop_function.c: 18: if (argc) {
 ;; genIfx
+	;; If x
 	lad	_main_PARM_1
 	mov	alua mem
 	mov	alus il ,10	; equal-to 
@@ -169,29 +167,38 @@ L_main00102:
 L_main00103:
 ;	src/string_loop_function.c: 24: switch (var) {
 ;; genCmpEQorNE
+	;; test equality
 	mov	alus il ,10	; equal-to 
+;	has ifx
+	mov	alua zero
 	lad	_var
-	mov	alua mem
-	mov	alub zero
+	mov	alub mem
 	mov	test aluc
-;; genIfx
 	gotonz	L_main00104
+	goto	L_main00134
+L_main00134:
 ;; genCmpEQorNE
+	;; test equality
 	mov	alus il ,10	; equal-to 
+;	has ifx
+	mov	alua il ,1
 	lad	_var
-	mov	alua mem
-	mov	alub il ,1
+	mov	alub mem
 	mov	test aluc
-;; genIfx
 	gotonz	L_main00105
+	goto	L_main00136
+L_main00136:
 ;; genCmpEQorNE
+	;; test equality
 	mov	alus il ,10	; equal-to 
+;	has ifx
+	mov	alua il ,2
 	lad	_var
-	mov	alua mem
-	mov	alub il ,2
+	mov	alub mem
 	mov	test aluc
-;; genIfx
 	gotonz	L_main00106
+	goto	L_main00138
+L_main00138:
 ;; genGoto
 	goto	L_main00109
 ;	src/string_loop_function.c: 25: case 0:
@@ -204,10 +211,10 @@ L_main00104:
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_1 + 0) ; lo
 ;; genCall
-	mov	stack il ,hi8(L_main00133)
-	mov	stack il ,lo8(L_main00133)
+	mov	stack il ,hi8(L_main00139)
+	mov	stack il ,lo8(L_main00139)
 	goto	_print
-L_main00133:
+L_main00139:
 	; function returns nothing
 ;	src/string_loop_function.c: 27: break;
 ;; genGoto
@@ -222,10 +229,10 @@ L_main00105:
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_0 + 0) ; lo
 ;; genCall
-	mov	stack il ,hi8(L_main00134)
-	mov	stack il ,lo8(L_main00134)
+	mov	stack il ,hi8(L_main00140)
+	mov	stack il ,lo8(L_main00140)
 	goto	_print
-L_main00134:
+L_main00140:
 	; function returns nothing
 ;	src/string_loop_function.c: 30: break;
 ;; genGoto
@@ -240,10 +247,10 @@ L_main00106:
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_1 + 0) ; lo
 ;; genCall
-	mov	stack il ,hi8(L_main00135)
-	mov	stack il ,lo8(L_main00135)
+	mov	stack il ,hi8(L_main00141)
+	mov	stack il ,lo8(L_main00141)
 	goto	_print
-L_main00135:
+L_main00141:
 	; function returns nothing
 ;	src/string_loop_function.c: 35: while (1);
 ;; genLabel

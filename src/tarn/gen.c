@@ -1043,6 +1043,10 @@ bool aop_move(asmop *a1, asmop *a2) {
             if (AOP_IS_REG(a2) || AOP_IS_LIT(a2)) {
                 load_address_16o(a1->aopu.immd, a1->aopu.immd_off);
                 aop_move(ASMOP_MEM, a2);
+            } else if (AOP_IS_DIRECT(a2)) {
+                aop_move(ASMOP_STACK, a2);
+                load_address_16o(a1->aopu.immd, a1->aopu.immd_off);
+                aop_move(ASMOP_MEM, ASMOP_STACK);
             } else {
                 AOP_MOVE_DEBUG;
             }

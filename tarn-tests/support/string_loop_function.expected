@@ -1,4 +1,1 @@
-Copy section of size 6 to 0x4000
-Copy section of size 334 to 0x4006
-Copy section of size 48 to 0x4154
 Hello, world!

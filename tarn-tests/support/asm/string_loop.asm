@@ -28,7 +28,7 @@ _main_PARM_2:
 ;--------------------------------------------------------
 	.area	_overlay
 _main_sloc0_1_0:
-	.ds	2
+	.ds	1
 ;--------------------------------------------------------
 ; Stack segment in internal ram
 ;--------------------------------------------------------
@@ -76,43 +76,42 @@ __sdcc_program_startup:
 ;	src/string_loop.c: 3: const char *msg = "Executed!\n";
 ;	src/string_loop.c: 4: for (char i = 0; msg[i]; ++i) {
 ;; genAssign
-	mov	r zero
+	lad	_main_sloc0_1_0 + 0
+	mov	mem zero
 ;; genLabel
 L_main00106:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	mov	stack r
-	add_8s_16	___str_0 + 0
 	lad	_main_sloc0_1_0 + 0
-	mov	mem x
-	lad	_main_sloc0_1_0 + 1
-	mov	mem r
-	restore_rx
+	mov	stack mem
+	add_8s_16	___str_0
+;	no need to move registers to themselves
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          _main_sloc0_1_0
-	load_address_from_ptr	_main_sloc0_1_0
-	mov	x mem
+	mov	adl r
+	mov	adh x
+	mov	r mem
 ;; genIfx
 	;; If x
-	mov	alua x
+	mov	alua r
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
 	gotonz	L_main00103
 ;	src/string_loop.c: 5: pic = msg[i];
 ;; genAssign
-	mov	pic x
+	mov	pic r
 ;	src/string_loop.c: 4: for (char i = 0; msg[i]; ++i) {
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	mov	alua r
+	lad	_main_sloc0_1_0
+	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
-	mov	r aluc
+	lad	_main_sloc0_1_0 + 0
+	mov	mem aluc
 ;; genGoto
 	goto	L_main00106
 ;	src/string_loop.c: 8: while(1);

@@ -233,9 +233,9 @@ tarn_init_asmops (void)
   asmop_adhl.type = AOP_REG;
   asmop_adhl.size = 2;
   asmop_adhl.aopu.bytes[0].in_reg = true;
-  asmop_adhl.aopu.bytes[0].byteu.reg = tarn_regs + ADH_IDX;
+  asmop_adhl.aopu.bytes[0].byteu.reg = tarn_regs + ADL_IDX;
   asmop_adhl.aopu.bytes[1].in_reg = true;
-  asmop_adhl.aopu.bytes[1].byteu.reg = tarn_regs + ADL_IDX;
+  asmop_adhl.aopu.bytes[1].byteu.reg = tarn_regs + ADH_IDX;
 
   asmop_zero.type = AOP_LIT;
   asmop_zero.size = 1;
@@ -1040,7 +1040,7 @@ bool aop_move(asmop *a1, asmop *a2) {
 
     if (AOP_IS_SPILL(a1)) {
         if (a2->size == 1) {
-            if (AOP_IS_REG(a2)) {
+            if (AOP_IS_REG(a2) || AOP_IS_LIT(a2)) {
                 load_address_16o(a1->aopu.immd, a1->aopu.immd_off);
                 aop_move(ASMOP_MEM, a2);
             } else {
@@ -1205,13 +1205,20 @@ bool aop_move(asmop *a1, asmop *a2) {
                 emit2(";", "no need to move registers to themselves");
                 return false;
             } else {
-                AOP_MOVE_DEBUG;
+                if (a2->size == a1->size) {
+                    for (int i = 0; i < a2->size; ++i) {
+                        emit_mov(a1->aopu.bytes[i].byteu.reg->name,
+                                 a2->aopu.bytes[i].byteu.reg->name);
+                    }
+                } else {
+                    AOP_MOVE_DEBUG;
+                }
             }
         } else {
             if (AOP_IS_DIRECT(a2)) {
                 for (int i = 0; i < a2->size; ++i) {
                     load_address_16o(a2->aopu.aop_dir, i);
-                    emit_mov(a1->aopu.bytes[i].byteu.reg->name, "mem");
+                    emit_mov(a1->aopu.bytes[a2->size - i - 1].byteu.reg->name, "mem");
                 }
             } else if (AOP_IS_SPILL(a2)) {
                 if (a1 == ASMOP_ADHL && a1->size == 2) {
@@ -1361,6 +1368,9 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
             } else if (AOP_IS_SFR(a2)) {
                 emit_mov(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.aop_dir);
             } else if (AOP_IS_IMMEDIATE(a2)) {
+                load_address_16o(a2->aopu.immd, a2->aopu.immd_off + index);
+                aop_move(a1, ASMOP_MEM);
+            } else if (AOP_IS_SPILL(a2)) {
                 load_address_16o(a2->aopu.immd, a2->aopu.immd_off + index);
                 aop_move(a1, ASMOP_MEM);
             } else {
@@ -1740,10 +1750,14 @@ static void genPointerGet(iCode *ic) {
                             emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                         }
                     } else if (is_mem(left)) {
-                        emit2("mov", "adh il ,hi8(%s + %d)", op_get_mem_label(left), val);
-                        emit2("mov", "adl il ,lo8(%s + %d)", op_get_mem_label(left), val);
-                        cost(2);
-                        read_reg("mem", result);
+                        if (!val) {
+                            aopOp(result);
+                            aopOp(left);
+                            aop_move(ASMOP_ADHL, left->aop);
+                            aop_move(result->aop, ASMOP_MEM);
+                        } else {
+                            emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                        }
                     } else if (is_reg(left)) {
                         if (!val) {
                             /* emit2("lad", "%s",     op_get_mem_label(result)); */
@@ -1752,7 +1766,8 @@ static void genPointerGet(iCode *ic) {
                             /* emit2("mov", "mem %s", op_get_register_name_i(left, 1)); */
                             aopOp(result);
                             aopOp(left);
-                            aop_move(result->aop, left->aop);
+                            aop_move(ASMOP_ADHL, left->aop);
+                            aop_move(result->aop, ASMOP_MEM);
                         } else {
                             emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                         }
@@ -2743,6 +2758,24 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
 
                     // push dir right onto stack
                     emit2("load_stack_from_ptr", "%s", left->aopu.immd);
+                    cost(6);
+
+                    emit2("add_8s_16s", "");
+                    cost(15);
+                    if (aop_move(result, ASMOP_RX)) {
+                        emit2("restore_rx", "");
+                        cost(6);
+                    }
+                } else {
+                    MOVE_AOP_DEBUG;
+                }
+            } else if (AOP_IS_DIRECT(left)) {
+                if (AOP_IS_SPILL(right)) {
+                    load_address_16(left->aopu.aop_dir);
+                    aop_move(ASMOP_STACK, ASMOP_MEM);
+
+                    // push dir right onto stack
+                    emit2("load_stack_from_ptr", "%s", right->aopu.immd);
                     cost(6);
 
                     emit2("add_8s_16s", "");

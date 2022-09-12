@@ -34,8 +34,6 @@ _index:
 	.area	_overlay
 _main_sloc0_1_0:
 	.ds	2
-_main_sloc1_1_0:
-	.ds	2
 ;--------------------------------------------------------
 ; Stack segment in internal ram
 ;--------------------------------------------------------
@@ -96,7 +94,7 @@ __sdcc_program_startup:
 ;; genPointerSet: operand size 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _main_sloc0_1_0
-	load_address_from_ptr _main_sloc0_1_0
+	load_address_from_ptr	_main_sloc0_1_0
 	mov	mem il ,5
 ;	src/array_set_2.c: 6: pic = array[index];
 ;; genALUOp
@@ -105,16 +103,11 @@ __sdcc_program_startup:
 	lad	_index
 	mov	stack mem
 	add_8s_16	_array
-	lad	_main_sloc1_1_0 + 0
-	mov	mem x
-	lad	_main_sloc1_1_0 + 1
-	mov	mem r
-	restore_rx
+;	no need to move registers to themselves
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          _main_sloc1_1_0
-	load_address_from_ptr	_main_sloc1_1_0
+	mov	adl r
+	mov	adh x
 	mov	pic mem
 ;	src/array_set_2.c: 7: while(1);
 ;; genLabel

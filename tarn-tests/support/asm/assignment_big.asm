@@ -83,8 +83,10 @@ __sdcc_program_startup:
 ;	src/assignment_big.c: 7: return vvv[0];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-	mov	adh il ,hi8(_vvv + 0)
-	mov	adl il ,lo8(_vvv + 0)
+	lad	_vvv + 0
+	mov	adh mem
+	lad	_vvv + 1
+	mov	adl mem
 	mov	r mem
 	;; return
 	mov	jmpl stack

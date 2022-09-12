@@ -74,61 +74,42 @@ __sdcc_program_startup:
 ;	-----------------------------------------
 	_main:
 ;	src/test_big_addition.c: 4: const char *msg = "foo";
-;	src/test_big_addition.c: 6: pic = 0x0e;
-;; genAssign
-	mov	pic il ,14
-;	src/test_big_addition.c: 7: pic = msg[(char)0];
+;	src/test_big_addition.c: 6: pic = msg[(char)0];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adh il ,hi8(___str_0 + 0)
 	mov	adl il ,lo8(___str_0 + 0)
 	mov	pic mem
-;	src/test_big_addition.c: 8: pic = 0x0f;
-;; genAssign
-	mov	pic il ,15
-;	src/test_big_addition.c: 9: pic = ' ';
+;	src/test_big_addition.c: 7: pic = ' ';
 ;; genAssign
 	mov	pic il ,32
-;	src/test_big_addition.c: 10: pic = 0x0e;
-;; genAssign
-	mov	pic il ,14
-;	src/test_big_addition.c: 11: pic = msg[(char)1];
+;	src/test_big_addition.c: 8: pic = msg[(char)1];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adh il ,hi8(___str_0 + 1)
 	mov	adl il ,lo8(___str_0 + 1)
 	mov	pic mem
-;	src/test_big_addition.c: 12: pic = 0x0f;
-;; genAssign
-	mov	pic il ,15
-;	src/test_big_addition.c: 13: pic = '\n';
+;	src/test_big_addition.c: 9: pic = '\n';
 ;; genAssign
 	mov	pic il ,10
-;	src/test_big_addition.c: 15: vvv = msg;
+;	src/test_big_addition.c: 11: vvv = msg;
 ;; genAssign
 	lad	_vvv
 	mov	mem il ,hi8(___str_0 + 0) ; hi
 	lad	_vvv + 1
 	mov	mem il ,lo8(___str_0 + 0) ; lo
-;	src/test_big_addition.c: 17: pic = 0x0e;
-;; genAssign
-	mov	pic il ,14
-;	src/test_big_addition.c: 18: pic = vvv[(char)0];
+;	src/test_big_addition.c: 13: pic = vvv[(char)0];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-	mov	adh il ,hi8(_vvv + 0)
-	mov	adl il ,lo8(_vvv + 0)
+	lad	_vvv + 0
+	mov	adh mem
+	lad	_vvv + 1
+	mov	adl mem
 	mov	pic mem
-;	src/test_big_addition.c: 19: pic = 0x0f;
-;; genAssign
-	mov	pic il ,15
-;	src/test_big_addition.c: 20: pic = ' ';
+;	src/test_big_addition.c: 14: pic = ' ';
 ;; genAssign
 	mov	pic il ,32
-;	src/test_big_addition.c: 21: pic = 0x0e;
-;; genAssign
-	mov	pic il ,14
-;	src/test_big_addition.c: 22: pic = vvv[(char)1];
+;	src/test_big_addition.c: 15: pic = vvv[(char)1];
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
@@ -140,21 +121,20 @@ __sdcc_program_startup:
 ;	no need to move registers to themselves
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-; implement me (gen.c:1658)
-;	src/test_big_addition.c: 23: pic = 0x0f;
-;; genAssign
-	mov	pic il ,15
-;	src/test_big_addition.c: 24: pic = '\n';
+	mov	adl r
+	mov	adh x
+	mov	pic mem
+;	src/test_big_addition.c: 16: pic = '\n';
 ;; genAssign
 	mov	pic il ,10
-;	src/test_big_addition.c: 26: while (1);
+;	src/test_big_addition.c: 18: while (1);
 ;; genLabel
 L_main00102:
 ;; genGoto
 	goto	L_main00102
-;	src/test_big_addition.c: 28: return 0;
+;	src/test_big_addition.c: 20: return 0;
 ;; genLabel
-;	src/test_big_addition.c: 29: }
+;	src/test_big_addition.c: 21: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

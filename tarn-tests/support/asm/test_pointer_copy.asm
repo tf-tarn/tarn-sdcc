@@ -95,8 +95,10 @@ __sdcc_program_startup:
 ;	src/test_pointer_copy.c: 18: pic = vvv[(char)0];
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-	mov	adh il ,hi8(_vvv + 0)
-	mov	adl il ,lo8(_vvv + 0)
+	lad	_vvv + 0
+	mov	adh mem
+	lad	_vvv + 1
+	mov	adl mem
 	mov	pic mem
 ;	src/test_pointer_copy.c: 22: pic = vvv[(char)1];
 ;; genALUOp
@@ -110,7 +112,9 @@ __sdcc_program_startup:
 ;	no need to move registers to themselves
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-; implement me (gen.c:1658)
+	mov	adl r
+	mov	adh x
+	mov	pic mem
 ;	src/test_pointer_copy.c: 26: while (1);
 ;; genLabel
 L_main00102:

@@ -278,9 +278,9 @@ L_crc800101:
 ;	src/crc8.c: 36: return crc8(argv[0], 200);
 ;; genAssign
 	lad	_main_PARM_2 + 0
-	mov	r mem
-	lad	_main_PARM_2 + 1
 	mov	x mem
+	lad	_main_PARM_2 + 1
+	mov	r mem
 ;; genPointerGet
 ;; genPointerGet: operand size 2, 2, 1
 	lad	_crc8_PARM_1

@@ -14,7 +14,15 @@ build/%.o: build/%.asm
 	@echo $@;
 	tarn-elf32-as $< -o $@
 
+build/%.s.o: asm_src/%.s
+	@echo $@;
+	tarn-elf32-as -I /home/tarn/projects/tarnos/asm/src $< -o $@
+
 build/%.elf: build/%.o build/ram-boot.ld.txt
+	@echo $@; tarn-elf32-ld -T build/ram-boot.ld.txt -o $@ $< && tarn-elf32-objdump -d $@
+	tarn-elf32-nm $@ | sort
+
+build/%.s.elf: build/%.s.o build/ram-boot.ld.txt
 	@echo $@; tarn-elf32-ld -T build/ram-boot.ld.txt -o $@ $< && tarn-elf32-objdump -d $@
 	tarn-elf32-nm $@ | sort
 

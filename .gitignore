@@ -1,7 +1,9 @@
+*.pyc
 *.o
 *.rul
 *.dep
 *.a
+a.out
 
 sim/
 bin/
@@ -20,9 +22,6 @@ testruns/
 build/
 
 /device/lib/**/*.asm
-/support/sdbinutils/
-/support/cpp/
-/support/**/Makefile
 
 /sdccconf.h
 /config.log
@@ -35,3 +34,12 @@ build/
 /Makefile.common
 
 autom4te.cache/
+
+/support/sdbinutils/
+/support/cpp/
+/support/**/Makefile
+/support/packihx/
+/support/regression/gen/
+/support/regression/results/
+/support/regression/ports/host/spec.mk
+

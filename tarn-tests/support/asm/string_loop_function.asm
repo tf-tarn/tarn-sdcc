@@ -106,7 +106,6 @@ L_print00103:
 	load_address_from_ptr	_print_sloc0_1_0
 	mov	x mem
 ;; genIfx
-	;; If x
 	mov	alua x
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
@@ -144,7 +143,6 @@ L_print00101:
 ;	src/string_loop_function.c: 14: const char *msg_too_short = "Too short.\n";
 ;	src/string_loop_function.c: 18: if (argc) {
 ;; genIfx
-	;; If x
 	lad	_main_PARM_1
 	mov	alua mem
 	mov	alus il ,10	; equal-to 
@@ -167,9 +165,10 @@ L_main00102:
 L_main00103:
 ;	src/string_loop_function.c: 24: switch (var) {
 ;; genCmpEQorNE
-	;; test equality
 	mov	alus il ,10	; equal-to 
-;	has ifx
+;	has TRUE ifx
+;	begin multibyte comparison
+;	compare byte 0
 	mov	alua zero
 	lad	_var
 	mov	alub mem
@@ -177,10 +176,12 @@ L_main00103:
 	gotonz	L_main00104
 	goto	L_main00134
 L_main00134:
+;	end multibyte comparison
 ;; genCmpEQorNE
-	;; test equality
 	mov	alus il ,10	; equal-to 
-;	has ifx
+;	has TRUE ifx
+;	begin multibyte comparison
+;	compare byte 0
 	mov	alua il ,1
 	lad	_var
 	mov	alub mem
@@ -188,10 +189,12 @@ L_main00134:
 	gotonz	L_main00105
 	goto	L_main00136
 L_main00136:
+;	end multibyte comparison
 ;; genCmpEQorNE
-	;; test equality
 	mov	alus il ,10	; equal-to 
-;	has ifx
+;	has TRUE ifx
+;	begin multibyte comparison
+;	compare byte 0
 	mov	alua il ,2
 	lad	_var
 	mov	alub mem
@@ -199,6 +202,7 @@ L_main00136:
 	gotonz	L_main00106
 	goto	L_main00138
 L_main00138:
+;	end multibyte comparison
 ;; genGoto
 	goto	L_main00109
 ;	src/string_loop_function.c: 25: case 0:

@@ -93,7 +93,6 @@ __sdcc_program_startup:
 	lad	_val2
 	mov	mem stack ; hi
 ;	src/casting2.c: 8: return val1;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,lo8(_val1)

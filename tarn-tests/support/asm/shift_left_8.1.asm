@@ -109,7 +109,6 @@ __sdcc_program_startup:
 	mov	adl il ,lo8(_val3 + 1)
 	mov	pic mem
 ;	src/shift_left_8.1.c: 11: return val1;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack x

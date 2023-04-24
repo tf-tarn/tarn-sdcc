@@ -88,7 +88,6 @@ __sdcc_program_startup:
 	lad	_vvv + 1
 	mov	adl mem
 	mov	r mem
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r

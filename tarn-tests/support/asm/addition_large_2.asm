@@ -90,7 +90,6 @@ __sdcc_program_startup:
 	mov	mem x
 	restore_rx
 ;	src/addition_large_2.c: 6: return 0;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,0

@@ -71,7 +71,6 @@ __sdcc_program_startup:
 ;	-----------------------------------------
 	_main:
 ;	src/1.c: 2: return 0;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,0

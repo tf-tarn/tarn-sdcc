@@ -94,10 +94,9 @@ __sdcc_program_startup:
 ;; genPointerSet: operand size 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
 ;	           yes         yes    2          _main_sloc0_1_0
-	load_address_from_ptr _main_sloc0_1_0
+	load_address_from_ptr	_main_sloc0_1_0
 	mov	mem il ,5
 ;	src/4.c: 5: return 0;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero

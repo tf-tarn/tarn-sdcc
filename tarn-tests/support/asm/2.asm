@@ -82,9 +82,10 @@ __sdcc_program_startup:
 	_multiply_or_divide:
 ;	src/2.c: 4: switch(which) {
 ;; genCmpEQorNE
-	;; test equality
 	mov	alus il ,10	; equal-to 
-;	has ifx
+;	has TRUE ifx
+;	begin multibyte comparison
+;	compare byte 0
 	mov	alua zero
 	lad	_multiply_or_divide_PARM_1
 	mov	alub mem
@@ -92,10 +93,12 @@ __sdcc_program_startup:
 	gotonz	L_multiply_or_divide00101
 	goto	L_multiply_or_divide00122
 L_multiply_or_divide00122:
+;	end multibyte comparison
 ;; genCmpEQorNE
-	;; test equality
 	mov	alus il ,10	; equal-to 
-;	has ifx
+;	has TRUE ifx
+;	begin multibyte comparison
+;	compare byte 0
 	mov	alua il ,1
 	lad	_multiply_or_divide_PARM_1
 	mov	alub mem
@@ -103,6 +106,7 @@ L_multiply_or_divide00122:
 	gotonz	L_multiply_or_divide00102
 	goto	L_multiply_or_divide00124
 L_multiply_or_divide00124:
+;	end multibyte comparison
 ;; genGoto
 	goto	L_multiply_or_divide00103
 ;	src/2.c: 5: case 0:
@@ -127,7 +131,6 @@ L_multiply_or_divide00125:
 ;	result: reg? mem? remat? spilt? nregs regs label
 ;	        yes                     1     r,        
 	mov	r stack
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -154,7 +157,6 @@ L_multiply_or_divide00126:
 ;	result: reg? mem? remat? spilt? nregs regs label
 ;	        yes                     1     r,        
 	mov	r stack
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -164,7 +166,6 @@ L_multiply_or_divide00126:
 L_multiply_or_divide00103:
 ;	src/2.c: 11: if (a) {
 ;; genIfx
-	;; If x
 	lad	_multiply_or_divide_PARM_2
 	mov	alua mem
 	mov	alus il ,10	; equal-to 
@@ -188,7 +189,6 @@ L_multiply_or_divide00105:
 ;; genLabel
 L_multiply_or_divide00106:
 ;	src/2.c: 17: return a;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_multiply_or_divide_PARM_2
@@ -207,7 +207,6 @@ L_multiply_or_divide00106:
 ;	-----------------------------------------
 	_main:
 ;	src/2.c: 21: return 0;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero

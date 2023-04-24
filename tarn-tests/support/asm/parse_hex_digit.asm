@@ -102,24 +102,20 @@ __sdcc_program_startup:
 	_parse_hex_digit:
 ;	src/parse_hex_digit.c: 4: if (c >= '0' && c <= '9') {
 ;; genCmp
-	;; compare
 	mov	alus il ,9	; less-than 
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,48
 	mov	test aluc
 ;; genIfx
-	;; If x
 	gotonz	L_parse_hex_digit00102
 ;; genCmp
-	;; compare
 	mov	alus il ,11	; greater-than 
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,57
 	mov	test aluc
 ;; genIfx
-	;; If x
 	gotonz	L_parse_hex_digit00102
 ;	src/parse_hex_digit.c: 5: return c - '0';
 ;; genALUOp
@@ -130,7 +126,6 @@ __sdcc_program_startup:
 	mov	alus il ,4	; plus 
 	mov	alub il ,-48
 	mov	r aluc
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -139,24 +134,20 @@ __sdcc_program_startup:
 L_parse_hex_digit00102:
 ;	src/parse_hex_digit.c: 7: if (c >= 'a' && c <= 'f') {
 ;; genCmp
-	;; compare
 	mov	alus il ,9	; less-than 
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,97
 	mov	test aluc
 ;; genIfx
-	;; If x
 	gotonz	L_parse_hex_digit00105
 ;; genCmp
-	;; compare
 	mov	alus il ,11	; greater-than 
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,102
 	mov	test aluc
 ;; genIfx
-	;; If x
 	gotonz	L_parse_hex_digit00105
 ;	src/parse_hex_digit.c: 8: return (c - 'a') + 10;
 ;; genALUOp
@@ -167,7 +158,6 @@ L_parse_hex_digit00102:
 	mov	alus il ,4	; plus 
 	mov	alub il ,169
 	mov	r aluc
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -176,24 +166,20 @@ L_parse_hex_digit00102:
 L_parse_hex_digit00105:
 ;	src/parse_hex_digit.c: 10: if (c >= 'A' && c <= 'F') {
 ;; genCmp
-	;; compare
 	mov	alus il ,9	; less-than 
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,65
 	mov	test aluc
 ;; genIfx
-	;; If x
 	gotonz	L_parse_hex_digit00108
 ;; genCmp
-	;; compare
 	mov	alus il ,11	; greater-than 
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,70
 	mov	test aluc
 ;; genIfx
-	;; If x
 	gotonz	L_parse_hex_digit00108
 ;	src/parse_hex_digit.c: 11: return (c - 'A') + 10;
 ;; genALUOp
@@ -204,7 +190,6 @@ L_parse_hex_digit00105:
 	mov	alus il ,4	; plus 
 	mov	alub il ,201
 	mov	r aluc
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -212,7 +197,6 @@ L_parse_hex_digit00105:
 ;; genLabel
 L_parse_hex_digit00108:
 ;	src/parse_hex_digit.c: 13: return 0xff;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,255

@@ -72,7 +72,6 @@ __sdcc_program_startup:
 	_main:
 ;	src/addition_large_const.c: 3: const char *msg = "foo";
 ;	src/addition_large_const.c: 4: return msg + 1;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,lo8(___str_0 + 1)

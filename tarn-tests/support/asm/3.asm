@@ -80,7 +80,6 @@ __sdcc_program_startup:
 	mov	adl il ,lo8(_array + 1)
 	mov	mem il ,5
 ;	src/3.c: 5: return 0;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack zero

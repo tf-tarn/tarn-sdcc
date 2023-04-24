@@ -79,6 +79,7 @@ tarnSpillThis (symbol * sym)
   /* if this is rematerializable or has a spillLocation
      we are okay, else we need to create a spillLocation
      for it */
+
   if (!(sym->remat || sym->usl.spillLoc))
     createStackSpil (sym);
 

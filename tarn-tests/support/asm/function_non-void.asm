@@ -72,7 +72,6 @@ __sdcc_program_startup:
 ;	-----------------------------------------
 	_f:
 ;	src/function_non-void.c: 2: return 9;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,9
@@ -100,7 +99,6 @@ L_main00103:
 ;	Not moving register r to itself...
 ;	genAssign: registers r, r same; skipping assignment
 ;	src/function_non-void.c: 6: return val;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r

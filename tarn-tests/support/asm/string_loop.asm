@@ -93,7 +93,6 @@ L_main00106:
 	mov	adh x
 	mov	r mem
 ;; genIfx
-	;; If x
 	mov	alua r
 	mov	alus il ,10	; equal-to 
 	mov	alub zero

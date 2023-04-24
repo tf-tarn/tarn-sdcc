@@ -91,13 +91,11 @@ __sdcc_program_startup:
 ;; genLabel
 L_crc8_one00106:
 ;; genCmp
-	;; compare
 	mov	alus il ,9	; less-than 
 	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
 ;; genIfx
-	;; If x
 	gotonz	L_crc8_one00123
 	goto	L_crc8_one00104
 L_crc8_one00123:
@@ -117,7 +115,6 @@ L_crc8_one00123:
 	mov	alub zero
 	mov	test aluc
 ;; genIfx
-	;; If x
 	gotonz	L_crc8_one00102
 ;	src/crc8.c: 12: crc = (crc << 1) ^ POLYNOMIAL;
 ;; genLeftShift
@@ -163,7 +160,6 @@ L_crc8_one00107:
 ;; genLabel
 L_crc8_one00104:
 ;	src/crc8.c: 20: return crc;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_crc8_one_PARM_1
@@ -190,14 +186,12 @@ L_crc8_one00104:
 ;; genLabel
 L_crc800103:
 ;; genCmp
-	;; compare
 	mov	alus il ,9	; less-than 
 	mov	alua x
 	lad	_crc8_PARM_2
 	mov	alub mem
 	mov	test aluc
 ;; genIfx
-	;; If x
 	gotonz	L_crc800118
 	goto	L_crc800101
 L_crc800118:
@@ -258,7 +252,6 @@ L_crc800119:
 ;; genLabel
 L_crc800101:
 ;	src/crc8.c: 32: return crc;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r
@@ -296,7 +289,6 @@ L_crc800101:
 	goto	_crc8
 L_main00103:
 	mov	r stack
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack r

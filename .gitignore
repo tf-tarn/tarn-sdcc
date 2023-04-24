@@ -33,3 +33,5 @@ build/
 /Makefile
 /device/**/Makefile
 /Makefile.common
+
+autom4te.cache/

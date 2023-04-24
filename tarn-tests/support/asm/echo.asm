@@ -81,9 +81,10 @@ L_main00104:
 	mov	mem pic
 ;	src/echo.c: 9: if (byte != 0xff) {
 ;; genCmpEQorNE
-	;; test equality
 	mov	alus il ,10	; equal-to 
-;	has ifx
+;	has TRUE ifx
+;	begin multibyte comparison
+;	compare byte 0
 	mov	alua il ,255
 	lad	_main_byte_65536_2
 	mov	alub mem
@@ -91,6 +92,7 @@ L_main00104:
 	gotonz	L_main00104
 	goto	L_main00117
 L_main00117:
+;	end multibyte comparison
 ;	src/echo.c: 10: pic = byte;
 ;; genAssign
 	lad	_main_byte_65536_2

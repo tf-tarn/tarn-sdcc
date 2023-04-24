@@ -117,7 +117,6 @@ __sdcc_program_startup:
 L_main00103:
 	; function returns nothing
 ;	src/function_void_args.c: 7: return var;
-	;; return
 	mov	jmpl stack
 	mov	jmph stack
 	lad	_var

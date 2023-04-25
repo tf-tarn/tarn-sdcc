@@ -127,14 +127,16 @@ __sdcc_program_startup:
 ;	src/test_big_addition.c: 16: pic = '\n';
 ;; genAssign
 	mov	pic il ,10
-;	src/test_big_addition.c: 18: while (1);
+;	src/test_big_addition.c: 20: __endasm;
+	halt
+;	src/test_big_addition.c: 22: return 0;
+	mov	jmpl stack
+	mov	jmph stack
+	mov	stack il ,0
+	mov	stack il ,0
+	jump
 ;; genLabel
-L_main00102:
-;; genGoto
-	goto	L_main00102
-;	src/test_big_addition.c: 20: return 0;
-;; genLabel
-;	src/test_big_addition.c: 21: }
+;	src/test_big_addition.c: 23: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

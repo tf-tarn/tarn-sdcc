@@ -1050,7 +1050,7 @@ void aop_move_byte(asmop *a1, asmop *a2, int index);
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#define TRACE emit2("", "; trace (%s:%d)", __FILE__, __LINE__)
+#define TRACE /*emit2("", "; trace (%s:%d)", __FILE__, __LINE__)*/
 static bool aop_move(asmop *a1, asmop *a2) {
     #define AOP_MOVE_DEBUG { emit2("", "; aop_move debug (%s:%d)", __FILE__, __LINE__); emit_asmop("dest", a1); emit_asmop("src ", a2); }
 
@@ -2876,8 +2876,15 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
         }
     } else if (size_left == 2 && size_right == 1) {
         if (AOP_IS_LIT(right)) {
-            for (int i = 0; i < size_left; ++i) {
-                aop_move_byte(ASMOP_STACK, left, size_left - i - 1);
+            // TODO this seems hacky....
+            if (AOP_IS_REG(left)) {
+                for (int i = 0; i < size_left; ++i) {
+                    aop_move_byte(ASMOP_STACK, left, size_left - i - 1);
+                }
+            } else {
+                for (int i = 0; i < size_left; ++i) {
+                    aop_move_byte(ASMOP_STACK, left, i);
+                }
             }
             if (op == ALUS_MINUS) {
                 emit2("add_16s_8", "%d", -byteOfVal(right->aopu.aop_lit, 0));

@@ -4,7 +4,7 @@
 ;--------------------------------------------------------
 	.file	"2.c"
 	
-.include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
+.include "/home/tarn/projects/tarnos/asm/src/macros/macros.s"
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -84,29 +84,25 @@ __sdcc_program_startup:
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua zero
+;	begin single-byte comparison
 	lad	_multiply_or_divide_PARM_1
-	mov	alub mem
+	mov	alua mem
+	mov	alub zero
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_multiply_or_divide00101
-	goto	L_multiply_or_divide00122
-L_multiply_or_divide00122:
-;	end multibyte comparison
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,1
+;	begin single-byte comparison
 	lad	_multiply_or_divide_PARM_1
-	mov	alub mem
+	mov	alua mem
+	mov	alub il ,1
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_multiply_or_divide00102
-	goto	L_multiply_or_divide00124
-L_multiply_or_divide00124:
-;	end multibyte comparison
 ;; genGoto
 	goto	L_multiply_or_divide00103
 ;	src/2.c: 5: case 0:

@@ -4,7 +4,7 @@
 ;--------------------------------------------------------
 	.file	"string_loop_function.c"
 	
-.include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
+.include "/home/tarn/projects/tarnos/asm/src/macros/macros.s"
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -167,42 +167,36 @@ L_main00103:
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua zero
+;	begin single-byte comparison
 	lad	_var
-	mov	alub mem
+	mov	alua mem
+	mov	alub zero
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00104
-	goto	L_main00134
-L_main00134:
-;	end multibyte comparison
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,1
+;	begin single-byte comparison
 	lad	_var
-	mov	alub mem
+	mov	alua mem
+	mov	alub il ,1
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00105
-	goto	L_main00136
-L_main00136:
-;	end multibyte comparison
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,2
+;	begin single-byte comparison
 	lad	_var
-	mov	alub mem
+	mov	alua mem
+	mov	alub il ,2
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00106
-	goto	L_main00138
-L_main00138:
-;	end multibyte comparison
 ;; genGoto
 	goto	L_main00109
 ;	src/string_loop_function.c: 25: case 0:

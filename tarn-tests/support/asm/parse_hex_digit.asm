@@ -4,7 +4,7 @@
 ;--------------------------------------------------------
 	.file	"parse_hex_digit.c"
 	
-.include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
+.include "/home/tarn/projects/tarnos/asm/src/macros/macros.s"
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -103,18 +103,24 @@ __sdcc_program_startup:
 ;	src/parse_hex_digit.c: 4: if (c >= '0' && c <= '9') {
 ;; genCmp
 	mov	alus il ,9	; less-than 
+;	has TRUE ifx
+;	begin single-byte comparison
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,48
 	mov	test aluc
+;	end single-byte comparison
 ;; genIfx
 	gotonz	L_parse_hex_digit00102
 ;; genCmp
 	mov	alus il ,11	; greater-than 
+;	has TRUE ifx
+;	begin single-byte comparison
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,57
 	mov	test aluc
+;	end single-byte comparison
 ;; genIfx
 	gotonz	L_parse_hex_digit00102
 ;	src/parse_hex_digit.c: 5: return c - '0';
@@ -135,18 +141,24 @@ L_parse_hex_digit00102:
 ;	src/parse_hex_digit.c: 7: if (c >= 'a' && c <= 'f') {
 ;; genCmp
 	mov	alus il ,9	; less-than 
+;	has TRUE ifx
+;	begin single-byte comparison
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,97
 	mov	test aluc
+;	end single-byte comparison
 ;; genIfx
 	gotonz	L_parse_hex_digit00105
 ;; genCmp
 	mov	alus il ,11	; greater-than 
+;	has TRUE ifx
+;	begin single-byte comparison
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,102
 	mov	test aluc
+;	end single-byte comparison
 ;; genIfx
 	gotonz	L_parse_hex_digit00105
 ;	src/parse_hex_digit.c: 8: return (c - 'a') + 10;
@@ -167,18 +179,24 @@ L_parse_hex_digit00105:
 ;	src/parse_hex_digit.c: 10: if (c >= 'A' && c <= 'F') {
 ;; genCmp
 	mov	alus il ,9	; less-than 
+;	has TRUE ifx
+;	begin single-byte comparison
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,65
 	mov	test aluc
+;	end single-byte comparison
 ;; genIfx
 	gotonz	L_parse_hex_digit00108
 ;; genCmp
 	mov	alus il ,11	; greater-than 
+;	has TRUE ifx
+;	begin single-byte comparison
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alub il ,70
 	mov	test aluc
+;	end single-byte comparison
 ;; genIfx
 	gotonz	L_parse_hex_digit00108
 ;	src/parse_hex_digit.c: 11: return (c - 'A') + 10;

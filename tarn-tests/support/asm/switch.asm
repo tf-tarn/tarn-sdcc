@@ -4,7 +4,7 @@
 ;--------------------------------------------------------
 	.file	"switch.c"
 	
-.include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
+.include "/home/tarn/projects/tarnos/asm/src/macros/macros.s"
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -79,88 +79,74 @@ L_main00109:
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,33
-	mov	alub r
+;	begin single-byte comparison
+	mov	alua r
+	mov	alub il ,33
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00111
-	goto	L_main00154
-L_main00154:
-;	end multibyte comparison
 ;	src/switch.c: 7: switch(val) {
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,97
-	mov	alub r
+;	begin single-byte comparison
+	mov	alua r
+	mov	alub il ,97
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00101
-	goto	L_main00156
-L_main00156:
-;	end multibyte comparison
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,101
-	mov	alub r
+;	begin single-byte comparison
+	mov	alua r
+	mov	alub il ,101
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00102
-	goto	L_main00158
-L_main00158:
-;	end multibyte comparison
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,105
-	mov	alub r
+;	begin single-byte comparison
+	mov	alua r
+	mov	alub il ,105
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00103
-	goto	L_main00160
-L_main00160:
-;	end multibyte comparison
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,111
-	mov	alub r
+;	begin single-byte comparison
+	mov	alua r
+	mov	alub il ,111
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00104
-	goto	L_main00162
-L_main00162:
-;	end multibyte comparison
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,117
-	mov	alub r
+;	begin single-byte comparison
+	mov	alua r
+	mov	alub il ,117
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00105
-	goto	L_main00164
-L_main00164:
-;	end multibyte comparison
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
-;	begin multibyte comparison
-;	compare byte 0
-	mov	alua il ,255
-	mov	alub r
+;	begin single-byte comparison
+	mov	alua r
+	mov	alub il ,255
 	mov	test aluc
+;	end single-byte comparison
+;; genIfx
 	gotonz	L_main00108
-	goto	L_main00166
-L_main00166:
-;	end multibyte comparison
 ;; genGoto
 	goto	L_main00107
 ;	src/switch.c: 8: case 'a':

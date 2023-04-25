@@ -4,7 +4,7 @@
 ;--------------------------------------------------------
 	.file	"crc8one.c"
 	
-.include "/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s"
+.include "/home/tarn/projects/tarnos/asm/src/macros/macros.s"
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
@@ -81,13 +81,16 @@ __sdcc_program_startup:
 L_crc8_one00106:
 ;; genCmp
 	mov	alus il ,9	; less-than 
+;	has FALSE ifx
+;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
+;	end single-byte comparison
 ;; genIfx
-	gotonz	L_crc8_one00123
+	gotonz	L_crc8_one00125
 	goto	L_crc8_one00104
-L_crc8_one00123:
+L_crc8_one00125:
 ;	src/crc8one.c: 10: if (crc & 0x80)
 ;; genAssign
 	lad	_crc8_one_PARM_1

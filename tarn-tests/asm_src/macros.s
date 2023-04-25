@@ -20,7 +20,7 @@ test_add_16s_8:
         ;; these get saved
         mov r il ,0x99
         mov x il ,0x88
-	
+
         ;; no carry -> 0x4031
         mov stack il ,0x40 ; h
         mov stack il ,0x30 ; l
@@ -47,7 +47,7 @@ test_add_16s_8_nosave:
         ;; these get clobbered
         mov r il ,0x98
         mov x il ,0x87
-        
+
         ;; no carry -> 0x4031
         mov stack il ,0x40 ; h
         mov stack il ,0x30 ; l
@@ -163,7 +163,68 @@ test_add_8s_16:
         mov pic x
         mov pic r
 
+test_negate_16m:
+        negate_16m test_value1
+        lad temp
+        mov mem x
+        lad temp + 1
+        mov mem r
+        add_16m_16m temp test_value1
+        ;; should be zero
+        mov pic x
+        mov pic r
 
+        negate_16m test_value2
+        lad temp
+        mov mem x
+        lad temp + 1
+        mov mem r
+        add_16m_16m temp test_value2
+        ;; should be zero
+        mov pic x
+        mov pic r
+
+        negate_16m test_value3
+        lad temp
+        mov mem x
+        lad temp + 1
+        mov mem r
+        add_16m_16m temp test_value3
+        ;; should be zero
+        mov pic x
+        mov pic r
+
+test_add_16s_16m:
+        ;; no carry -> 0x2022
+        mov stack il ,0x10 ; h
+        mov stack il ,0x20 ; l
+        add_16s_16m test_value2
+        mov pic x
+        mov pic r
+
+        ;; with carry -> 0x2103
+        mov stack il ,0x10 ; h
+        mov stack il ,0x04 ; l
+        add_16s_16m test_value3
+        mov pic x
+        mov pic r
+
+test_sub_16m_16m:
+        ;; 0x1002 - 0x0002 = 0x1000
+        sub_16m_16m test_value2 test_value1
+        mov pic x
+        mov pic r
+        
+        ;; 0x10ff - 0x1002 = 0x00fd
+        sub_16m_16m test_value3 test_value2
+        mov pic x
+        mov pic r
+        
+        ;; 0x1002 - 0x10ff = -0x00fd = 0xff03
+        sub_16m_16m test_value2 test_value3
+        mov pic x
+        mov pic r
+        
 end:
         halt
 
@@ -178,3 +239,4 @@ test_value2:
 test_value3:
         .byte 0x10
         .byte 0xff
+temp:   .zero 2

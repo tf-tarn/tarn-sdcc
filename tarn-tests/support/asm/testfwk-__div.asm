@@ -2,7 +2,7 @@
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
-	.file	"shift_left_8_2.c"
+	.file	"testfwk___div.c"
 	
 .include "/home/tarn/projects/tarnos/asm/src/macros/macros.s"
 ;--------------------------------------------------------
@@ -11,22 +11,19 @@
 	.globl	_main
 	.globl	_main_PARM_2
 	.globl	_main_PARM_1
-	.globl	_val3
-	.globl	_val2
-	.globl	_val1
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
 	.section data,"w"
-_val1:
-	.ds	1
-_val2:
-	.ds	1
-_val3:
+___div_PARM_1:
+	.ds	2
+___div_PARM_2:
 	.ds	2
 _main_PARM_1:
 	.ds	2
 _main_PARM_2:
+	.ds	2
+_main_sloc0_1_0:
 	.ds	2
 ;--------------------------------------------------------
 ; ram data
@@ -35,9 +32,6 @@ _main_PARM_2:
 ;--------------------------------------------------------
 ; overlayable items in ram
 ;--------------------------------------------------------
-	.area	_overlay
-_main_sloc0_1_0:
-	.ds	2
 ;--------------------------------------------------------
 ; Stack segment in internal ram
 ;--------------------------------------------------------
@@ -76,62 +70,132 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section code,"ax"
-;	src/shift_left_8.2.c: 5: int main (int argc, char **argv) {
+;	src/testfwk-__div.c: 4: __div(int num, int denom)
 ;; genLabel
 ;	-----------------------------------------
-;	 function main
+;	 function __div
 ;	-----------------------------------------
-	_main:
-;	src/shift_left_8.2.c: 6: val1 = pic;
+	___div:
+;	src/testfwk-__div.c: 7: while (num >= denom)
 ;; genAssign
-	lad	_val1
-	mov	mem pic
-;	src/shift_left_8.2.c: 7: val2 = pic;
-;; genAssign
-	lad	_val2
-	mov	mem pic
-;	src/shift_left_8.2.c: 8: val3 = (val1 << 8) + val2;
-;; genCast
-	mov	x zero
-	lad	_val1
-	mov	r mem
-;; genLeftShift
-	lad	_main_sloc0_1_0 + 1
-	mov	mem zero
-	lad	_main_sloc0_1_0
-	mov	mem r
+	mov	r il ,0
+	mov	x il ,0
+;; genLabel
+L___div00101:
+;; genCmp
+	mov	alus il ,9	; less-than 
+;	has TRUE ifx
+;	begin multibyte (2) comparison
+;	compare byte 0
+	lad	___div_PARM_2 + 1
+	mov	alua mem
+	lad	___div_PARM_1 + 1
+	mov	alub mem
+	mov	test aluc
+	gotonz	L___div00115
+	goto	L___div00116
+L___div00115:
+;	compare byte 1
+	lad	___div_PARM_2
+	mov	alua mem
+	lad	___div_PARM_1
+	mov	alub mem
+	mov	test aluc
+	gotonz	L___div00103
+	goto	L___div00116
+L___div00116:
+;	end multibyte comparison
+;	src/testfwk-__div.c: 9: q++;
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	lad	_val2
-	mov	stack mem
-	load_stack_from_ptr	_main_sloc0_1_0
-	add_8s_16s
-	lad	_val3 + 1
+	mov	stack r
+	mov	stack x
+	add_16s_8	1
+;	no need to move registers to themselves
+;	src/testfwk-__div.c: 10: num -= denom;
+;; genALUOp
+;;	ALU minus (16)
+;;	ALU operand size 2 2 2
+; implement me (gen.c:2933)
+;	left  operand AOP_DIR
+;	  size = 2
+;	  location = ___div_PARM_1 (direct)
+;	right operand AOP_DIR
+;	  size = 2
+;	  location = ___div_PARM_2 (direct)
+;	result operand AOP_DIR
+;	  size = 2
+;	  location = ___div_PARM_1 (direct)
+	negate_16m	___div_PARM_2
+	add_16m_16m	___div_PARM_1 
+	lad	___div_PARM_1 + 1
 	mov	mem r
-	lad	_val3 + 0
+	lad	___div_PARM_1 + 0
 	mov	mem x
 	restore_rx
-;	src/shift_left_8.2.c: 10: pic = *(0 + (char*)(&val3));
-;; genPointerGet
-;; genPointerGet: operand size 1, 2, 1
-	mov	adh il ,hi8(_val3 + 0)
-	mov	adl il ,lo8(_val3 + 0)
-	mov	pic mem
-;	src/shift_left_8.2.c: 11: pic = *(1 + (char*)(&val3));
-;; genPointerGet
-;; genPointerGet: operand size 1, 2, 1
-	mov	adh il ,hi8(_val3 + 1)
-	mov	adl il ,lo8(_val3 + 1)
-	mov	pic mem
-;	src/shift_left_8.2.c: 12: return val1;
+;; genGoto
+	goto	L___div00101
+;; genLabel
+L___div00103:
+;	src/testfwk-__div.c: 12: return q;
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack x
 	mov	stack r
 	jump
 ;; genLabel
-;	src/shift_left_8.2.c: 13: }
+;	src/testfwk-__div.c: 13: }
+;; genEndFunction
+	mov	jmpl stack
+	mov	jmph stack
+	jump
+;	src/testfwk-__div.c: 15: int main(int argc, char **argv) {
+;; genLabel
+;	-----------------------------------------
+;	 function main
+;	-----------------------------------------
+	_main:
+;	src/testfwk-__div.c: 16: int a = __div(25, 10);
+;; genAssign
+	lad	___div_PARM_1 + 0
+	mov	mem il ,25
+	lad	___div_PARM_1 + 1
+	mov	mem il ,0
+;; genAssign
+	lad	___div_PARM_2 + 0
+	mov	mem il ,10
+	lad	___div_PARM_2 + 1
+	mov	mem il ,0
+;; genCall
+	mov	stack il ,hi8(L_main00103)
+	mov	stack il ,lo8(L_main00103)
+	goto	___div
+L_main00103:
+	lad	_main_sloc0_1_0 + 0
+	mov	mem stack
+	lad	_main_sloc0_1_0 + 1
+	mov	mem stack
+;; genAssign
+	lad	_main_sloc0_1_0 + 0
+	mov	r mem
+	mov	x zero
+;	src/testfwk-__div.c: 18: pic = (a >> 8) & 0xff;
+;; genGetByte      = 
+	mov	pic x
+;	src/testfwk-__div.c: 19: pic = a & 0xff;
+;; genCast
+	mov	pic r
+;	src/testfwk-__div.c: 23: __endasm;
+	halt
+;	src/testfwk-__div.c: 25: return 0;
+	mov	jmpl stack
+	mov	jmph stack
+	mov	stack il ,0
+	mov	stack il ,0
+	jump
+;; genLabel
+;	src/testfwk-__div.c: 26: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

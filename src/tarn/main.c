@@ -56,7 +56,7 @@ static void
 tarn_genAssemblerStart (FILE *of)
 {
     fprintf (of,
-             ".include \"/home/tarn/projects/mygcc/testfiles/tarnos/src/macros.s\"\n"
+             ".include \"/home/tarn/projects/tarnos/asm/src/macros/macros.s\"\n"
              /* ".section .text\n" */
              /* "ljmp _main\n" */
              /* "jump\n" */

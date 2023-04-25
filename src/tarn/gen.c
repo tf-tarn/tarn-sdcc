@@ -1050,12 +1050,13 @@ void aop_move_byte(asmop *a1, asmop *a2, int index);
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#define TRACE /*emit2("", "; trace (%s:%d)", __FILE__, __LINE__)*/
+#define TRACE emit2("", "; trace (%s:%d)", __FILE__, __LINE__)
 static bool aop_move(asmop *a1, asmop *a2) {
     #define AOP_MOVE_DEBUG { emit2("", "; aop_move debug (%s:%d)", __FILE__, __LINE__); emit_asmop("dest", a1); emit_asmop("src ", a2); }
 
+    /* AOP_MOVE_DEBUG; */
     if (AOP_IS_SPILL(a1)) {
-                TRACE;
+        TRACE;
         if (a2->size == 1) {
                 TRACE;
             if (AOP_IS_REG(a2) || AOP_IS_LIT(a2)) {
@@ -1096,7 +1097,7 @@ static bool aop_move(asmop *a1, asmop *a2) {
             } else {
                 for (int i = 0; i < a2->size; ++i) {
                     load_address_16o(a1->aopu.aop_dir, i);
-                    emit_mov_lit("mem", byteOfVal(a2->aopu.aop_lit, i));
+                    emit_mov_lit("mem", byteOfVal(a2->aopu.aop_lit, a2->size - i - 1));
                 }
             }
         } else if (AOP_IS_IMMEDIATE(a2)) {
@@ -1171,6 +1172,7 @@ static bool aop_move(asmop *a1, asmop *a2) {
             } else if (AOP_IS_REG(a2)) {
                 emit_mov(a1->aopu.aop_dir, a2->aopu.bytes[0].byteu.reg->name);
             } else if (AOP_IS_SPILL(a2)) {
+                TRACE;
                 load_address_16o(a2->aopu.immd, a2->aopu.immd_off);
                 emit_mov(a1->aopu.aop_dir, "mem");
             } else {
@@ -1227,6 +1229,7 @@ static bool aop_move(asmop *a1, asmop *a2) {
                     aop_move_byte(a1, a2, i);
                 }
             } else if (AOP_IS_SPILL(a2) && a2->size == 1) {
+                TRACE;
                 load_address_16(a2->aopu.immd);
                 aop_move(a1, ASMOP_MEM);
             } else {
@@ -1236,15 +1239,26 @@ static bool aop_move(asmop *a1, asmop *a2) {
             if (aopSame(a1, 0, a2, 0, a1->size)) {
                 emit2(";", "no need to move registers to themselves");
                 return false;
-            } else {
-                if (a2->size == a1->size) {
-                    for (int i = 0; i < a2->size; ++i) {
-                        emit_mov(a1->aopu.bytes[i].byteu.reg->name,
-                                 a2->aopu.bytes[i].byteu.reg->name);
-                    }
-                } else {
-                    AOP_MOVE_DEBUG;
+            }
+            if (a2->size == a1->size) {
+                for (int i = 0; i < a2->size; ++i) {
+                    emit_mov(a1->aopu.bytes[i].byteu.reg->name,
+                             a2->aopu.bytes[i].byteu.reg->name);
                 }
+            } else if (a1->size > a2->size) {
+                int i;
+                // copy low bytes
+                for (i = 0; i < a2->size; ++i) {
+                    emit_mov(a1->aopu.bytes[i].byteu.reg->name,
+                             a2->aopu.bytes[i].byteu.reg->name);
+                }
+                // zero high bytes
+                for (;i < a1->size; ++i) {
+                    emit_mov(a1->aopu.bytes[i].byteu.reg->name,
+                             "zero");
+                }
+            } else {
+                AOP_MOVE_DEBUG;
             }
         } else {
             if (AOP_IS_DIRECT(a2)) {
@@ -1253,9 +1267,20 @@ static bool aop_move(asmop *a1, asmop *a2) {
                     emit_mov(a1->aopu.bytes[a2->size - i - 1].byteu.reg->name, "mem");
                 }
             } else if (AOP_IS_SPILL(a2)) {
+                TRACE;
                 if (a1 == ASMOP_ADHL && a1->size == 2) {
                     emit_macro_load_address_from_ptr(a2->aopu.immd);
                     cost(8);
+                } else if (AOP_IS_REG(a1) && a1->size == 2) {
+                    AOP_MOVE_DEBUG;
+
+                    for (int i = 0; i < a2->size; ++i) {
+                        load_address_16o(a2->aopu.aop_dir, i);
+                        emit_mov(a1->aopu.bytes[a2->size - i - 1].byteu.reg->name, "mem");
+                    }
+
+                    /* load_address_16o(a2->aopu.immd, a2->aopu.immd_off); */
+                    /* aop_move(a1, ASMOP_MEM); */
                 } else {
                     AOP_MOVE_DEBUG;
                 }
@@ -1363,7 +1388,7 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                     AOP_MOVE_DEBUG;
                 }
             } else if (AOP_IS_REG(a2)) {
-                emit_mov(a1->aopu.aop_dir, a2->aopu.bytes[0].byteu.reg->name);
+                emit_mov(a1->aopu.aop_dir, a2->aopu.bytes[index].byteu.reg->name);
             } else {
                 AOP_MOVE_DEBUG;
             }
@@ -1413,6 +1438,7 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                 load_address_16o(a2->aopu.immd, a2->aopu.immd_off + index);
                 aop_move(a1, ASMOP_MEM);
             } else if (AOP_IS_SPILL(a2)) {
+                TRACE;
                 load_address_16o(a2->aopu.immd, a2->aopu.immd_off + index);
                 aop_move(a1, ASMOP_MEM);
             } else {
@@ -1443,12 +1469,31 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
 /*-----------------------------------------------------------------------*/
 
 static void genCpl         (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genCpl", ic);             } emit2(";; genCpl         ", ""); }
-static void genGetByte     (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genGetByte      = ", ic); } emit2(";; genGetByte     ", ""); }
 static void genIpush       (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genIpush        = ", ic); } emit2(";; genIpush       ", ""); }
 static void genJumpTab     (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genJumpTab      = ", ic); } emit2(";; genJumpTab     ", ""); }
 static void genMult        (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genMult         = ", ic); } emit2(";; genMult        ", ""); }
 static void genNot         (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genNot          = ", ic); } emit2(";; genNot         ", ""); }
 static void genOr          (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genOr           = ", ic); } emit2(";; genOr          ", ""); }
+
+static void genGetByte(iCode *ic) {
+    if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genGetByte      = ", ic); }
+
+    operand *left = IC_LEFT (ic);
+    operand *right = IC_RIGHT (ic);
+    operand *result = IC_RESULT (ic);
+  
+    aopOp(left);
+    aopOp(right);
+    aopOp(result);
+
+    /* emit_asmop("left", left->aop); */
+    /* emit_asmop("right", right->aop); */
+    /* emit_asmop("result", result->aop); */
+
+    int offset = (int) ulFromVal (right->aop->aopu.aop_lit) / 8;
+    /* emit2(";", "offset = %d", offset); */
+    aop_move_byte(result->aop, left->aop, offset);
+}
 
 static void genRightShift  (iCode *ic)
 {
@@ -2245,7 +2290,7 @@ genCall (const iCode *ic)
                     if (OP_SYMBOL(result)->isspilt) {
                         // pop it largest-byte first (???)
                         for (int i = 0; i < OP_SYMBOL(result)->nRegs; ++i) {
-                            load_address_16o(op_get_mem_label(result), i);
+                            load_address_16o(op_get_mem_label(result), OP_SYMBOL(result)->nRegs - i - 1);
                             emit_mov("mem", "stack");
                         }
                     } else if (is_reg(result)) {
@@ -2402,6 +2447,7 @@ genAssign (iCode *ic)
     if (aop_move(result->aop, right->aop)) {
         return;
     }
+    emit2("", "; genAssign: aop_move didn't work");
 
     int size_result = operandSize(result);
     int size_right = operandSize(right);
@@ -2804,6 +2850,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 emit2("mov", "alub il ,%d", -byteOfVal(right->aopu.aop_lit, 0));
                 cost(2);
             } else {
+                MOVE_AOP_DEBUG;
                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
             }
         } else {
@@ -2813,6 +2860,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
             if (right) {
                 aop_move(ASMOP_ALUB, right);
             }
+            // no else because this means a unary operation and alub isn't used
         }
         if (!ifx) {
             if (result != ASMOP_ALUC) {
@@ -2829,9 +2877,13 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
     } else if (size_left == 2 && size_right == 1) {
         if (AOP_IS_LIT(right)) {
             for (int i = 0; i < size_left; ++i) {
-                aop_move_byte(ASMOP_STACK, left, i);
+                aop_move_byte(ASMOP_STACK, left, size_left - i - 1);
             }
-            emit2("add_16s_8", "%d", byteOfVal(right->aopu.aop_lit, 0));
+            if (op == ALUS_MINUS) {
+                emit2("add_16s_8", "%d", -byteOfVal(right->aopu.aop_lit, 0));
+            } else {
+                emit2("add_16s_8", "%d", byteOfVal(right->aopu.aop_lit, 0));
+            }
             cost(15);
             aop_alu_move_result(result, ASMOP_RX, true, ifx);
         } else if (AOP_IS_REG(right)) {
@@ -2905,6 +2957,20 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                     aop_alu(op, right, left, result, ifx);
                 } else {
                     MOVE_AOP_DEBUG;
+                }
+            } else {
+                MOVE_AOP_DEBUG;
+            }
+        } else if (AOP_IS_DIRECT(left)) {
+            if (AOP_IS_DIRECT(right)) {
+                if (op == ALUS_MINUS) {
+                    emit2("sub_16m_16m", "%s %s", left->aopu.aop_dir, right->aopu.aop_dir);
+                    cost(54);
+                    aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                } else {
+                    emit2("add_16m_16m", "%s %s", left->aopu.aop_dir, right->aopu.aop_dir);
+                    cost(19);
+                    aop_alu_move_result(result, ASMOP_RX, true, ifx);
                 }
             } else {
                 MOVE_AOP_DEBUG;
@@ -2984,23 +3050,6 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
     aop_alu(op, left->aop, right->aop, result->aop, ifx);
 
     if ((size_result == 1 || result_is_cond) && size_left == 1 && size_right == 1) {
-        if (op == ALUS_MINUS) {
-            /* if (IS_OP_LITERAL(right)) { */
-            /*     op = ALUS_PLUS; */
-            /*     emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]); */
-            /*     load_reg("alua", left); */
-            /*     emit2("mov", "alub il ,%d", -byteOfVal(OP_VALUE(right), 0)); */
-            /* } else { */
-            /*     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
-            /* } */
-        } else {
-            /* emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]); */
-            /* cost(1); */
-
-            /* load_reg("alua", left); */
-            /* load_reg("alub", right); */
-        }
-
         if (ifx) {
             // TODO: optimize?
 
@@ -3015,126 +3064,6 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
             cost(4);
 
             genIfx_impl(ifx, 1);
-        } else {
-            /* read_reg("aluc", result); */
-        }
-    } else if (size_result == 2 && size_left == 2 && size_right == 1) {
-
-        if (op == ALUS_PLUS) {
-            /* if (is_reg(right)) { */
-            /*     if (OP_SYMBOL(left)->remat) { */
-            /*         remat_result_t *result = resolve_remat(OP_SYMBOL(left)); */
-            /*         emit2("mov", "stack %s", op_get_register_name(right)); */
-            /*         emit2("add_8s_16", "%s ; 1", result->name); */
-            /*         cost(3+15); */
-            /*     } else if (OP_SYMBOL(left)->isspilt) { */
-            /*         emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); */
-            /*         emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); */
-            /*         load_address_16(op_get_mem_label(right)); */
-            /*         emit2("mov", "stack mem"); */
-            /*         emit2("add_8s_16s", ""); */
-            /*         cost(3+15); */
-            /*     } else if (is_mem(left)) { */
-            /*         emit2("load_stack_from_ptr", "%s", op_get_mem_label(left)); */
-            /*         emit2("mov", "stack %s", op_get_register_name(right)); */
-            /*         emit2("add_8s_16s", ""); */
-            /*         cost(1+6+15); */
-            /*     } else { */
-            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
-            /*     } */
-            /* } else if (is_mem(right)) { */
-            /*     if (OP_SYMBOL(left)->remat) { */
-            /*         remat_result_t *result = resolve_remat(OP_SYMBOL(left)); */
-            /*         /\* emit2("load_stack_from_ptr", "%s + %d", result->name, result->offset); *\/ */
-            /*         emit2("mov", "stack il ,hi8(%s + %d)", result->name, result->offset); */
-            /*         emit2("mov", "stack il ,lo8(%s + %d)", result->name, result->offset); */
-            /*         load_address_16(op_get_mem_label(right)); */
-            /*         emit2("mov", "stack mem"); */
-            /*         emit2("add_8s_16s", ""); */
-            /*         cost(3+15); */
-            /*     } else if (OP_SYMBOL(left)->isspilt) { */
-            /*         emit2("load_stack_from_ptr", "%s", OP_SYMBOL(left)->usl.spillLoc->rname); */
-            /*         /\* emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); *\/ */
-            /*         /\* emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->usl.spillLoc->rname); *\/ */
-            /*         load_address_16(op_get_mem_label(right)); */
-            /*         emit2("mov", "stack mem"); */
-            /*         emit2("add_8s_16s", ""); */
-            /*         cost(6+1+15); */
-            /*     } else if (is_mem(left)) { */
-            /*         emit2("load_stack_from_ptr", "%s", OP_SYMBOL(left)->rname); */
-            /*         /\* emit2("mov", "stack il ,hi8(%s)", OP_SYMBOL(left)->rname); *\/ */
-            /*         /\* emit2("mov", "stack il ,lo8(%s)", OP_SYMBOL(left)->rname); *\/ */
-            /*         load_address_16(op_get_mem_label(right)); */
-            /*         emit_mov("stack", "mem"); */
-            /*         emit2("add_8s_16s", ""); */
-            /*         cost(3+15); */
-            /*     } else if (is_reg(left)) { */
-            /*         emit_mov("stack", op_get_register_name_i(left, 1)); */
-            /*         emit_mov("stack", op_get_register_name_i(left, 0)); */
-            /*         load_address_16(op_get_mem_label(right)); */
-            /*         emit_mov("stack", "mem"); */
-            /*         emit2("add_8s_16s", ""); */
-            /*     } else { */
-            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
-            /*     } */
-            /* } else if (IS_OP_LITERAL(right)) { */
-            /*     int right_val = byteOfVal(OP_VALUE(right), 0); */
-            /*     if (op == ALUS_MINUS && IS_OP_LITERAL(right)) { */
-            /*         op = ALUS_PLUS; */
-            /*         right_val = -right_val; */
-            /*     } */
-            /*     if (OP_SYMBOL(left)->remat) { */
-            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
-            /*     } else if (OP_SYMBOL(left)->isspilt) { */
-            /*         load_address_16(op_get_mem_label(left)); */
-            /*         emit2("mov", "stack mem"); */
-            /*         load_address_16o(op_get_mem_label(left), 1); */
-            /*         emit2("mov", "stack mem"); */
-            /*         emit2("add_16s_16l", "%d", 0xff & right_val); */
-            /*         cost(2+14); */
-            /*     } else if (is_mem(left)) { */
-            /*         load_address_16(op_get_mem_label(left)); */
-            /*         emit2("mov", "stack mem"); */
-            /*         load_address_16o(op_get_mem_label(left), 1); */
-            /*         emit2("mov", "stack mem"); */
-            /*         emit2("add_16s_16l", "%d", 0xff & right_val); */
-            /*         cost(2+14); */
-            /*     } else { */
-            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
-            /*     } */
-            /* } else { */
-            /*     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
-            /* } */
-            // cost?
-
-            /* if (op_get_register_name_i(result, 0) */
-            /*     && op_get_register_name_i(result, 1) */
-            /*     && !strcmp(op_get_register_name_i(result, 0), "r") */
-            /*     && !strcmp(op_get_register_name_i(result, 1), "x")) { */
-            /*     emit2(";", "result is already in r x"); */
-            /* } else { */
-            /*     if (is_mem(result)) { */
-            /*         emit2("lad", "%s",     op_get_mem_label(result)); */
-            /*         emit2("mov", "mem x"); */
-            /*         emit2("lad", "%s + 1", op_get_mem_label(result)); */
-            /*         emit2("mov", "mem r"); */
-            /*         cost(6); */
-            /*     } else { */
-            /*         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
-            /*         cost(1000); */
-            /*     } */
-
-            /*     emit2("restore_rx", ""); */
-            /*     cost(6); */
-            /* } */
-        } else {
-            emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-        }
-    } else {
-        if (!regalloc_dry_run) {
-            emit2("", "; implement me (%s:%d) (%d, %d, %d, %s)", __FILE__, __LINE__,
-                  size_result, size_left, size_right, op_get_mem_label(result));
-
         }
     }
 
@@ -3244,6 +3173,8 @@ genGoto (const iCode *ic)
 }
 
 void aop_cmp(asmop *left, asmop *right, symbol *true_branch, symbol *false_branch) {
+    #define AOP_CMP_DEBUG { emit2("", "; aop_cmp debug (%s:%d)", __FILE__, __LINE__); emit_asmop("dest", left); emit_asmop("src ", right); }
+
     if (AOP_IS_LIT(left) && AOP_IS_LIT(right)) {
         emit2("", "; implement me (aop_cmp left and right both literal) (%s:%d) (%d, %d)",
               __FILE__, __LINE__, left->size, right->size);
@@ -3277,59 +3208,85 @@ void aop_cmp(asmop *left, asmop *right, symbol *true_branch, symbol *false_branc
         max_size = left->size;
     }
 
-    if (left->size == right->size
+    if (left->size == right->size && left->size == 2) {
+        if (AOP_IS_DIRECT(left) && AOP_IS_DIRECT(right)) {
+            if (true_and_false) {
+                emit2("compare_16m_16m_lt__tf", "%s %s !tlabel !tlabel",
+                      left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired), label_num(result_undesired));
+            } else if (true_branch) {
+                emit2("compare_16m_16m_lt__t", "%s %s !tlabel",
+                      left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired));
+            } else if (false_branch) {
+                emit2("compare_16m_16m_lt__f", "%s %s !tlabel",
+                      left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_undesired));
+            } else {
+                AOP_CMP_DEBUG;
+            }
+        } else {
+            AOP_CMP_DEBUG;
+        }
+    } else if (left->size == right->size
         || AOP_IS_LIT(left)
         || AOP_IS_LIT(right)) {
 
-        bool alua_was_nonzero = true;
-        bool alub_was_nonzero = true;
-
-        emit2(";", "begin multibyte comparison");
-        for (int i = 0; i < max_size; ++i) {
-            /* aop_alu(ALUS_NOT, left, NULL, ASMOP_ALUC, NULL); */
-            emit2(";", "compare byte %d", i);
-
-            if (i < right->size) {
-                aop_move_byte(ASMOP_ALUA, right, right->size - i - 1);
-            } else {
-                if (alua_was_nonzero) {
-                    aop_move(ASMOP_ALUA, ASMOP_ZERO);
-                    alua_was_nonzero = false;
-                }
-            }
-
-            if (i < left->size) {
-                aop_move_byte(ASMOP_ALUB, left, left->size - i - 1);
-            } else {
-                if (alub_was_nonzero) {
-                    aop_move(ASMOP_ALUB, ASMOP_ZERO);
-                    alub_was_nonzero = false;
-                }
-            }
-
+        if (left->size == 1) {
+            emit2(";", "begin single-byte comparison");
+            aop_move(ASMOP_ALUA, left);
+            aop_move(ASMOP_ALUB, right);
+            /* read_reg("aluc", IC_RESULT(ic)); */
             emit_mov("test", "aluc");
-            if (i < max_size - 1) {
-                emit_jump_to_label(result_desired_maybe, 1);
-            } else {
-                emit_jump_to_label(result_desired, 1);
-            }
-            emit_jump_to_label(result_undesired, 0);
+            emit2(";", "end single-byte comparison");
+        } else {
+            bool alua_was_nonzero = true;
+            bool alub_was_nonzero = true;
 
-            if (i < max_size - 1) {
-                tarn_emit_label(result_desired_maybe);
-                result_desired_maybe = new_label(NULL);
+            emit2(";", "begin multibyte (%d) comparison", left->size);
+            for (int i = 0; i < max_size; ++i) {
+                /* aop_alu(ALUS_NOT, left, NULL, ASMOP_ALUC, NULL); */
+                emit2(";", "compare byte %d", i);
+
+                if (i < right->size) {
+                    aop_move_byte(ASMOP_ALUA, right, i);
+                } else {
+                    if (alua_was_nonzero) {
+                        aop_move(ASMOP_ALUA, ASMOP_ZERO);
+                        alua_was_nonzero = false;
+                    }
+                }
+
+                if (i < left->size) {
+                    aop_move_byte(ASMOP_ALUB, left, i);
+                } else {
+                    if (alub_was_nonzero) {
+                        aop_move(ASMOP_ALUB, ASMOP_ZERO);
+                        alub_was_nonzero = false;
+                    }
+                }
+
+                emit_mov("test", "aluc");
+                if (i < max_size - 1) {
+                    emit_jump_to_label(result_desired_maybe, 1);
+                } else {
+                    emit_jump_to_label(result_desired, 1);
+                }
+                emit_jump_to_label(result_undesired, 0);
+
+                if (i < max_size - 1) {
+                    tarn_emit_label(result_desired_maybe);
+                    result_desired_maybe = new_label(NULL);
+                }
             }
+            if (!true_and_false) {
+                tarn_emit_label(result_undesired);
+            }
+            emit2(";", "end multibyte comparison");
         }
-        if (!true_and_false) {
-            tarn_emit_label(result_undesired);
-        }
-        emit2(";", "end multibyte comparison");
     } else {
         emit2("", "; implement me (%s:%d) (%d, %d)",
               __FILE__, __LINE__, left->size, right->size);
     }
 
-
+#undef AOP_CMP_DEBUG
 }
 
 static void genCmpEQorNE   (iCode *ic, iCode *ifx)       {
@@ -3352,10 +3309,30 @@ static void genCmpEQorNE   (iCode *ic, iCode *ifx)       {
     } else {
         aop_cmp(left->aop, right->aop, NULL, NULL);
     }
+
+    if (ifx && left->aop->size == right->aop->size && left->aop->size == 1) {
+        /* emit2(";", "genCmpEQorNE calls genIfx"); */
+        // hack; should call this from aop_cmp
+        genIfx(ifx);
+    } else {
+        /* emit2(";", "genCmpEQorNE does not call genIfx"); */
+    }
 }
 
 static void genCmp   (iCode *ic, iCode *ifx)       {
     if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genCmp", ic); }
+
+    operand *left = IC_LEFT(ic);
+    operand *right = IC_RIGHT(ic);
+    operand *result = IC_RESULT(ic);
+
+    aopOp(left);
+    aopOp(right);
+    aopOp(result);
+
+    /* emit_asmop("left", left->aop); */
+    /* emit_asmop("right", right->aop); */
+    /* emit_asmop("result", result->aop); */
 
     D2(emit2("\t;; compare", ""));
     if (ic->op == '>') {
@@ -3366,19 +3343,32 @@ static void genCmp   (iCode *ic, iCode *ifx)       {
         cost(1);
     }
 
-    if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) {
-        load_reg("alua", IC_LEFT(ic));
-        load_reg("alub", IC_RIGHT(ic));
-        /* read_reg("aluc", IC_RESULT(ic)); */
-        emit_mov("test", "aluc");
-        cost(1);
+    if (ifx) {
+        aop_cmp(left->aop, right->aop, IC_TRUE(ifx), IC_FALSE(ifx));
     } else {
-        emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+        aop_cmp(left->aop, right->aop, NULL, NULL);
     }
 
-    if (ifx) {
+    /* if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) { */
+    /*     load_reg("alua", IC_LEFT(ic)); */
+    /*     load_reg("alub", IC_RIGHT(ic)); */
+    /*     /\* read_reg("aluc", IC_RESULT(ic)); *\/ */
+    /*     emit_mov("test", "aluc"); */
+    /*     cost(1); */
+    /* } else { */
+    /*     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
+    /* } */
+
+    if (ifx && left->aop->size == right->aop->size && left->aop->size == 1) {
+        /* emit2(";", "genCmp calls genIfx"); */
+        // hack; should call this from aop_cmp
         genIfx(ifx);
+    } else {
+        /* emit2(";", "genCmp does not call genIfx"); */
     }
+    /* if (ifx) { */
+    /*     genIfx(ifx); */
+    /* } */
 }
 
 

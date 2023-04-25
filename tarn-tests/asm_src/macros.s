@@ -224,6 +224,29 @@ test_sub_16m_16m:
         sub_16m_16m test_value2 test_value3
         mov pic x
         mov pic r
+
+test_compare_16m_16m_lt:
+        .macro test_compare_16m_16m_lt arg1 arg2
+        compare_16m_16m_lt__tf \arg1, \arg2, is_lt\@, is_gt\@
+
+        is_lt\@:
+        mov pic il ,0x80
+        goto next\@
+
+        is_gt\@:
+        mov pic il ,0x08
+
+        next\@:
+        .endm
+
+        ;; first < second -> 0x80
+        test_compare_16m_16m_lt test_value1 test_value2
+        ;; !(first < second) -> 0x08
+        test_compare_16m_16m_lt test_value2 test_value1
+        ;; first < second -> 0x08
+        test_compare_16m_16m_lt test_value2 test_value3
+        ;; !(first < second) -> 0x08
+        test_compare_16m_16m_lt test_value3 test_value2
         
 end:
         halt

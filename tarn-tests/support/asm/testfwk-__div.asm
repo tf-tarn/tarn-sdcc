@@ -147,7 +147,7 @@ L_main00103:
 	lad	_main_sloc0_1_0 + 0
 	mov	mem stack
 ;; genAssign
-; aop_move debug (gen.c:1275)
+; aop_move debug (gen.c:1286)
 ;	dest operand AOP_REG
 ;	  size = 2
 ;	src  operand AOP_SPILL

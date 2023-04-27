@@ -97,7 +97,7 @@ __sdcc_program_startup:
 ;	 function __div
 ;	-----------------------------------------
 	___div:
-;	src/testfwk-__printd.c: 9: while (num >= denom)
+;	src/testfwk-__printd.c: 9: while (num >= denom) {
 ;; genAssign
 	mov	r il ,0
 	mov	x il ,0
@@ -107,7 +107,7 @@ L___div00101:
 	mov	alus il ,9	; less-than 
 ;	has TRUE ifx
 	compare_16m_16m__t	9 ___div_PARM_1 ___div_PARM_2 L___div00103
-;	src/testfwk-__printd.c: 11: q++;
+;	src/testfwk-__printd.c: 10: q++;
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
@@ -115,7 +115,7 @@ L___div00101:
 	mov	stack r
 	add_16s_8	1
 ;	no need to move registers to themselves
-;	src/testfwk-__printd.c: 12: num -= denom;
+;	src/testfwk-__printd.c: 11: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 2 2 2
@@ -129,32 +129,32 @@ L___div00101:
 	goto	L___div00101
 ;; genLabel
 L___div00103:
-;	src/testfwk-__printd.c: 14: return q;
+;	src/testfwk-__printd.c: 13: return q;
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack x
 	mov	stack r
 	jump
 ;; genLabel
-;	src/testfwk-__printd.c: 15: }
+;	src/testfwk-__printd.c: 14: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
-;	src/testfwk-__printd.c: 18: __mod (int num, int denom)
+;	src/testfwk-__printd.c: 17: __mod (int num, int denom)
 ;; genLabel
 ;	-----------------------------------------
 ;	 function __mod
 ;	-----------------------------------------
 	___mod:
-;	src/testfwk-__printd.c: 20: while (num >= denom)
+;	src/testfwk-__printd.c: 19: while (num >= denom) {
 ;; genLabel
 L___mod00101:
 ;; genCmp
 	mov	alus il ,9	; less-than 
 ;	has TRUE ifx
 	compare_16m_16m__t	9 ___mod_PARM_1 ___mod_PARM_2 L___mod00103
-;	src/testfwk-__printd.c: 22: num -= denom;
+;	src/testfwk-__printd.c: 20: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 2 2 2
@@ -168,7 +168,7 @@ L___mod00101:
 	goto	L___mod00101
 ;; genLabel
 L___mod00103:
-;	src/testfwk-__printd.c: 24: return num;
+;	src/testfwk-__printd.c: 22: return num;
 	mov	jmpl stack
 	mov	jmph stack
 	lad	___mod_PARM_1 + 0
@@ -177,18 +177,18 @@ L___mod00103:
 	mov	stack mem
 	jump
 ;; genLabel
-;	src/testfwk-__printd.c: 25: }
+;	src/testfwk-__printd.c: 23: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
-;	src/testfwk-__printd.c: 28: __prints (const char *s)
+;	src/testfwk-__printd.c: 26: __prints (const char *s)
 ;; genLabel
 ;	-----------------------------------------
 ;	 function __prints
 ;	-----------------------------------------
 	___prints:
-;	src/testfwk-__printd.c: 32: while ('\0' != (c = *s))
+;	src/testfwk-__printd.c: 30: while ('\0' != (c = *s)) {
 ;; genAssign
 	lad	___prints_PARM_1
 	mov	stack mem
@@ -214,10 +214,10 @@ L___prints00101:
 	mov	alub zero
 	mov	test aluc
 	gotonz	L___prints00104
-;	src/testfwk-__printd.c: 34: pic = c;
+;	src/testfwk-__printd.c: 31: pic = c;
 ;; genAssign
 	mov	pic x
-;	src/testfwk-__printd.c: 35: ++s;
+;	src/testfwk-__printd.c: 32: ++s;
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
@@ -235,18 +235,18 @@ L___prints00101:
 	goto	L___prints00101
 ;; genLabel
 L___prints00104:
-;	src/testfwk-__printd.c: 37: }
+;	src/testfwk-__printd.c: 34: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
-;	src/testfwk-__printd.c: 40: __printd (int n)
+;	src/testfwk-__printd.c: 37: __printd (int n)
 ;; genLabel
 ;	-----------------------------------------
 ;	 function __printd
 ;	-----------------------------------------
 	___printd:
-;	src/testfwk-__printd.c: 42: if (0 == n)
+;	src/testfwk-__printd.c: 39: if (0 == n) {
 ;; genIfx
 ;	implement me (invert=false, t=1, f=0)
 	mov	alus il ,10	; equal-to 
@@ -276,30 +276,30 @@ L___printd00139:
 ;	emit undesired L___printd00140
 L___printd00140:
 ;	end multibyte comparison
-;	src/testfwk-__printd.c: 44: pic = '0';
+;	src/testfwk-__printd.c: 40: pic = '0';
 ;; genAssign
 	mov	pic il ,48
 ;; genGoto
 	goto	L___printd00111
 ;; genLabel
 L___printd00109:
-;	src/testfwk-__printd.c: 49: char MEMSPACE_BUF *p = &buf[sizeof (buf) - 1];
-;	src/testfwk-__printd.c: 50: char neg = 0;
+;	src/testfwk-__printd.c: 43: char MEMSPACE_BUF *p = &buf[sizeof (buf) - 1];
+;	src/testfwk-__printd.c: 44: char neg = 0;
 ;; genAssign
 	lad	___printd_sloc1_1_0 + 0
 	mov	mem zero
-;	src/testfwk-__printd.c: 52: buf[sizeof(buf) - 1] = '\0';
+;	src/testfwk-__printd.c: 46: buf[sizeof(buf) - 1] = '\0';
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
 	mov	adh il ,hi8(___printd_buf_131072_13 + 5)
 	mov	adl il ,lo8(___printd_buf_131072_13 + 5)
 	mov	mem il ,0
-;	src/testfwk-__printd.c: 54: if (0 > n)
+;	src/testfwk-__printd.c: 48: if (0 > n) {
 ;; genCmp
 	mov	alus il ,11	; greater-than 
 ;	has FALSE ifx
 	compare_16l_16m__f	11 0 ___printd_PARM_1 L___printd00116
-;	src/testfwk-__printd.c: 56: n = -n;
+;	src/testfwk-__printd.c: 49: n = -n;
 ;; genUminus
 	mov	alus il ,3
 	lad	___printd_PARM_1 + 0
@@ -314,11 +314,11 @@ L___printd00109:
 	lad	___printd_PARM_1 + 0
 	mov	mem x
 	restore_rx
-;	src/testfwk-__printd.c: 57: neg = 1;
+;	src/testfwk-__printd.c: 50: neg = 1;
 ;; genAssign
 	lad	___printd_sloc1_1_0 + 0
 	mov	mem il ,1
-;	src/testfwk-__printd.c: 60: while (0 != n)
+;	src/testfwk-__printd.c: 53: while (0 != n) {
 ;; genLabel
 L___printd00116:
 ;; genAssign
@@ -357,7 +357,7 @@ L___printd00144:
 ;	emit undesired L___printd00145
 L___printd00145:
 ;	end multibyte comparison
-;	src/testfwk-__printd.c: 64: --p;
+;	src/testfwk-__printd.c: 54: --p;
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 2 2 1
@@ -371,7 +371,7 @@ L___printd00145:
 	lad	___printd_sloc2_1_0 + 1
 	mov	mem r
 	restore_rx
-;	src/testfwk-__printd.c: 65: *p = '0' + __mod (n, 10);
+;	src/testfwk-__printd.c: 55: *p = '0' + __mod (n, 10);
 ;; genAssign
 	lad	___printd_PARM_1
 	mov	stack mem ; hi
@@ -410,7 +410,7 @@ L___printd00147:
 ;	           yes         yes    2          ___printd_sloc2_1_0
 	load_address_from_ptr	___printd_sloc2_1_0
 	mov	mem r
-;	src/testfwk-__printd.c: 68: n = __div (n, 10);
+;	src/testfwk-__printd.c: 56: n = __div (n, 10);
 ;; genAssign
 	lad	___printd_PARM_1
 	mov	stack mem ; hi
@@ -459,7 +459,7 @@ L___printd00118:
 	mov	x mem
 	lad	___printd_sloc2_1_0 + 1
 	mov	r mem
-;	src/testfwk-__printd.c: 73: if (neg)
+;	src/testfwk-__printd.c: 59: if (neg)
 ;; genIfx
 ;	load_reg: spilt
 	lad	___printd_sloc1_1_0
@@ -468,12 +468,12 @@ L___printd00118:
 	mov	alub zero
 	mov	test aluc
 	gotonz	L___printd00107
-;	src/testfwk-__printd.c: 74: pic = '-';
+;	src/testfwk-__printd.c: 60: pic = '-';
 ;; genAssign
 	mov	pic il ,45
 ;; genLabel
 L___printd00107:
-;	src/testfwk-__printd.c: 76: __prints(p);
+;	src/testfwk-__printd.c: 62: __prints(p);
 ;; genAssign
 	lad	___prints_PARM_1 + 1
 	mov	mem r
@@ -487,18 +487,18 @@ L___printd00149:
 	; function returns nothing
 ;; genLabel
 L___printd00111:
-;	src/testfwk-__printd.c: 78: }
+;	src/testfwk-__printd.c: 64: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
-;	src/testfwk-__printd.c: 80: int main(int argc, char **argv) {
+;	src/testfwk-__printd.c: 66: int main(int argc, char **argv) {
 ;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/testfwk-__printd.c: 81: __printd(0);
+;	src/testfwk-__printd.c: 67: __printd(0);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,0
@@ -510,7 +510,7 @@ L___printd00111:
 	goto	___printd
 L_main00103:
 	; function returns nothing
-;	src/testfwk-__printd.c: 82: __printd(99);
+;	src/testfwk-__printd.c: 68: __printd(99);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,0
@@ -522,7 +522,7 @@ L_main00103:
 	goto	___printd
 L_main00104:
 	; function returns nothing
-;	src/testfwk-__printd.c: 83: __printd(1123);
+;	src/testfwk-__printd.c: 69: __printd(1123);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,4
@@ -534,7 +534,7 @@ L_main00104:
 	goto	___printd
 L_main00105:
 	; function returns nothing
-;	src/testfwk-__printd.c: 84: __printd(45678);
+;	src/testfwk-__printd.c: 70: __printd(45678);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,178
@@ -546,7 +546,7 @@ L_main00105:
 	goto	___printd
 L_main00106:
 	; function returns nothing
-;	src/testfwk-__printd.c: 85: __printd(9012);
+;	src/testfwk-__printd.c: 71: __printd(9012);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,35
@@ -558,16 +558,16 @@ L_main00106:
 	goto	___printd
 L_main00107:
 	; function returns nothing
-;	src/testfwk-__printd.c: 89: __endasm;
+;	src/testfwk-__printd.c: 75: __endasm;
 	halt
-;	src/testfwk-__printd.c: 91: return 0;
+;	src/testfwk-__printd.c: 77: return 0;
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,0
 	mov	stack il ,0
 	jump
 ;; genLabel
-;	src/testfwk-__printd.c: 92: }
+;	src/testfwk-__printd.c: 78: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

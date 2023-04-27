@@ -5,75 +5,61 @@ __sfr __at(7) pic;
 static int
 __div(int num, int denom)
 {
-  int q = 0;
-  while (num >= denom)
-    {
-      q++;
-      num -= denom;
+    int q = 0;
+    while (num >= denom) {
+        q++;
+        num -= denom;
     }
-  return q;
+    return q;
 }
 
 static int
 __mod (int num, int denom)
 {
-  while (num >= denom)
-    {
-      num -= denom;
+    while (num >= denom) {
+        num -= denom;
     }
-  return num;
+    return num;
 }
 
 void
 __prints (const char *s)
 {
-  char c;
+    char c;
 
-  while ('\0' != (c = *s))
-    {
+    while ('\0' != (c = *s)) {
         pic = c;
-      ++s;
+        ++s;
     }
 }
 
 void
 __printd (int n)
 {
-  if (0 == n)
-    {
+    if (0 == n) {
         pic = '0';
-    }
-  else
-    {
-      static char MEMSPACE_BUF buf[6];
-      char MEMSPACE_BUF *p = &buf[sizeof (buf) - 1];
-      char neg = 0;
+    } else {
+        static char MEMSPACE_BUF buf[6];
+        char MEMSPACE_BUF *p = &buf[sizeof (buf) - 1];
+        char neg = 0;
 
-      buf[sizeof(buf) - 1] = '\0';
+        buf[sizeof(buf) - 1] = '\0';
 
-      if (0 > n)
-        {
-          n = -n;
-          neg = 1;
+        if (0 > n) {
+            n = -n;
+            neg = 1;
         }
 
-      while (0 != n)
-          {
-              /* pic = (n >> 8) & 0xff; */
-              /* pic = n & 0xff; */
-              --p;
-              *p = '0' + __mod (n, 10);
-              /* pic = 0xff; */
-              /* pic = ((unsigned)p >> 8) & 0xff; */
-              n = __div (n, 10);
-              /* pic = (n >> 8) & 0xff; */
-              /* pic = n & 0xff; */
-          }
+        while (0 != n) {
+            --p;
+            *p = '0' + __mod (n, 10);
+            n = __div (n, 10);
+        }
 
-      if (neg)
-          pic = '-';
+        if (neg)
+            pic = '-';
 
-      __prints(p);
+        __prints(p);
     }
 }
 

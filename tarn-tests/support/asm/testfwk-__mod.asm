@@ -2,7 +2,7 @@
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
-	.file	"testfwk___div.c"
+	.file	"testfwk___mod.c"
 	
 .include "/home/tarn/projects/tarnos/asm/src/macros/macros.s"
 ;--------------------------------------------------------
@@ -15,15 +15,21 @@
 ; ram data
 ;--------------------------------------------------------
 	.section data,"w"
-___div_PARM_1:
+___mod_PARM_1:
 	.ds	2
-___div_PARM_2:
+___mod_PARM_2:
 	.ds	2
 _main_PARM_1:
 	.ds	2
 _main_PARM_2:
 	.ds	2
 _main_sloc0_1_0:
+	.ds	2
+_main_sloc1_1_0:
+	.ds	2
+_main_sloc2_1_0:
+	.ds	2
+_main_sloc3_1_0:
 	.ds	2
 ;--------------------------------------------------------
 ; ram data
@@ -70,77 +76,68 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section code,"ax"
-;	src/testfwk-__div.c: 4: __div(int num, int denom)
+;	src/testfwk-__mod.c: 4: __mod (int num, int denom)
 ;; genLabel
 ;	-----------------------------------------
-;	 function __div
+;	 function __mod
 ;	-----------------------------------------
-	___div:
-;	src/testfwk-__div.c: 7: while (num >= denom)
-;; genAssign
-	mov	r il ,0
-	mov	x il ,0
+	___mod:
+;	src/testfwk-__mod.c: 6: while (num >= denom)
 ;; genLabel
-L___div00101:
+L___mod00101:
 ;; genCmp
 	mov	alus il ,9	; less-than 
 ;	has TRUE ifx
-	compare_16m_16m__t	9 ___div_PARM_1 ___div_PARM_2 L___div00103
-;	src/testfwk-__div.c: 9: q++;
-;; genALUOp
-;;	ALU plus (4)
-;;	ALU operand size 2 2 1
-	mov	stack x
-	mov	stack r
-	add_16s_8	1
-;	no need to move registers to themselves
-;	src/testfwk-__div.c: 10: num -= denom;
+	compare_16m_16m__t	9 ___mod_PARM_1 ___mod_PARM_2 L___mod00103
+;	src/testfwk-__mod.c: 8: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 2 2 2
-	sub_16m_16m	___div_PARM_1 ___div_PARM_2
-	lad	___div_PARM_1 + 1
+	sub_16m_16m	___mod_PARM_1 ___mod_PARM_2
+	lad	___mod_PARM_1 + 1
 	mov	mem r
-	lad	___div_PARM_1 + 0
+	lad	___mod_PARM_1 + 0
 	mov	mem x
 	restore_rx
 ;; genGoto
-	goto	L___div00101
+	goto	L___mod00101
 ;; genLabel
-L___div00103:
-;	src/testfwk-__div.c: 12: return q;
+L___mod00103:
+;	src/testfwk-__mod.c: 10: return num;
 	mov	jmpl stack
 	mov	jmph stack
-	mov	stack x
-	mov	stack r
+	lad	___mod_PARM_1 + 0
+	mov	stack mem
+	lad	___mod_PARM_1 + 1
+	mov	stack mem
 	jump
 ;; genLabel
-;	src/testfwk-__div.c: 13: }
+;	src/testfwk-__mod.c: 11: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
-;	src/testfwk-__div.c: 15: int main(int argc, char **argv) {
+;	src/testfwk-__mod.c: 13: int main(int argc, char **argv) {
 ;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/testfwk-__div.c: 16: int a = __div(0x3241, 17);
+;	src/testfwk-__mod.c: 14: int a = __mod(18, 5);
 ;; genAssign
-	lad	___div_PARM_1 + 0
-	mov	mem il ,50
-	lad	___div_PARM_1 + 1
-	mov	mem il ,65
-;; genAssign
-	lad	___div_PARM_2 + 0
+	lad	___mod_PARM_1 + 0
 	mov	mem il ,0
-	lad	___div_PARM_2 + 1
-	mov	mem il ,17
+	lad	___mod_PARM_1 + 1
+	mov	mem il ,18
+;; genAssign
+	lad	___mod_PARM_2 + 0
+	mov	mem il ,0
+	lad	___mod_PARM_2 + 1
+	mov	mem il ,5
 ;; genCall
 	mov	stack il ,hi8(L_main00103)
 	mov	stack il ,lo8(L_main00103)
-	goto	___div
+	goto	___mod
 L_main00103:
 	lad	_main_sloc0_1_0 + 1
 	mov	mem stack
@@ -151,22 +148,115 @@ L_main00103:
 	mov	x mem
 	lad	_main_sloc0_1_0 + 1
 	mov	r mem
-;	src/testfwk-__div.c: 18: pic = (a >> 8) & 0xff;
+;	src/testfwk-__mod.c: 16: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
 	mov	pic x
-;	src/testfwk-__div.c: 19: pic = a & 0xff;
+;	src/testfwk-__mod.c: 17: pic = a & 0xff;
 ;; genCast
 	mov	pic r
-;	src/testfwk-__div.c: 28: __endasm;
+;	src/testfwk-__mod.c: 19: a = __mod(18, 17);
+;; genAssign
+	lad	___mod_PARM_1 + 0
+	mov	mem il ,0
+	lad	___mod_PARM_1 + 1
+	mov	mem il ,18
+;; genAssign
+	lad	___mod_PARM_2 + 0
+	mov	mem il ,0
+	lad	___mod_PARM_2 + 1
+	mov	mem il ,17
+;; genCall
+	mov	stack il ,hi8(L_main00104)
+	mov	stack il ,lo8(L_main00104)
+	goto	___mod
+L_main00104:
+	lad	_main_sloc1_1_0 + 1
+	mov	mem stack
+	lad	_main_sloc1_1_0 + 0
+	mov	mem stack
+;; genAssign
+	lad	_main_sloc1_1_0 + 0
+	mov	x mem
+	lad	_main_sloc1_1_0 + 1
+	mov	r mem
+;	src/testfwk-__mod.c: 20: pic = (a >> 8) & 0xff;
+;; genGetByte      = 
+	mov	pic x
+;	src/testfwk-__mod.c: 21: pic = a & 0xff;
+;; genCast
+	mov	pic r
+;	src/testfwk-__mod.c: 23: a = __mod(0xffff, 0xfffe);
+;; genAssign
+	lad	___mod_PARM_1 + 0
+	mov	mem il ,255
+	lad	___mod_PARM_1 + 1
+	mov	mem il ,255
+;; genAssign
+	lad	___mod_PARM_2 + 0
+	mov	mem il ,255
+	lad	___mod_PARM_2 + 1
+	mov	mem il ,254
+;; genCall
+	mov	stack il ,hi8(L_main00105)
+	mov	stack il ,lo8(L_main00105)
+	goto	___mod
+L_main00105:
+	lad	_main_sloc2_1_0 + 1
+	mov	mem stack
+	lad	_main_sloc2_1_0 + 0
+	mov	mem stack
+;; genAssign
+	lad	_main_sloc2_1_0 + 0
+	mov	x mem
+	lad	_main_sloc2_1_0 + 1
+	mov	r mem
+;	src/testfwk-__mod.c: 24: pic = (a >> 8) & 0xff;
+;; genGetByte      = 
+	mov	pic x
+;	src/testfwk-__mod.c: 25: pic = a & 0xff;
+;; genCast
+	mov	pic r
+;	src/testfwk-__mod.c: 27: a = __mod(0x3241, 997);
+;; genAssign
+	lad	___mod_PARM_1 + 0
+	mov	mem il ,50
+	lad	___mod_PARM_1 + 1
+	mov	mem il ,65
+;; genAssign
+	lad	___mod_PARM_2 + 0
+	mov	mem il ,3
+	lad	___mod_PARM_2 + 1
+	mov	mem il ,229
+;; genCall
+	mov	stack il ,hi8(L_main00106)
+	mov	stack il ,lo8(L_main00106)
+	goto	___mod
+L_main00106:
+	lad	_main_sloc3_1_0 + 1
+	mov	mem stack
+	lad	_main_sloc3_1_0 + 0
+	mov	mem stack
+;; genAssign
+	lad	_main_sloc3_1_0 + 0
+	mov	x mem
+	lad	_main_sloc3_1_0 + 1
+	mov	r mem
+;	src/testfwk-__mod.c: 28: pic = (a >> 8) & 0xff;
+;; genGetByte      = 
+	mov	pic x
+;	src/testfwk-__mod.c: 29: pic = a & 0xff;
+;; genCast
+	mov	pic r
+;	src/testfwk-__mod.c: 38: __endasm;
 	halt
-;	src/testfwk-__div.c: 30: return 0;
+;	src/testfwk-__mod.c: 40: return 0;
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,0
 	mov	stack il ,0
 	jump
 ;; genLabel
-;	src/testfwk-__div.c: 31: }
+;	src/testfwk-__mod.c: 41: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

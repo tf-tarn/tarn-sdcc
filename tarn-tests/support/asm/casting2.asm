@@ -95,8 +95,10 @@ __sdcc_program_startup:
 ;	src/casting2.c: 8: return val1;
 	mov	jmpl stack
 	mov	jmph stack
-	mov	stack il ,lo8(_val1)
-	mov	stack il ,hi8(_val1)
+	lad	_val1 + 0
+	mov	stack mem
+	lad	_val1 + 1
+	mov	stack mem
 	jump
 ;; genLabel
 ;	src/casting2.c: 9: }

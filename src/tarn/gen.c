@@ -1432,7 +1432,9 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                     load_address_16(a2->aopu.aop_dir);
                     emit_mov(a1->aopu.aop_dir, "mem");
                 } else {
-                    AOP_MOVE_DEBUG;
+                    // Move indicated byte.
+                    load_address_16o(a2->aopu.aop_dir, index);
+                    emit_mov(a1->aopu.aop_dir, "mem");
                 }
             } else if (AOP_IS_REG(a2)) {
                 emit_mov(a1->aopu.aop_dir, a2->aopu.bytes[index].byteu.reg->name);
@@ -1544,12 +1546,12 @@ static void genGetByte(iCode *ic) {
     aopOp(right);
     aopOp(result);
 
-    /* emit_asmop("left", left->aop); */
-    /* emit_asmop("right", right->aop); */
-    /* emit_asmop("result", result->aop); */
+    emit_asmop("left", left->aop);
+    emit_asmop("right", right->aop);
+    emit_asmop("result", result->aop);
 
     int offset = (int) ulFromVal (right->aop->aopu.aop_lit) / 8;
-    /* emit2(";", "offset = %d", offset); */
+    emit2(";", "offset = %d, %d", offset, left->aop->size - offset - 1);
     aop_move_byte(result->aop, left->aop, offset);
 }
 
@@ -2735,7 +2737,9 @@ static void genCast(iCode *ic) {
                         emit_mov("mem", "stack");
                     }
                 } else if (is_reg(result)) {
-                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                    aopOp(result);
+                    aopOp(right);
+                    aop_move(result->aop, right->aop);
                 } else {
                     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                 }
@@ -2768,11 +2772,13 @@ static void genIfx_core(symbol *t, symbol *f, int invert) {
     */
 
     if (t) {
+        /* emit2("; genIfx_core: true branch", ""); */
         emit_jump_to_label(t, 1);
         return;
     }
 
     if (f) {
+        /* emit2("; genIfx_core: false branch", ""); */
         // We jump to f if the condition is FALSE, so we make a new
         // label and jump OVER the jnz instruction if the condition is
         // TRUE.
@@ -2799,14 +2805,6 @@ static void genIfx_impl(iCode *ic, int invert) {
     symbol *t = NULL;
     symbol *f = NULL;
 
-    if (invert) {
-        t = IC_FALSE(ic);
-        f = IC_TRUE(ic);
-    } else {
-        t = IC_TRUE(ic);
-        f = IC_FALSE(ic);
-    }
-
     D2(emit2("\t;; If x", ""));
 
     if (IS_OP_LITERAL (cond)) {
@@ -2830,28 +2828,31 @@ static void genIfx_impl(iCode *ic, int invert) {
                 cost(4);
                 invert = 1 - invert;
 
-                if (invert) {
-                    t = IC_FALSE(ic);
-                    f = IC_TRUE(ic);
-                } else {
-                    t = IC_TRUE(ic);
-                    f = IC_FALSE(ic);
-                }
-
             } else if (cond->aop->size == 2) {
-                invert = 1 - invert;
-                /* emit2(";", "implement me (invert=%s, t=%p, f=%p)", invert ? "true" : "false", IC_TRUE(ic), IC_FALSE(ic)); */
-                if (invert) {
-                    aop_cmp(EQ_OP, cond->aop, ASMOP_ZERO, IC_TRUE(ic), IC_FALSE(ic), true);
-                } else {
-                    aop_cmp(EQ_OP, cond->aop, ASMOP_ZERO, IC_TRUE(ic), IC_FALSE(ic), false);
+                if (!regalloc_dry_run) {
+                    emit2(";", "implement me (invert=%s, t=%d, f=%d)", invert ? "true" : "false", !!IC_TRUE(ic), !!IC_FALSE(ic));
                 }
+                aop_cmp(EQ_OP, cond->aop, ASMOP_ZERO, IC_TRUE(ic), IC_FALSE(ic), false);
+                /* if (invert) { */
+                /*     aop_cmp(EQ_OP, cond->aop, ASMOP_ZERO, t, f, true); */
+                /* } else { */
+                /*     aop_cmp(EQ_OP, cond->aop, ASMOP_ZERO, t, f, false); */
+                /* } */
                 do_gen_ifx = false;
             } else {
                 emit2(";", "implement me");
             }
         }
         if (do_gen_ifx) {
+            if (invert) {
+                /* emit2("; genIfx_impl: invert", ""); */
+                t = IC_FALSE(ic);
+                f = IC_TRUE(ic);
+            } else {
+                /* emit2("; genIfx_impl: no invert", ""); */
+                t = IC_TRUE(ic);
+                f = IC_FALSE(ic);
+            }
             genIfx_core(t, f, invert);
         }
     }
@@ -3309,6 +3310,14 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
         return;
     }
 
+    /* if (true_branch) { */
+    /*     emit2(";", "true branch is !tlabel", label_num(true_branch)); */
+    /* } */
+    /* if (false_branch) { */
+    /*     emit2(";", "false branch is !tlabel", label_num(false_branch)); */
+    /* } */
+    
+
     symbol *result_desired_maybe = new_label(NULL);
     symbol *result_undesired = new_label(NULL);
     symbol *result_desired;
@@ -3331,7 +3340,15 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
         result_undesired = result_desired;
     }
 
+    /* if (result_desired) { */
+    /*     emit2(";", "result desired is !tlabel", label_num(result_desired)); */
+    /* } */
+    /* if (result_undesired) { */
+    /*     emit2(";", "result undesired is !tlabel", label_num(result_undesired)); */
+    /* } */
+
     if (invert) {
+        emit2(";", "invert");
         symbol *temp = result_desired;
         result_desired = result_undesired;
         result_undesired = temp;
@@ -3416,21 +3433,37 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
 
                 emit_mov("test", "aluc");
                 if (i < max_size - 1) {
+                    emit2(";", "not last -> jump to desired maybe");
                     emit_jump_to_label(result_desired_maybe, 1);
                 } else {
-                    emit_jump_to_label(result_desired, 1);
+                    emit2(";", "last -> jump to desired");
+                    if (true_branch) {
+                        emit_jump_to_label(result_undesired, 1);
+                    } else {
+                        emit_jump_to_label(result_desired, 1);
+                    }
                 }
-                emit_jump_to_label(result_undesired, 0);
+
+                emit2(";", "test failed; jump to undesired");
+                if (true_branch) {
+                    emit_jump_to_label(result_desired, 0);
+                } else {
+                    emit_jump_to_label(result_undesired, 0);
+                }
 
                 if (i < max_size - 1) {
+                    emit2(";", "emit desired maybe !tlabel", label_num(result_desired_maybe));
                     tarn_emit_label(result_desired_maybe);
                     result_desired_maybe = new_label(NULL);
+                    emit2(";", "next desired maybe is !tlabel", label_num(result_desired_maybe));
                 }
             }
             if (!true_and_false) {
                 if (invert) {
+                    emit2(";", "emit desired !tlabel", label_num(result_desired));
                     tarn_emit_label(result_desired);
                 } else {
+                    emit2(";", "emit undesired !tlabel", label_num(result_undesired));
                     tarn_emit_label(result_undesired);
                 }
             }

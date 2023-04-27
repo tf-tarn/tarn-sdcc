@@ -227,7 +227,7 @@ test_sub_16m_16m:
 
 test_compare_16m_16m_lt:
         .macro test_compare_16m_16m_lt arg1 arg2
-        compare_16m_16m_lt__tf \arg1, \arg2, is_lt\@, is_gt\@
+        compare_16m_16m__tf 9 \arg1, \arg2, is_lt\@, is_gt\@
 
         is_lt\@:
         mov pic il ,0x80

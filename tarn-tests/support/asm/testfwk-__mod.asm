@@ -150,6 +150,14 @@ L_main00103:
 	mov	r mem
 ;	src/testfwk-__mod.c: 16: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
+;	left operand AOP_REG
+;	  size = 2
+;	right operand AOP_LIT
+;	  size = 2
+;	  value = 08 00 
+;	result operand AOP_SFR
+;	  size = 1
+;	offset = 1, 0
 	mov	pic x
 ;	src/testfwk-__mod.c: 17: pic = a & 0xff;
 ;; genCast
@@ -181,6 +189,14 @@ L_main00104:
 	mov	r mem
 ;	src/testfwk-__mod.c: 20: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
+;	left operand AOP_REG
+;	  size = 2
+;	right operand AOP_LIT
+;	  size = 2
+;	  value = 08 00 
+;	result operand AOP_SFR
+;	  size = 1
+;	offset = 1, 0
 	mov	pic x
 ;	src/testfwk-__mod.c: 21: pic = a & 0xff;
 ;; genCast
@@ -212,6 +228,14 @@ L_main00105:
 	mov	r mem
 ;	src/testfwk-__mod.c: 24: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
+;	left operand AOP_REG
+;	  size = 2
+;	right operand AOP_LIT
+;	  size = 2
+;	  value = 08 00 
+;	result operand AOP_SFR
+;	  size = 1
+;	offset = 1, 0
 	mov	pic x
 ;	src/testfwk-__mod.c: 25: pic = a & 0xff;
 ;; genCast
@@ -243,6 +267,14 @@ L_main00106:
 	mov	r mem
 ;	src/testfwk-__mod.c: 28: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
+;	left operand AOP_REG
+;	  size = 2
+;	right operand AOP_LIT
+;	  size = 2
+;	  value = 08 00 
+;	result operand AOP_SFR
+;	  size = 1
+;	offset = 1, 0
 	mov	pic x
 ;	src/testfwk-__mod.c: 29: pic = a & 0xff;
 ;; genCast

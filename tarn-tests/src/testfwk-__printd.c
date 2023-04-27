@@ -57,11 +57,16 @@ __printd (int n)
           neg = 1;
         }
 
+      pic = (n >> 8) & 0xff;
+      pic = n & 0xff;
+      pic = 'B';
       while (0 != n)
         {
+            pic = 'L';
           *--p = '0' + __mod (n, 10);
           n = __div (n, 10);
         }
+      pic = 'A';
 
       if (neg)
           pic = '-';

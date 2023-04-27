@@ -2,7 +2,7 @@
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
-	.file	"testfwk___div.c"
+	.file	"not_equal.c"
 	
 .include "/home/tarn/projects/tarnos/asm/src/macros/macros.s"
 ;--------------------------------------------------------
@@ -15,15 +15,13 @@
 ; ram data
 ;--------------------------------------------------------
 	.section data,"w"
-___div_PARM_1:
-	.ds	2
-___div_PARM_2:
-	.ds	2
 _main_PARM_1:
 	.ds	2
 _main_PARM_2:
 	.ds	2
-_main_sloc0_1_0:
+_main_a_65536_2:
+	.ds	1
+_main_n_65536_2:
 	.ds	2
 ;--------------------------------------------------------
 ; ram data
@@ -70,111 +68,137 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section code,"ax"
-;	src/testfwk-__div.c: 4: __div(int num, int denom)
-;; genLabel
-;	-----------------------------------------
-;	 function __div
-;	-----------------------------------------
-	___div:
-;	src/testfwk-__div.c: 7: while (num >= denom)
-;; genAssign
-	mov	r il ,0
-	mov	x il ,0
-;; genLabel
-L___div00101:
-;; genCmp
-	mov	alus il ,9	; less-than 
-;	has TRUE ifx
-	compare_16m_16m__t	9 ___div_PARM_1 ___div_PARM_2 L___div00103
-;	src/testfwk-__div.c: 9: q++;
-;; genALUOp
-;;	ALU plus (4)
-;;	ALU operand size 2 2 1
-	mov	stack x
-	mov	stack r
-	add_16s_8	1
-;	no need to move registers to themselves
-;	src/testfwk-__div.c: 10: num -= denom;
-;; genALUOp
-;;	ALU minus (16)
-;;	ALU operand size 2 2 2
-	sub_16m_16m	___div_PARM_1 ___div_PARM_2
-	lad	___div_PARM_1 + 1
-	mov	mem r
-	lad	___div_PARM_1 + 0
-	mov	mem x
-	restore_rx
-;; genGoto
-	goto	L___div00101
-;; genLabel
-L___div00103:
-;	src/testfwk-__div.c: 12: return q;
-	mov	jmpl stack
-	mov	jmph stack
-	mov	stack x
-	mov	stack r
-	jump
-;; genLabel
-;	src/testfwk-__div.c: 13: }
-;; genEndFunction
-	mov	jmpl stack
-	mov	jmph stack
-	jump
-;	src/testfwk-__div.c: 15: int main(int argc, char **argv) {
+;	src/not-equal.c: 3: int main(int argc, char **argv) {
 ;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/testfwk-__div.c: 16: int a = __div(0x3241, 17);
+;	src/not-equal.c: 4: volatile unsigned char a = 1;
 ;; genAssign
-	lad	___div_PARM_1 + 0
-	mov	mem il ,50
-	lad	___div_PARM_1 + 1
-	mov	mem il ,65
+	lad	_main_a_65536_2
+	mov	mem il ,1
+;	src/not-equal.c: 5: volatile unsigned int n = 1;
 ;; genAssign
-	lad	___div_PARM_2 + 0
+	lad	_main_n_65536_2 + 0
 	mov	mem il ,0
-	lad	___div_PARM_2 + 1
-	mov	mem il ,17
-;; genCall
-	mov	stack il ,hi8(L_main00103)
-	mov	stack il ,lo8(L_main00103)
-	goto	___div
-L_main00103:
-	lad	_main_sloc0_1_0 + 1
-	mov	mem stack
-	lad	_main_sloc0_1_0 + 0
-	mov	mem stack
+	lad	_main_n_65536_2 + 1
+	mov	mem il ,1
+;	src/not-equal.c: 19: pic = '6';
 ;; genAssign
-	lad	_main_sloc0_1_0 + 0
-	mov	x mem
-	lad	_main_sloc0_1_0 + 1
-	mov	r mem
-;	src/testfwk-__div.c: 18: pic = (a >> 8) & 0xff;
-;; genGetByte      = 
-;	left operand AOP_REG
-;	  size = 2
-;	right operand AOP_LIT
-;	  size = 2
-;	  value = 08 00 
-;	result operand AOP_SFR
-;	  size = 1
-;	offset = 1, 0
-	mov	pic x
-;	src/testfwk-__div.c: 19: pic = a & 0xff;
-;; genCast
-	mov	pic r
-;	src/testfwk-__div.c: 28: __endasm;
+	mov	pic il ,54
+;	src/not-equal.c: 20: while (n != 0) {
+;; genLabel
+L_main00101:
+;; genIfx
+;	implement me (invert=false, t=0, f=1)
+	mov	alus il ,10	; equal-to 
+;	has FALSE ifx
+;	begin multibyte (2) comparison
+;	compare byte 0
+	mov	alua zero
+	lad	_main_n_65536_2
+	mov	alub mem
+	mov	test aluc
+;	not last -> jump to desired maybe
+	gotonz	L_main00125
+;	test failed; jump to undesired
+	goto	L_main00126
+;	emit desired maybe L_main00125
+L_main00125:
+;	next desired maybe is L_main00127
+;	compare byte 1
+	mov	alua zero
+	lad	_main_n_65536_2 + 1
+	mov	alub mem
+	mov	test aluc
+;	last -> jump to desired
+	gotonz	L_main00103
+;	test failed; jump to undesired
+	goto	L_main00126
+;	emit undesired L_main00126
+L_main00126:
+;	end multibyte comparison
+;	src/not-equal.c: 21: pic = '7';
+;; genAssign
+	mov	pic il ,55
+;	src/not-equal.c: 22: n = 0;
+;; genAssign
+	lad	_main_n_65536_2 + 0
+	mov	mem il ,0
+	lad	_main_n_65536_2 + 1
+	mov	mem il ,0
+;; genGoto
+	goto	L_main00101
+;; genLabel
+L_main00103:
+;	src/not-equal.c: 25: n = 0;
+;; genAssign
+	lad	_main_n_65536_2 + 0
+	mov	mem il ,0
+	lad	_main_n_65536_2 + 1
+	mov	mem il ,0
+;	src/not-equal.c: 27: pic = '8';
+;; genAssign
+	mov	pic il ,56
+;	src/not-equal.c: 28: while (n == 0) {
+;; genLabel
+L_main00104:
+;; genIfx
+;	implement me (invert=false, t=1, f=0)
+	mov	alus il ,10	; equal-to 
+;	has TRUE ifx
+;	begin multibyte (2) comparison
+;	compare byte 0
+	mov	alua zero
+	lad	_main_n_65536_2
+	mov	alub mem
+	mov	test aluc
+;	not last -> jump to desired maybe
+	gotonz	L_main00128
+;	test failed; jump to undesired
+	goto	L_main00106
+;	emit desired maybe L_main00128
+L_main00128:
+;	next desired maybe is L_main00130
+;	compare byte 1
+	mov	alua zero
+	lad	_main_n_65536_2 + 1
+	mov	alub mem
+	mov	test aluc
+;	last -> jump to desired
+	gotonz	L_main00129
+;	test failed; jump to undesired
+	goto	L_main00106
+;	emit undesired L_main00129
+L_main00129:
+;	end multibyte comparison
+;	src/not-equal.c: 29: pic = '9';
+;; genAssign
+	mov	pic il ,57
+;	src/not-equal.c: 30: n = 1;
+;; genAssign
+	lad	_main_n_65536_2 + 0
+	mov	mem il ,0
+	lad	_main_n_65536_2 + 1
+	mov	mem il ,1
+;; genGoto
+	goto	L_main00104
+;; genLabel
+L_main00106:
+;	src/not-equal.c: 32: pic = '9' + 1;
+;; genAssign
+	mov	pic il ,58
+;	src/not-equal.c: 42: __endasm;
 	halt
-;	src/testfwk-__div.c: 30: return 0;
+;	src/not-equal.c: 44: return 0;
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,0
 	mov	stack il ,0
 	jump
 ;; genLabel
-;	src/testfwk-__div.c: 31: }
+;	src/not-equal.c: 45: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

@@ -57,16 +57,18 @@ __printd (int n)
           neg = 1;
         }
 
-      pic = (n >> 8) & 0xff;
-      pic = n & 0xff;
-      pic = 'B';
       while (0 != n)
-        {
-            pic = 'L';
-          *--p = '0' + __mod (n, 10);
-          n = __div (n, 10);
-        }
-      pic = 'A';
+          {
+              /* pic = (n >> 8) & 0xff; */
+              /* pic = n & 0xff; */
+              --p;
+              *p = '0' + __mod (n, 10);
+              /* pic = 0xff; */
+              /* pic = ((unsigned)p >> 8) & 0xff; */
+              n = __div (n, 10);
+              /* pic = (n >> 8) & 0xff; */
+              /* pic = n & 0xff; */
+          }
 
       if (neg)
           pic = '-';
@@ -76,11 +78,11 @@ __printd (int n)
 }
 
 int main(int argc, char **argv) {
-    /* __printd(0); */
-    /* pic = ' '; */
+    __printd(0);
     __printd(99);
-    /* pic = ' '; */
-    /* __printd(1123); */
+    __printd(1123);
+    __printd(45678);
+    __printd(9012);
 
     __asm
         halt

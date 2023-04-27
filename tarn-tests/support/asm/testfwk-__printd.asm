@@ -248,6 +248,7 @@ L___prints00104:
 	___printd:
 ;	src/testfwk-__printd.c: 42: if (0 == n)
 ;; genIfx
+;	implement me (invert=false, t=1, f=0)
 	mov	alus il ,10	; equal-to 
 ;	has TRUE ifx
 ;	begin multibyte (2) comparison
@@ -256,16 +257,23 @@ L___prints00104:
 	lad	___printd_PARM_1
 	mov	alub mem
 	mov	test aluc
+;	not last -> jump to desired maybe
 	gotonz	L___printd00139
+;	test failed; jump to undesired
 	goto	L___printd00109
+;	emit desired maybe L___printd00139
 L___printd00139:
+;	next desired maybe is L___printd00141
 ;	compare byte 1
 	mov	alua zero
 	lad	___printd_PARM_1 + 1
 	mov	alub mem
 	mov	test aluc
+;	last -> jump to desired
 	gotonz	L___printd00140
+;	test failed; jump to undesired
 	goto	L___printd00109
+;	emit undesired L___printd00140
 L___printd00140:
 ;	end multibyte comparison
 ;	src/testfwk-__printd.c: 44: pic = '0';
@@ -321,6 +329,7 @@ L___printd00116:
 ;; genLabel
 L___printd00103:
 ;; genIfx
+;	implement me (invert=false, t=0, f=1)
 	mov	alus il ,10	; equal-to 
 ;	has FALSE ifx
 ;	begin multibyte (2) comparison
@@ -329,19 +338,26 @@ L___printd00103:
 	lad	___printd_PARM_1
 	mov	alub mem
 	mov	test aluc
+;	not last -> jump to desired maybe
 	gotonz	L___printd00144
-	goto	L___printd00118
+;	test failed; jump to undesired
+	goto	L___printd00145
+;	emit desired maybe L___printd00144
 L___printd00144:
+;	next desired maybe is L___printd00146
 ;	compare byte 1
 	mov	alua zero
 	lad	___printd_PARM_1 + 1
 	mov	alub mem
 	mov	test aluc
-	gotonz	L___printd00145
-	goto	L___printd00118
+;	last -> jump to desired
+	gotonz	L___printd00118
+;	test failed; jump to undesired
+	goto	L___printd00145
+;	emit undesired L___printd00145
 L___printd00145:
 ;	end multibyte comparison
-;	src/testfwk-__printd.c: 62: *--p = '0' + __mod (n, 10);
+;	src/testfwk-__printd.c: 64: --p;
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 2 2 1
@@ -355,6 +371,7 @@ L___printd00145:
 	lad	___printd_sloc2_1_0 + 1
 	mov	mem r
 	restore_rx
+;	src/testfwk-__printd.c: 65: *p = '0' + __mod (n, 10);
 ;; genAssign
 	lad	___printd_PARM_1
 	mov	stack mem ; hi
@@ -393,7 +410,7 @@ L___printd00147:
 ;	           yes         yes    2          ___printd_sloc2_1_0
 	load_address_from_ptr	___printd_sloc2_1_0
 	mov	mem r
-;	src/testfwk-__printd.c: 63: n = __div (n, 10);
+;	src/testfwk-__printd.c: 68: n = __div (n, 10);
 ;; genAssign
 	lad	___printd_PARM_1
 	mov	stack mem ; hi
@@ -418,13 +435,20 @@ L___printd00148:
 	lad	___printd_sloc3_1_0 + 0
 	mov	mem stack
 ;; genAssign
-	lad	___printd_PARM_1 + 1
-	mov	stack mem
+; aop_move debug (gen.c:1166)
+;	dest operand AOP_DIR
+;	  size = 2
+;	  location = ___printd_PARM_1 (direct)
+;	src  operand AOP_SPILL
+;	  size = 2
+;	  location = ___printd_sloc3_1_0+0 (immediate)
 	lad	___printd_sloc3_1_0 + 0
-	mov	mem stack
-	lad	___printd_PARM_1
 	mov	stack mem
+	lad	___printd_PARM_1 + 0
+	mov	mem stack
 	lad	___printd_sloc3_1_0 + 1
+	mov	stack mem
+	lad	___printd_PARM_1 + 1
 	mov	mem stack
 ;; genGoto
 	goto	L___printd00103
@@ -435,7 +459,7 @@ L___printd00118:
 	mov	x mem
 	lad	___printd_sloc2_1_0 + 1
 	mov	r mem
-;	src/testfwk-__printd.c: 66: if (neg)
+;	src/testfwk-__printd.c: 73: if (neg)
 ;; genIfx
 ;	load_reg: spilt
 	lad	___printd_sloc1_1_0
@@ -444,12 +468,12 @@ L___printd00118:
 	mov	alub zero
 	mov	test aluc
 	gotonz	L___printd00107
-;	src/testfwk-__printd.c: 67: pic = '-';
+;	src/testfwk-__printd.c: 74: pic = '-';
 ;; genAssign
 	mov	pic il ,45
 ;; genLabel
 L___printd00107:
-;	src/testfwk-__printd.c: 69: __prints(p);
+;	src/testfwk-__printd.c: 76: __prints(p);
 ;; genAssign
 	lad	___prints_PARM_1 + 1
 	mov	mem r
@@ -463,18 +487,18 @@ L___printd00149:
 	; function returns nothing
 ;; genLabel
 L___printd00111:
-;	src/testfwk-__printd.c: 71: }
+;	src/testfwk-__printd.c: 78: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
-;	src/testfwk-__printd.c: 73: int main(int argc, char **argv) {
+;	src/testfwk-__printd.c: 80: int main(int argc, char **argv) {
 ;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/testfwk-__printd.c: 76: __printd(99);
+;	src/testfwk-__printd.c: 83: __printd(99);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,0
@@ -486,16 +510,16 @@ L___printd00111:
 	goto	___printd
 L_main00103:
 	; function returns nothing
-;	src/testfwk-__printd.c: 82: __endasm;
+;	src/testfwk-__printd.c: 89: __endasm;
 	halt
-;	src/testfwk-__printd.c: 84: return 0;
+;	src/testfwk-__printd.c: 91: return 0;
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,0
 	mov	stack il ,0
 	jump
 ;; genLabel
-;	src/testfwk-__printd.c: 85: }
+;	src/testfwk-__printd.c: 92: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

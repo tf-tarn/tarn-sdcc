@@ -1073,7 +1073,6 @@ static bool aop_move_spill(asmop *a1, asmop *a2) {
         }
     } else {
         if (AOP_IS_SPILL(a2)) {
-            AOP_MOVE_DEBUG;
             for (int i = 0; i < a2->size; ++i) {
                 aop_move_byte(ASMOP_STACK, a2, a2->size - i - 1);
                 load_address_16o(a1->aopu.immd, a1->aopu.immd_off + i);
@@ -1086,10 +1085,13 @@ static bool aop_move_spill(asmop *a1, asmop *a2) {
                 aop_move(ASMOP_MEM, ASMOP_STACK);
             }
         } else if (AOP_IS_IMMEDIATE(a2)) {
-            // this here seems to be the problem
-            for (int i = 0; i < a2->size; ++i) {
-                load_address_16o(a1->aopu.immd, a1->aopu.immd_off + i);
-                aop_move_byte(ASMOP_MEM, a2, a2->size - i - 1);
+            if (a1->size == a2->size && a1->size == 2) {
+                load_address_16o(a1->aopu.immd, a1->aopu.immd_off);
+                emit2("mov", "mem il ,hi8(%s + %d)", a2->aopu.immd, a2->aopu.immd_off);
+                load_address_16o(a1->aopu.immd, a1->aopu.immd_off + 1);
+                emit2("mov", "mem il ,lo8(%s + %d)", a2->aopu.immd, a2->aopu.immd_off);
+            } else {
+                AOP_MOVE_DEBUG;
             }
         } else {
             for (int i = 0; i < a2->size; ++i) {
@@ -1163,9 +1165,11 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
         load_address_16(a1->aopu.aop_dir);
         emit_mov("mem", a2->aopu.aop_dir);
     } else if (AOP_IS_SPILL(a2)) {
+        AOP_MOVE_DEBUG;
         for (int i = 0; i < a1->size; ++i) {
-            aop_move_byte(ASMOP_STACK, a1, a1->size - i - 1);
             load_address_16o(a2->aopu.immd, a2->aopu.immd_off + i);
+            aop_move(ASMOP_STACK, ASMOP_MEM);
+            load_address_16o(a1->aopu.aop_dir, i);
             aop_move(ASMOP_MEM, ASMOP_STACK);
         }
     } else {
@@ -1326,6 +1330,7 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
 }
 
 static bool aop_move(asmop *a1, asmop *a2) {
+       
     if (AOP_IS_SPILL(a1)) {
         return aop_move_spill(a1, a2);
     }
@@ -2942,7 +2947,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 // set.. except when reading from aluc into alua or
                 // alub...
                 emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
-                emit2("mov", "alub il ,%d", -byteOfVal(right->aopu.aop_lit, 0));
+                emit2("mov", "alub il ,%d", 0xff & (-byteOfVal(right->aopu.aop_lit, 0)));
                 cost(2);
             } else {
                 MOVE_AOP_DEBUG;
@@ -2982,7 +2987,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 }
             }
             if (op == ALUS_MINUS) {
-                emit2("add_16s_8", "%d", -byteOfVal(right->aopu.aop_lit, 0));
+                emit2("add_16s_16l", "%d", 0xffff & (-byteOfVal(right->aopu.aop_lit, 0)));
             } else {
                 emit2("add_16s_8", "%d", byteOfVal(right->aopu.aop_lit, 0));
             }

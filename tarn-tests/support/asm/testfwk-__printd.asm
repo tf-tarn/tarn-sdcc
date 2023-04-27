@@ -323,9 +323,9 @@ L___printd00109:
 L___printd00116:
 ;; genAssign
 	lad	___printd_sloc2_1_0 + 0
-	mov	mem il ,___printd_buf_131072_13 + 6
+	mov	mem il ,hi8(___printd_buf_131072_13 + 5)
 	lad	___printd_sloc2_1_0 + 1
-	mov	mem il ,___printd_buf_131072_13 + 5
+	mov	mem il ,lo8(___printd_buf_131072_13 + 5)
 ;; genLabel
 L___printd00103:
 ;; genIfx
@@ -365,7 +365,7 @@ L___printd00145:
 	mov	stack mem
 	lad	___printd_sloc2_1_0 + 1
 	mov	stack mem
-	add_16s_8	-1
+	add_16s_16l	65535
 	lad	___printd_sloc2_1_0 + 0
 	mov	mem x
 	lad	___printd_sloc2_1_0 + 1
@@ -435,7 +435,7 @@ L___printd00148:
 	lad	___printd_sloc3_1_0 + 0
 	mov	mem stack
 ;; genAssign
-; aop_move debug (gen.c:1166)
+; aop_move debug (gen.c:1168)
 ;	dest operand AOP_DIR
 ;	  size = 2
 ;	  location = ___printd_PARM_1 (direct)
@@ -498,17 +498,65 @@ L___printd00111:
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/testfwk-__printd.c: 83: __printd(99);
+;	src/testfwk-__printd.c: 81: __printd(0);
+;; genAssign
+	lad	___printd_PARM_1 + 0
+	mov	mem il ,0
+	lad	___printd_PARM_1 + 1
+	mov	mem il ,0
+;; genCall
+	mov	stack il ,hi8(L_main00103)
+	mov	stack il ,lo8(L_main00103)
+	goto	___printd
+L_main00103:
+	; function returns nothing
+;	src/testfwk-__printd.c: 82: __printd(99);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,0
 	lad	___printd_PARM_1 + 1
 	mov	mem il ,99
 ;; genCall
-	mov	stack il ,hi8(L_main00103)
-	mov	stack il ,lo8(L_main00103)
+	mov	stack il ,hi8(L_main00104)
+	mov	stack il ,lo8(L_main00104)
 	goto	___printd
-L_main00103:
+L_main00104:
+	; function returns nothing
+;	src/testfwk-__printd.c: 83: __printd(1123);
+;; genAssign
+	lad	___printd_PARM_1 + 0
+	mov	mem il ,4
+	lad	___printd_PARM_1 + 1
+	mov	mem il ,99
+;; genCall
+	mov	stack il ,hi8(L_main00105)
+	mov	stack il ,lo8(L_main00105)
+	goto	___printd
+L_main00105:
+	; function returns nothing
+;	src/testfwk-__printd.c: 84: __printd(45678);
+;; genAssign
+	lad	___printd_PARM_1 + 0
+	mov	mem il ,178
+	lad	___printd_PARM_1 + 1
+	mov	mem il ,110
+;; genCall
+	mov	stack il ,hi8(L_main00106)
+	mov	stack il ,lo8(L_main00106)
+	goto	___printd
+L_main00106:
+	; function returns nothing
+;	src/testfwk-__printd.c: 85: __printd(9012);
+;; genAssign
+	lad	___printd_PARM_1 + 0
+	mov	mem il ,35
+	lad	___printd_PARM_1 + 1
+	mov	mem il ,52
+;; genCall
+	mov	stack il ,hi8(L_main00107)
+	mov	stack il ,lo8(L_main00107)
+	goto	___printd
+L_main00107:
 	; function returns nothing
 ;	src/testfwk-__printd.c: 89: __endasm;
 	halt

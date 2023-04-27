@@ -130,7 +130,7 @@ __sdcc_program_startup:
 	lad	_parse_hex_digit_PARM_1
 	mov	alua mem
 	mov	alus il ,4	; plus 
-	mov	alub il ,-48
+	mov	alub il ,208
 	mov	r aluc
 	mov	jmpl stack
 	mov	jmph stack

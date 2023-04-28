@@ -79,7 +79,7 @@ __sdcc_program_startup:
 	lad	_main_sloc0_1_0 + 0
 	mov	mem zero
 ;; genLabel
-L_main00106:
+L_main00103:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
@@ -97,7 +97,7 @@ L_main00106:
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
-	gotonz	L_main00103
+	gotonz	L_main00101
 ;	src/string_loop.c: 5: pic = msg[i];
 ;; genAssign
 	mov	pic r
@@ -112,15 +112,19 @@ L_main00106:
 	lad	_main_sloc0_1_0 + 0
 	mov	mem aluc
 ;; genGoto
-	goto	L_main00106
-;	src/string_loop.c: 8: while(1);
-;; genLabel
-L_main00103:
-;; genGoto
 	goto	L_main00103
-;	src/string_loop.c: 10: return 0;
 ;; genLabel
-;	src/string_loop.c: 11: }
+L_main00101:
+;	src/string_loop.c: 10: __endasm;
+	halt
+;	src/string_loop.c: 12: return 0;
+	mov	jmpl stack
+	mov	jmph stack
+	mov	stack il ,0
+	mov	stack il ,0
+	jump
+;; genLabel
+;	src/string_loop.c: 13: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

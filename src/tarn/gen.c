@@ -3098,6 +3098,14 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
             } else {
                 MOVE_AOP_DEBUG;
             }
+        } else if (AOP_IS_IMMEDIATE(left)) {
+            if (AOP_IS_SPILL(right)) {
+                emit2("add_16m_16m", "%s %s", left->aopu.immd, right->aopu.immd);
+                cost(19);
+                aop_alu_move_result(result, ASMOP_RX, true, ifx);
+            } else {
+                MOVE_AOP_DEBUG;
+            }
         } else {
             MOVE_AOP_DEBUG;
         }

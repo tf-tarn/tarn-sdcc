@@ -124,14 +124,16 @@ __sdcc_program_startup:
 	mov	adh il ,hi8(_val3 + 1)
 	mov	adl il ,lo8(_val3 + 1)
 	mov	pic mem
-;	src/shift_left_8.2.c: 12: return val1;
+;	src/shift_left_8.2.c: 15: __endasm;
+	halt
+;	src/shift_left_8.2.c: 17: return val1;
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack x
 	mov	stack r
 	jump
 ;; genLabel
-;	src/shift_left_8.2.c: 13: }
+;	src/shift_left_8.2.c: 18: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

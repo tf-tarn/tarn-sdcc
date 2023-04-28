@@ -3,5 +3,8 @@ __data __at(0x8000) char array[4];
 char main (char argc, char **argv) {
     array[3] = 5;
     pic = array[3];
-    while(1);
+
+    __asm
+        halt
+    __endasm;
 }

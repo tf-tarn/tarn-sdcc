@@ -4,5 +4,8 @@ unsigned char index = 1;
 char main (char argc, char **argv) {
     array[index] = 5;
     pic = array[index];
-    while(1);
+
+    __asm
+        halt
+    __endasm;
 }

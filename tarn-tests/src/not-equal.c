@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
     
     __asm
         halt
-        __endasm;
+    __endasm;
 
     return 0;
 }

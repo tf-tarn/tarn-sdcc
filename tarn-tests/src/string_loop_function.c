@@ -32,5 +32,10 @@ char main (char argc, char **argv) {
         print(msg_too_short);
         break;
     }
-    while (1);
+
+    __asm
+        halt
+    __endasm;
+
+    return 0;
 }

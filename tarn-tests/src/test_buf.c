@@ -17,4 +17,8 @@ int main(int argc, char **argv) {
     for (char i = 0; i < sizeof buf; ++i) {
         pic = buf[i];
     }
+
+    __asm
+        halt
+        __endasm;
 }

@@ -5,7 +5,9 @@ int main (int argc, char **argv) {
         pic = msg[i];
     }
 
-    while(1);
+    __asm
+        halt
+    __endasm;
 
     return 0;
 }

@@ -189,7 +189,7 @@ L_main00103:
 ;; genIfx
 	gotonz	L_main00106
 ;; genGoto
-	goto	L_main00109
+	goto	L_main00107
 ;	src/string_loop_function.c: 25: case 0:
 ;; genLabel
 L_main00104:
@@ -200,14 +200,14 @@ L_main00104:
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_1 + 0) ; lo
 ;; genCall
-	mov	stack il ,hi8(L_main00139)
-	mov	stack il ,lo8(L_main00139)
+	mov	stack il ,hi8(L_main00132)
+	mov	stack il ,lo8(L_main00132)
 	goto	_print
-L_main00139:
+L_main00132:
 	; function returns nothing
 ;	src/string_loop_function.c: 27: break;
 ;; genGoto
-	goto	L_main00109
+	goto	L_main00107
 ;	src/string_loop_function.c: 28: case 1:
 ;; genLabel
 L_main00105:
@@ -218,14 +218,14 @@ L_main00105:
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_0 + 0) ; lo
 ;; genCall
-	mov	stack il ,hi8(L_main00140)
-	mov	stack il ,lo8(L_main00140)
+	mov	stack il ,hi8(L_main00133)
+	mov	stack il ,lo8(L_main00133)
 	goto	_print
-L_main00140:
+L_main00133:
 	; function returns nothing
 ;	src/string_loop_function.c: 30: break;
 ;; genGoto
-	goto	L_main00109
+	goto	L_main00107
 ;	src/string_loop_function.c: 31: case 2:
 ;; genLabel
 L_main00106:
@@ -236,18 +236,23 @@ L_main00106:
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_1 + 0) ; lo
 ;; genCall
-	mov	stack il ,hi8(L_main00141)
-	mov	stack il ,lo8(L_main00141)
+	mov	stack il ,hi8(L_main00134)
+	mov	stack il ,lo8(L_main00134)
 	goto	_print
-L_main00141:
+L_main00134:
 	; function returns nothing
-;	src/string_loop_function.c: 35: while (1);
+;	src/string_loop_function.c: 34: }
 ;; genLabel
-L_main00109:
-;; genGoto
-	goto	L_main00109
+L_main00107:
+;	src/string_loop_function.c: 38: __endasm;
+	halt
+;	src/string_loop_function.c: 40: return 0;
+	mov	jmpl stack
+	mov	jmph stack
+	mov	stack zero
+	jump
 ;; genLabel
-;	src/string_loop_function.c: 36: }
+;	src/string_loop_function.c: 41: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

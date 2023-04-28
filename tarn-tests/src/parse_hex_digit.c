@@ -55,5 +55,7 @@ char main(char argc, char **argv) {
     c = parse_hex_digit('/');
     pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 
-    while(1);
+    __asm
+        halt
+    __endasm;
 }

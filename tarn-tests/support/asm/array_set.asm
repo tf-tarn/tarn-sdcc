@@ -84,13 +84,10 @@ __sdcc_program_startup:
 	mov	adh il ,hi8(_array + 3)
 	mov	adl il ,lo8(_array + 3)
 	mov	pic mem
-;	src/array_set.c: 6: while(1);
+;	src/array_set.c: 9: __endasm;
+	halt
 ;; genLabel
-L_main00102:
-;; genGoto
-	goto	L_main00102
-;; genLabel
-;	src/array_set.c: 7: }
+;	src/array_set.c: 10: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

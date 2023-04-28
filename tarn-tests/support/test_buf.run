@@ -1,0 +1,1 @@
+./sim/sim -q -h -s 500 $program_file > $output

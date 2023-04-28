@@ -13,4 +13,8 @@ char main(char argc, char **argv) {
     pic = -x;
     x = pic;
     pic = -x;
+
+    __asm
+        halt
+    __endasm;
 }

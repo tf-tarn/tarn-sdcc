@@ -124,7 +124,7 @@ L_main00103:
 	mov	test aluc
 ;; genIfx
 	gotonz	L_main00120
-	goto	L_main00105
+	goto	L_main00101
 L_main00120:
 ;	src/test_buf.c: 18: pic = buf[i];
 ;; genALUOp
@@ -154,8 +154,11 @@ L_main00120:
 ;; genGoto
 	goto	L_main00103
 ;; genLabel
-L_main00105:
-;	src/test_buf.c: 20: }
+L_main00101:
+;	src/test_buf.c: 23: __endasm;
+	halt
+;; genLabel
+;	src/test_buf.c: 24: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

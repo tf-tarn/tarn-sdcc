@@ -109,13 +109,10 @@ __sdcc_program_startup:
 	mov	adl r
 	mov	adh x
 	mov	pic mem
-;	src/array_set_2.c: 7: while(1);
+;	src/array_set_2.c: 10: __endasm;
+	halt
 ;; genLabel
-L_main00102:
-;; genGoto
-	goto	L_main00102
-;; genLabel
-;	src/array_set_2.c: 8: }
+;	src/array_set_2.c: 11: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

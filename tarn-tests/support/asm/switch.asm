@@ -195,13 +195,10 @@ L_main00111:
 ;	src/switch.c: 33: pic = '\n';
 ;; genAssign
 	mov	pic il ,10
-;	src/switch.c: 34: while(1);
+;	src/switch.c: 37: __endasm;
+	halt
 ;; genLabel
-L_main00113:
-;; genGoto
-	goto	L_main00113
-;; genLabel
-;	src/switch.c: 35: }
+;	src/switch.c: 38: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

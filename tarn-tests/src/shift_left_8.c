@@ -11,5 +11,10 @@ int main (int argc, char **argv) {
     // shifting means in this case...
     pic = *(0 + (char*)(&val3)); // b
     pic = *(1 + (char*)(&val3)); // a
+
+    __asm
+        halt
+    __endasm;
+
     return val1;
 }

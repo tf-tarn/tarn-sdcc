@@ -9,5 +9,10 @@ int main (int argc, char **argv) {
 
     pic = *(0 + (char*)(&val3));
     pic = *(1 + (char*)(&val3));
+
+    __asm
+        halt
+    __endasm;
+
     return val1;
 }

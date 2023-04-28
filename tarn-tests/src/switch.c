@@ -31,5 +31,8 @@ char main (char argc, char **argv) {
     }
     pic = '.';
     pic = '\n';
-    while(1);
+
+    __asm
+        halt
+    __endasm;
 }

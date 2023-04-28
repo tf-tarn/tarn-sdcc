@@ -125,8 +125,10 @@ __sdcc_program_startup:
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
 	mov	pic aluc
+;	src/negate.c: 19: __endasm;
+	halt
 ;; genLabel
-;	src/negate.c: 16: }
+;	src/negate.c: 20: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

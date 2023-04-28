@@ -22,7 +22,9 @@ char main (char argc, char **argv) {
 
     pic = index;
 
-    while (1);
+    __asm
+        halt
+    __endasm;
 
     return 0;
 }

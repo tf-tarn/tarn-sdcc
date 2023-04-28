@@ -306,14 +306,15 @@ __sdcc_program_startup:
 ;; genAssign
 	lad	_index
 	mov	pic mem
-;	src/write_array.c: 25: while (1);
+;	src/write_array.c: 27: __endasm;
+	halt
+;	src/write_array.c: 29: return 0;
+	mov	jmpl stack
+	mov	jmph stack
+	mov	stack zero
+	jump
 ;; genLabel
-L_main00102:
-;; genGoto
-	goto	L_main00102
-;	src/write_array.c: 27: return 0;
-;; genLabel
-;	src/write_array.c: 28: }
+;	src/write_array.c: 30: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

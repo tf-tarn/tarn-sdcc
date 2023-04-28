@@ -218,10 +218,10 @@ L_parse_hex_digit00108:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,48
 ;; genCall
-	mov	stack il ,hi8(L_main00111)
-	mov	stack il ,lo8(L_main00111)
+	mov	stack il ,hi8(L_main00103)
+	mov	stack il ,lo8(L_main00103)
 	goto	_parse_hex_digit
-L_main00111:
+L_main00103:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
@@ -241,10 +241,10 @@ L_main00111:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,49
 ;; genCall
-	mov	stack il ,hi8(L_main00112)
-	mov	stack il ,lo8(L_main00112)
+	mov	stack il ,hi8(L_main00104)
+	mov	stack il ,lo8(L_main00104)
 	goto	_parse_hex_digit
-L_main00112:
+L_main00104:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
@@ -264,10 +264,10 @@ L_main00112:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,50
 ;; genCall
-	mov	stack il ,hi8(L_main00113)
-	mov	stack il ,lo8(L_main00113)
+	mov	stack il ,hi8(L_main00105)
+	mov	stack il ,lo8(L_main00105)
 	goto	_parse_hex_digit
-L_main00113:
+L_main00105:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
@@ -287,10 +287,10 @@ L_main00113:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,51
 ;; genCall
-	mov	stack il ,hi8(L_main00114)
-	mov	stack il ,lo8(L_main00114)
+	mov	stack il ,hi8(L_main00106)
+	mov	stack il ,lo8(L_main00106)
 	goto	_parse_hex_digit
-L_main00114:
+L_main00106:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
@@ -310,10 +310,10 @@ L_main00114:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,52
 ;; genCall
-	mov	stack il ,hi8(L_main00115)
-	mov	stack il ,lo8(L_main00115)
+	mov	stack il ,hi8(L_main00107)
+	mov	stack il ,lo8(L_main00107)
 	goto	_parse_hex_digit
-L_main00115:
+L_main00107:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
@@ -333,10 +333,10 @@ L_main00115:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,53
 ;; genCall
-	mov	stack il ,hi8(L_main00116)
-	mov	stack il ,lo8(L_main00116)
+	mov	stack il ,hi8(L_main00108)
+	mov	stack il ,lo8(L_main00108)
 	goto	_parse_hex_digit
-L_main00116:
+L_main00108:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
@@ -356,10 +356,10 @@ L_main00116:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,54
 ;; genCall
-	mov	stack il ,hi8(L_main00117)
-	mov	stack il ,lo8(L_main00117)
+	mov	stack il ,hi8(L_main00109)
+	mov	stack il ,lo8(L_main00109)
 	goto	_parse_hex_digit
-L_main00117:
+L_main00109:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc0_1_0 + 0
@@ -379,10 +379,10 @@ L_main00117:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,55
 ;; genCall
-	mov	stack il ,hi8(L_main00118)
-	mov	stack il ,lo8(L_main00118)
+	mov	stack il ,hi8(L_main00110)
+	mov	stack il ,lo8(L_main00110)
 	goto	_parse_hex_digit
-L_main00118:
+L_main00110:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc1_1_0 + 0
@@ -402,10 +402,10 @@ L_main00118:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,56
 ;; genCall
-	mov	stack il ,hi8(L_main00119)
-	mov	stack il ,lo8(L_main00119)
+	mov	stack il ,hi8(L_main00111)
+	mov	stack il ,lo8(L_main00111)
 	goto	_parse_hex_digit
-L_main00119:
+L_main00111:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc2_1_0 + 0
@@ -425,10 +425,10 @@ L_main00119:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,57
 ;; genCall
-	mov	stack il ,hi8(L_main00120)
-	mov	stack il ,lo8(L_main00120)
+	mov	stack il ,hi8(L_main00112)
+	mov	stack il ,lo8(L_main00112)
 	goto	_parse_hex_digit
-L_main00120:
+L_main00112:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc3_1_0 + 0
@@ -448,10 +448,10 @@ L_main00120:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,97
 ;; genCall
-	mov	stack il ,hi8(L_main00121)
-	mov	stack il ,lo8(L_main00121)
+	mov	stack il ,hi8(L_main00113)
+	mov	stack il ,lo8(L_main00113)
 	goto	_parse_hex_digit
-L_main00121:
+L_main00113:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc4_1_0 + 0
@@ -471,10 +471,10 @@ L_main00121:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,98
 ;; genCall
-	mov	stack il ,hi8(L_main00122)
-	mov	stack il ,lo8(L_main00122)
+	mov	stack il ,hi8(L_main00114)
+	mov	stack il ,lo8(L_main00114)
 	goto	_parse_hex_digit
-L_main00122:
+L_main00114:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc5_1_0 + 0
@@ -494,10 +494,10 @@ L_main00122:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,99
 ;; genCall
-	mov	stack il ,hi8(L_main00123)
-	mov	stack il ,lo8(L_main00123)
+	mov	stack il ,hi8(L_main00115)
+	mov	stack il ,lo8(L_main00115)
 	goto	_parse_hex_digit
-L_main00123:
+L_main00115:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc6_1_0 + 0
@@ -517,10 +517,10 @@ L_main00123:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,100
 ;; genCall
-	mov	stack il ,hi8(L_main00124)
-	mov	stack il ,lo8(L_main00124)
+	mov	stack il ,hi8(L_main00116)
+	mov	stack il ,lo8(L_main00116)
 	goto	_parse_hex_digit
-L_main00124:
+L_main00116:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc7_1_0 + 0
@@ -540,10 +540,10 @@ L_main00124:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,101
 ;; genCall
-	mov	stack il ,hi8(L_main00125)
-	mov	stack il ,lo8(L_main00125)
+	mov	stack il ,hi8(L_main00117)
+	mov	stack il ,lo8(L_main00117)
 	goto	_parse_hex_digit
-L_main00125:
+L_main00117:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc8_1_0 + 0
@@ -563,10 +563,10 @@ L_main00125:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,102
 ;; genCall
-	mov	stack il ,hi8(L_main00126)
-	mov	stack il ,lo8(L_main00126)
+	mov	stack il ,hi8(L_main00118)
+	mov	stack il ,lo8(L_main00118)
 	goto	_parse_hex_digit
-L_main00126:
+L_main00118:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc9_1_0 + 0
@@ -586,10 +586,10 @@ L_main00126:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,120
 ;; genCall
-	mov	stack il ,hi8(L_main00127)
-	mov	stack il ,lo8(L_main00127)
+	mov	stack il ,hi8(L_main00119)
+	mov	stack il ,lo8(L_main00119)
 	goto	_parse_hex_digit
-L_main00127:
+L_main00119:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc10_1_0 + 0
@@ -609,10 +609,10 @@ L_main00127:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,32
 ;; genCall
-	mov	stack il ,hi8(L_main00128)
-	mov	stack il ,lo8(L_main00128)
+	mov	stack il ,hi8(L_main00120)
+	mov	stack il ,lo8(L_main00120)
 	goto	_parse_hex_digit
-L_main00128:
+L_main00120:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc11_1_0 + 0
@@ -632,10 +632,10 @@ L_main00128:
 	lad	_parse_hex_digit_PARM_1
 	mov	mem il ,47
 ;; genCall
-	mov	stack il ,hi8(L_main00129)
-	mov	stack il ,lo8(L_main00129)
+	mov	stack il ,hi8(L_main00121)
+	mov	stack il ,lo8(L_main00121)
 	goto	_parse_hex_digit
-L_main00129:
+L_main00121:
 	mov	r stack
 ;; genAssign
 	lad	_main_sloc12_1_0 + 0
@@ -650,13 +650,10 @@ L_main00129:
 	mov	pic il ,15
 ;; genAssign
 	mov	pic il ,10
-;	src/parse_hex_digit.c: 58: while(1);
+;	src/parse_hex_digit.c: 60: __endasm;
+	halt
 ;; genLabel
-L_main00102:
-;; genGoto
-	goto	L_main00102
-;; genLabel
-;	src/parse_hex_digit.c: 59: }
+;	src/parse_hex_digit.c: 61: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

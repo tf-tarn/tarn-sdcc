@@ -78,73 +78,52 @@ __sdcc_program_startup:
 L_main00109:
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,33
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_main00111
 ;	src/switch.c: 7: switch(val) {
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,97
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_main00101
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,101
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_main00102
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,105
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_main00103
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,111
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_main00104
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,117
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_main00105
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,255
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_main00108
 ;; genGoto

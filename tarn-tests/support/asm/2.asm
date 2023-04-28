@@ -83,24 +83,18 @@ __sdcc_program_startup:
 ;	src/2.c: 4: switch(which) {
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub zero
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_multiply_or_divide00101
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	lad	_multiply_or_divide_PARM_1
 	mov	alua mem
 	mov	alub il ,1
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_multiply_or_divide00102
 ;; genGoto

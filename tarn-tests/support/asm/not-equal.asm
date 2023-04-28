@@ -91,32 +91,21 @@ __sdcc_program_startup:
 ;; genLabel
 L_main00101:
 ;; genIfx
-;	implement me (invert=false, t=0, f=1)
 	mov	alus il ,10	; equal-to 
-;	has FALSE ifx
 ;	begin multibyte (2) comparison
-;	compare byte 0
 	mov	alua zero
 	lad	_main_n_65536_2
 	mov	alub mem
 	mov	test aluc
-;	not last -> jump to desired maybe
 	gotonz	L_main00125
-;	test failed; jump to undesired
 	goto	L_main00126
-;	emit desired maybe L_main00125
 L_main00125:
-;	next desired maybe is L_main00127
-;	compare byte 1
 	mov	alua zero
 	lad	_main_n_65536_2 + 1
 	mov	alub mem
 	mov	test aluc
-;	last -> jump to desired
 	gotonz	L_main00103
-;	test failed; jump to undesired
 	goto	L_main00126
-;	emit undesired L_main00126
 L_main00126:
 ;	end multibyte comparison
 ;	src/not-equal.c: 21: pic = '7';
@@ -145,32 +134,21 @@ L_main00103:
 ;; genLabel
 L_main00104:
 ;; genIfx
-;	implement me (invert=false, t=1, f=0)
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
 ;	begin multibyte (2) comparison
-;	compare byte 0
 	mov	alua zero
 	lad	_main_n_65536_2
 	mov	alub mem
 	mov	test aluc
-;	not last -> jump to desired maybe
 	gotonz	L_main00128
-;	test failed; jump to undesired
 	goto	L_main00106
-;	emit desired maybe L_main00128
 L_main00128:
-;	next desired maybe is L_main00130
-;	compare byte 1
 	mov	alua zero
 	lad	_main_n_65536_2 + 1
 	mov	alub mem
 	mov	test aluc
-;	last -> jump to desired
 	gotonz	L_main00129
-;	test failed; jump to undesired
 	goto	L_main00106
-;	emit undesired L_main00129
 L_main00129:
 ;	end multibyte comparison
 ;	src/not-equal.c: 29: pic = '9';

@@ -119,12 +119,9 @@ __sdcc_program_startup:
 L_main00103:
 ;; genCmp
 	mov	alus il ,9	; less-than 
-;	has FALSE ifx
-;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,6
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_main00120
 	goto	L_main00105

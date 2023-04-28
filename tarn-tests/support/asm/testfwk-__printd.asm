@@ -105,7 +105,6 @@ __sdcc_program_startup:
 L___div00101:
 ;; genCmp
 	mov	alus il ,9	; less-than 
-;	has TRUE ifx
 	compare_16m_16m__t	9 ___div_PARM_1 ___div_PARM_2 L___div00103
 ;	src/testfwk-__printd.c: 10: q++;
 ;; genALUOp
@@ -152,7 +151,6 @@ L___div00103:
 L___mod00101:
 ;; genCmp
 	mov	alus il ,9	; less-than 
-;	has TRUE ifx
 	compare_16m_16m__t	9 ___mod_PARM_1 ___mod_PARM_2 L___mod00103
 ;	src/testfwk-__printd.c: 20: num -= denom;
 ;; genALUOp
@@ -248,32 +246,21 @@ L___prints00104:
 	___printd:
 ;	src/testfwk-__printd.c: 39: if (0 == n) {
 ;; genIfx
-;	implement me (invert=false, t=1, f=0)
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
 ;	begin multibyte (2) comparison
-;	compare byte 0
 	mov	alua zero
 	lad	___printd_PARM_1
 	mov	alub mem
 	mov	test aluc
-;	not last -> jump to desired maybe
 	gotonz	L___printd00139
-;	test failed; jump to undesired
 	goto	L___printd00109
-;	emit desired maybe L___printd00139
 L___printd00139:
-;	next desired maybe is L___printd00141
-;	compare byte 1
 	mov	alua zero
 	lad	___printd_PARM_1 + 1
 	mov	alub mem
 	mov	test aluc
-;	last -> jump to desired
 	gotonz	L___printd00140
-;	test failed; jump to undesired
 	goto	L___printd00109
-;	emit undesired L___printd00140
 L___printd00140:
 ;	end multibyte comparison
 ;	src/testfwk-__printd.c: 40: pic = '0';
@@ -297,7 +284,6 @@ L___printd00109:
 ;	src/testfwk-__printd.c: 48: if (0 > n) {
 ;; genCmp
 	mov	alus il ,11	; greater-than 
-;	has FALSE ifx
 	compare_16l_16m__f	11 0 ___printd_PARM_1 L___printd00116
 ;	src/testfwk-__printd.c: 49: n = -n;
 ;; genUminus
@@ -329,32 +315,21 @@ L___printd00116:
 ;; genLabel
 L___printd00103:
 ;; genIfx
-;	implement me (invert=false, t=0, f=1)
 	mov	alus il ,10	; equal-to 
-;	has FALSE ifx
 ;	begin multibyte (2) comparison
-;	compare byte 0
 	mov	alua zero
 	lad	___printd_PARM_1
 	mov	alub mem
 	mov	test aluc
-;	not last -> jump to desired maybe
 	gotonz	L___printd00144
-;	test failed; jump to undesired
 	goto	L___printd00145
-;	emit desired maybe L___printd00144
 L___printd00144:
-;	next desired maybe is L___printd00146
-;	compare byte 1
 	mov	alua zero
 	lad	___printd_PARM_1 + 1
 	mov	alub mem
 	mov	test aluc
-;	last -> jump to desired
 	gotonz	L___printd00118
-;	test failed; jump to undesired
 	goto	L___printd00145
-;	emit undesired L___printd00145
 L___printd00145:
 ;	end multibyte comparison
 ;	src/testfwk-__printd.c: 54: --p;

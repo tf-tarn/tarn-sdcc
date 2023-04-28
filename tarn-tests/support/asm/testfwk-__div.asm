@@ -84,7 +84,6 @@ __sdcc_program_startup:
 L___div00101:
 ;; genCmp
 	mov	alus il ,9	; less-than 
-;	has TRUE ifx
 	compare_16m_16m__t	9 ___div_PARM_1 ___div_PARM_2 L___div00103
 ;	src/testfwk-__div.c: 9: q++;
 ;; genALUOp

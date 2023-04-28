@@ -81,12 +81,9 @@ __sdcc_program_startup:
 L_crc8_one00106:
 ;; genCmp
 	mov	alus il ,9	; less-than 
-;	has FALSE ifx
-;	begin single-byte comparison
 	mov	alua r
 	mov	alub il ,8
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_crc8_one00125
 	goto	L_crc8_one00104

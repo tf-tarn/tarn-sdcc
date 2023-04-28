@@ -82,13 +82,10 @@ L_main00104:
 ;	src/echo.c: 9: if (byte != 0xff) {
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-;	has TRUE ifx
-;	begin single-byte comparison
 	lad	_main_byte_65536_2
 	mov	alua mem
 	mov	alub il ,255
 	mov	test aluc
-;	end single-byte comparison
 ;; genIfx
 	gotonz	L_main00104
 ;	src/echo.c: 10: pic = byte;

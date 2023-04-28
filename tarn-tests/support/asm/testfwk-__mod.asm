@@ -87,7 +87,6 @@ __sdcc_program_startup:
 L___mod00101:
 ;; genCmp
 	mov	alus il ,9	; less-than 
-;	has TRUE ifx
 	compare_16m_16m__t	9 ___mod_PARM_1 ___mod_PARM_2 L___mod00103
 ;	src/testfwk-__mod.c: 8: num -= denom;
 ;; genALUOp

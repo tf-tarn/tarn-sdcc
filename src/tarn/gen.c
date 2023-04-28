@@ -1038,6 +1038,7 @@ void load_address_16o(const char *sym_name, int offset) {
 }
 
 #define AOP_IS_DIRECT(aop)    (aop->type == AOP_DIR)
+#define AOP_IS_CODE(aop)    (aop->type == AOP_CODE)
 #define AOP_IS_IMMEDIATE(aop) (aop->type == AOP_IMMD)
 #define AOP_IS_LIT(aop)       (aop->type == AOP_LIT)
 #define AOP_IS_SFR(aop)       (aop->type == AOP_SFR)
@@ -1132,6 +1133,7 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
         }
     } else if (AOP_IS_DIRECT(a2)) {
         if (a1->size == 2) {
+            // TODO change to use only one stack slot
             load_address_16(a2->aopu.aop_dir);
             emit2("mov", "stack mem ; hi");
             load_address_16o(a2->aopu.aop_dir, 1);
@@ -1165,12 +1167,34 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
         load_address_16(a1->aopu.aop_dir);
         emit_mov("mem", a2->aopu.aop_dir);
     } else if (AOP_IS_SPILL(a2)) {
-        AOP_MOVE_DEBUG;
         for (int i = 0; i < a1->size; ++i) {
             load_address_16o(a2->aopu.immd, a2->aopu.immd_off + i);
             aop_move(ASMOP_STACK, ASMOP_MEM);
             load_address_16o(a1->aopu.aop_dir, i);
             aop_move(ASMOP_MEM, ASMOP_STACK);
+        }
+    } else if (AOP_IS_CODE(a2)) {
+        // same as direct
+        if (a1->size == 2) {
+            // TODO change to use only one stack slot
+            load_address_16(a2->aopu.aop_dir);
+            emit2("mov", "stack mem ; hi");
+            load_address_16o(a2->aopu.aop_dir, 1);
+            emit2("mov", "stack mem ; lo");
+            load_address_16o(a1->aopu.aop_dir, 1);
+            emit2("mov", "mem stack ; lo");
+            load_address_16(a1->aopu.aop_dir);
+            emit2("mov", "mem stack ; hi");
+            cost(4);
+        } else if (a1->size == 1) {
+            load_address_16(a2->aopu.aop_dir);
+            emit2("mov", "stack mem");
+            load_address_16(a1->aopu.aop_dir);
+            emit2("mov", "mem stack");
+            cost(2);
+        } else {
+            cost(10);
+            AOP_MOVE_DEBUG;
         }
     } else {
         AOP_MOVE_DEBUG;

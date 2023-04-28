@@ -410,13 +410,6 @@ L___printd00148:
 	lad	___printd_sloc3_1_0 + 0
 	mov	mem stack
 ;; genAssign
-; aop_move debug (gen.c:1168)
-;	dest operand AOP_DIR
-;	  size = 2
-;	  location = ___printd_PARM_1 (direct)
-;	src  operand AOP_SPILL
-;	  size = 2
-;	  location = ___printd_sloc3_1_0+0 (immediate)
 	lad	___printd_sloc3_1_0 + 0
 	mov	stack mem
 	lad	___printd_PARM_1 + 0

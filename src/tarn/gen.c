@@ -283,6 +283,10 @@ tarn_init_asmops (void)
   asmop_zero.type = AOP_LIT;
   asmop_zero.size = 1;
   asmop_zero.aopu.aop_lit = constVal ("0");
+  /* asmop_zero.type = AOP_REG; */
+  /* asmop_zero.size = 1; */
+  /* asmop_adl.aopu.bytes[0].in_reg = true; */
+  /* asmop_adl.aopu.bytes[0].byteu.reg = tarn_regs + ZERO_IDX; */
 
   asmop_one.type = AOP_LIT;
   asmop_one.size = 1;
@@ -1333,11 +1337,15 @@ static bool aop_move_sfr(asmop *a1, asmop *a2) {
 
 asmop *aop_byte_of(asmop *aop, unsigned index) {
 #define ABO_DEBUG { emit2("", "; aop_byte_of failure (%s:%d)", __FILE__, __LINE__); emit_asmop("aop", aop); }
+    // We reverse immd_off for direct and immediate AOPs in this
+    // function because addresses are stored big-endian. (Who decided
+    // that?)
+
     if (AOP_IS_DIRECT(aop)) {
         asmop *newop = newAsmop (AOP_IMMD);
         newop->size = 1;
         newop->aopu.immd = aop->aopu.aop_dir;
-        newop->aopu.immd_off = index;
+        newop->aopu.immd_off = aop->size - index - 1;
         return newop;
     }
 
@@ -1347,6 +1355,29 @@ asmop *aop_byte_of(asmop *aop, unsigned index) {
             ABO_DEBUG;
             return ASMOP_STACK;
         }
+        return newop;
+    }
+
+    if (AOP_IS_LIT(aop)) {
+        char value = byteOfVal(aop->aopu.aop_lit, index);
+        if (value == 0) {
+            return ASMOP_ZERO;
+        }
+        if (value == 1) {
+            return ASMOP_ONE;
+        }
+
+        asmop *newop = newAsmop (AOP_IMMD);
+        newop->size = 1;
+        newop->aopu.aop_lit = constCharVal(value);
+        return newop;
+    }
+
+    if (AOP_IS_SPILL(aop)) {
+        asmop *newop = newAsmop (AOP_IMMD);
+        newop->size = 1;
+        newop->aopu.immd = aop->aopu.immd;
+        newop->aopu.immd_off = aop->aopu.immd_off + (aop->size - index - 1);
         return newop;
     }
 
@@ -1374,10 +1405,30 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
                     emit_mov(a1->aopu.bytes[a2->size - i - 1].byteu.reg->name, "mem");
                 }
             }
+        } else if (AOP_IS_IMMEDIATE(a2)) {
+            if (a1 == ASMOP_ADHL) {
+                for (int i = 0; i < a2->size; ++i) {
+                    load_address_16o(a2->aopu.immd, i + a2->aopu.immd_off);
+                    emit_mov("stack", "mem");
+                }
+                for (int i = 0; i < a2->size; ++i) {
+                    // backwards because ADHL is backwards...
+                    emit_mov(a1->aopu.bytes[i].byteu.reg->name, "stack");
+                }
+            } else {
+                for (int i = 0; i < a2->size; ++i) {
+                    load_address_16o(a2->aopu.immd, i + a2->aopu.immd_off);
+                    emit_mov(a1->aopu.bytes[a2->size - i - 1].byteu.reg->name, "mem");
+                }
+            }
         } else if (AOP_IS_REG(a2)) {
             if (a1 == ASMOP_MEM && a2 == ASMOP_MEM) {
                 emit2(";", "You can't move mem to itself!");
                 AOP_MOVE_DEBUG;
+                return false;
+            }
+            if (aopSame(a1, 0, a2, 0, a1->size)) {
+                return false;
             }
             for (int i = 0; i < a2->size; ++i) {
                 if (strcmp(a1->aopu.bytes[i].byteu.reg->name, a2->aopu.bytes[i].byteu.reg->name)) {
@@ -1415,14 +1466,36 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
                 }
             }
         } else if (AOP_IS_SFR(a2)) {
-            // SFRs are always 1 byte, so this works
+            // SFRs are always size 1, so this works
             emit_mov(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.aop_dir);
         } else {
             AOP_MOVE_DEBUG;
         }
         return true;
+    } else if (a1->size > a2->size) {
+        for (int i = a2->size; i < a1->size; ++i) {
+            aop_move(aop_byte_of(a1, i), ASMOP_ZERO);
+        }
+        for (int i = 0; i < a2->size; ++i) {
+            aop_move(aop_byte_of(a1, i), aop_byte_of(a2, i));
+        }
+    } else if (a1->size < a2->size) {
+        if (a1 == ASMOP_STACK) {
+            for (int i = 0; i < a2->size; ++i) {
+                aop_move(ASMOP_STACK, aop_byte_of(a2, i));
+            }
+        } else {
+            for (int i = 0; i < a1->size; ++i) {
+                aop_move(aop_byte_of(a1, i), aop_byte_of(a2, i));
+            }
+        }
     } else {
-        if (a1->size == 1) {
+        if (AOP_IS_DIRECT(a2)) {
+            for (int i = 0; i < a2->size; ++i) {
+                load_address_16o(a2->aopu.aop_dir, i);
+                emit_mov(a1->aopu.bytes[a2->size - i - 1].byteu.reg->name, "mem");
+            }
+        } else if (a1->size == 1) {
             if (AOP_IS_DIRECT(a2)) {
                 if (a2->size == 2) {
                     // means it must be spilled ?
@@ -1452,18 +1525,12 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
                 } else {
                     AOP_MOVE_DEBUG;
                 }
-            } else if (AOP_IS_SFR(a2)) {
-                emit_mov(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.aop_dir);
             } else if (a1 == ASMOP_STACK) {
                 // Special case: push all to stack.
                 // Push low bytes first.
                 for (int i = a2->size - 1; i >= 0; --i) {
                     aop_move_byte(a1, a2, i);
                 }
-            } else if (AOP_IS_SPILL(a2) && a2->size == 1) {
-                TRACE;
-                load_address_16(a2->aopu.immd);
-                aop_move(a1, ASMOP_MEM);
             } else if (AOP_IS_SPILL(a2) && a2->size == 2) {
                 TRACE;
                 load_address_16(a2->aopu.immd);
@@ -1499,12 +1566,7 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
                 AOP_MOVE_DEBUG;
             }
         } else {
-            if (AOP_IS_DIRECT(a2)) {
-                for (int i = 0; i < a2->size; ++i) {
-                    load_address_16o(a2->aopu.aop_dir, i);
-                    emit_mov(a1->aopu.bytes[a2->size - i - 1].byteu.reg->name, "mem");
-                }
-            } else if (AOP_IS_SPILL(a2)) {
+                if (AOP_IS_SPILL(a2)) {
                 TRACE;
                 if (a1 == ASMOP_ADHL && a1->size == 2) {
                     emit_macro_load_address_from_ptr(a2->aopu.immd);
@@ -1517,14 +1579,14 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
                 } else {
                     AOP_MOVE_DEBUG;
                 }
-            } else if (AOP_IS_LIT(a2)) {
-                if (a1->size == a2->size) {
-                    for (int i = 0; i < a2->size; ++i) {
-                        emit_mov_lit(a1->aopu.bytes[i].byteu.reg->name, byteOfVal(a2->aopu.aop_lit, i));
-                    }
-                } else {
-                    AOP_MOVE_DEBUG;
-                }
+            /* } else if (AOP_IS_LIT(a2)) { */
+                /* if (a1->size == a2->size) { */
+                /*     for (int i = 0; i < a2->size; ++i) { */
+                /*         emit_mov_lit(a1->aopu.bytes[i].byteu.reg->name, byteOfVal(a2->aopu.aop_lit, i)); */
+                /*     } */
+                /* } else { */
+                /*     AOP_MOVE_DEBUG; */
+                /* } */
             } else {
                 AOP_MOVE_DEBUG;
             }
@@ -2198,7 +2260,13 @@ static void genPointerGet(iCode *ic) {
                                     emit2("mov", "mem %s", op_get_register_name_i(left, 1));
                                     cost(6);
                                 } else {
-                                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                                    emit2("", "; working on (%s:%d)", __FILE__, __LINE__);
+                                    aopOp(result);
+                                    aopOp(left);
+                                    aopOp(right);
+                                    emit_asmop("left  ", left->aop);
+                                    emit_asmop("right ", right->aop);
+                                    emit_asmop("result", result->aop);
                                 }
                             } else {
                                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
@@ -2215,6 +2283,12 @@ static void genPointerGet(iCode *ic) {
             }
         } else {
             emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+            aopOp(result);
+            aopOp(left);
+            aopOp(right);
+            emit_asmop("left  ", left->aop);
+            emit_asmop("right ", right->aop);
+            emit_asmop("result", result->aop);
         }
     } else {
         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);

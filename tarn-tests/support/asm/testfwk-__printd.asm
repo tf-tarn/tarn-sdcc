@@ -117,7 +117,6 @@ L___div00101:
 	mov	stack x
 	mov	stack r
 	add_16s_8	1
-;	Not moving register r to itself.
 ;	src/testfwk-__printd.c: 11: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)
@@ -229,7 +228,6 @@ L___prints00101:
 	mov	stack x
 	mov	stack r
 	add_16s_8	1
-;	Not moving register r to itself.
 ;; genGoto
 	goto	L___prints00101
 ;; genLabel
@@ -372,8 +370,6 @@ L___printd00147:
 	lad	___printd_sloc4_1_0 + 0
 	mov	mem stack
 ;; genCast
-	lad	___printd_sloc4_1_0
-	mov	r zero
 	lad	___printd_sloc4_1_0 + 1
 	mov	r mem
 ;; genALUOp

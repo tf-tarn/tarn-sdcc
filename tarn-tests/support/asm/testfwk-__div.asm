@@ -92,7 +92,6 @@ L___div00101:
 	mov	stack x
 	mov	stack r
 	add_16s_8	1
-;	Not moving register r to itself.
 ;	src/testfwk-__div.c: 10: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)

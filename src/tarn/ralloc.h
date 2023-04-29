@@ -38,8 +38,9 @@ enum
   STACK_IDX = 5,                // Stack
   MEM_IDX   = 6,                // Memory
   TEST_IDX  = 7,                // Test register
-  ADH_IDX  =  8,                // Address high
-  ADL_IDX  =  9,                // Address low                                
+  ADH_IDX   = 8,                // Address high
+  ADL_IDX   = 9,                // Address low
+  ZERO_IDX  = 10                // Constant zero
 };
 
 enum

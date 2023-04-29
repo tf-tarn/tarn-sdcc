@@ -232,7 +232,6 @@ L_crc800120:
 L_crc800121:
 	mov	r stack
 ;; genAssign
-;	Not moving register r to itself.
 ;	src/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
 ;; genALUOp
 ;;	ALU plus (4)

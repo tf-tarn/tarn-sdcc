@@ -103,7 +103,6 @@ __sdcc_program_startup:
 	lad	_index + 0
 	mov	stack mem
 	add_8s_16	_array
-;	Not moving register r to itself.
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adl r

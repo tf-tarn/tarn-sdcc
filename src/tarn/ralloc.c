@@ -2,19 +2,20 @@
 #include "gen.h"
 #include "dbuf_string.h"
 
-reg_info tarn_regs[] =
-{
-  {REG_GPR, R_IDX,     "r"},
-  {REG_GPR, X_IDX,     "x"},
-  {REG_SFR, ALUA_IDX,  "alua"},
-  {REG_SFR, ALUB_IDX,  "alub"},
-  {REG_CND, ALUC_IDX,  "aluc"},
-  {REG_SFR, STACK_IDX, "stack"},
-  {REG_SFR, MEM_IDX, "mem"},
-  {REG_CND, TEST_IDX,   "test"},
-  {REG_SFR, ADH_IDX,   "adh"},
-  {REG_SFR, ADL_IDX,   "adl"},
+reg_info tarn_regs[] = {
+    {REG_GPR, R_IDX,     "r"},  // 0
+    {REG_GPR, X_IDX,     "x"},  // 1
+    {REG_SFR, ALUA_IDX,  "alua"}, // 2
+    {REG_SFR, ALUB_IDX,  "alub"}, // 3
+    {REG_CND, ALUC_IDX,  "aluc"}, //4
+    {REG_SFR, STACK_IDX, "stack"}, //5
+    {REG_SFR, MEM_IDX,   "mem"}, // 6
+    {REG_CND, TEST_IDX,  "test"}, // 7
+    {REG_SFR, ADH_IDX,   "adh"}, // 8
+    {REG_SFR, ADL_IDX,   "adl"}, // 9
+    {REG_SFR, ADL_IDX,   "zero"}, // 10
 };
+
 
 /* Flags to turn on debugging code.
  */

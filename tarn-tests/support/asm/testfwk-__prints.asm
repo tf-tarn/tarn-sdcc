@@ -234,7 +234,6 @@ L___prints00104:
 	_main:
 ;	src/testfwk-__prints.c: 40: __prints("foobar");
 ;; genCast
-;; genAssign
 	lad	___prints_PARM_1
 	mov	mem il ,hi8(___str_0 + 0) ; hi
 	lad	___prints_PARM_1 + 1

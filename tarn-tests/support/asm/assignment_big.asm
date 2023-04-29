@@ -75,7 +75,6 @@ __sdcc_program_startup:
 	_main:
 ;	src/assignment_big.c: 3: const char *msg = "foo";
 ;; genCast
-;; genAssign
 	lad	_vvv
 	mov	mem il ,hi8(___str_0 + 0) ; hi
 	lad	_vvv + 1

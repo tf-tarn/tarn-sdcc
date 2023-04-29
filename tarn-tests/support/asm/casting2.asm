@@ -78,7 +78,7 @@ __sdcc_program_startup:
 	_main:
 ;	src/casting2.c: 5: val1 = pic;
 ;; genCast
-	lad	_val1
+	lad	_val1 + 0
 	mov	mem zero
 	lad	_val1 + 1
 	mov	mem pic

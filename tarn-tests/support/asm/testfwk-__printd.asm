@@ -39,6 +39,8 @@ ___printd_sloc2_1_0:
 	.ds	2
 ___printd_sloc3_1_0:
 	.ds	2
+___printd_sloc4_1_0:
+	.ds	2
 _main_PARM_1:
 	.ds	2
 _main_PARM_2:
@@ -366,12 +368,15 @@ L___printd00145:
 	mov	stack il ,lo8(L___printd00147)
 	goto	___mod
 L___printd00147:
-;	result: reg? mem? remat? spilt? nregs regs label
-;	        yes                     2     x,        
-	mov	r stack
-	mov	x stack
+	lad	___printd_sloc3_1_0 + 1
+	mov	mem stack
+	lad	___printd_sloc3_1_0 + 0
+	mov	mem stack
 ;; genCast
-; no need to copy a register to itself
+	lad	___printd_sloc3_1_0
+	mov	r zero
+	lad	___printd_sloc3_1_0 + 1
+	mov	r mem
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
@@ -405,16 +410,16 @@ L___printd00147:
 	mov	stack il ,lo8(L___printd00148)
 	goto	___div
 L___printd00148:
-	lad	___printd_sloc3_1_0 + 1
+	lad	___printd_sloc4_1_0 + 1
 	mov	mem stack
-	lad	___printd_sloc3_1_0 + 0
+	lad	___printd_sloc4_1_0 + 0
 	mov	mem stack
 ;; genAssign
-	lad	___printd_sloc3_1_0 + 0
+	lad	___printd_sloc4_1_0 + 0
 	mov	stack mem
 	lad	___printd_PARM_1 + 0
 	mov	mem stack
-	lad	___printd_sloc3_1_0 + 1
+	lad	___printd_sloc4_1_0 + 1
 	mov	stack mem
 	lad	___printd_PARM_1 + 1
 	mov	mem stack

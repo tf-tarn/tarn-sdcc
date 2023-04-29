@@ -92,8 +92,7 @@ __sdcc_program_startup:
 	mov	mem pic
 ;	src/shift_left_8.2.c: 8: val3 = (val1 << 8) + val2;
 ;; genCast
-	mov	x zero
-	lad	_val1
+	lad	_val1 + 0
 	mov	r mem
 ;; genLeftShift
 	lad	_main_sloc0_1_0 + 1

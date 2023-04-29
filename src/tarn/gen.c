@@ -1192,14 +1192,19 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
                 load_address_16(a1->aopu.aop_dir);
                 emit2("mov", "mem stack");
                 cost(2);
+            } else {
+                AOP_MOVE_DEBUG;
             }
         } else if (a1->size == 1) {
             if (a2->size == 2) {
                 // Move only low byte (this is a cast)
                 load_address_16o(a2->aopu.aop_dir, 1);
-                emit2("mov", "stack mem");
+                emit_mov("stack", "mem");
                 load_address_16(a1->aopu.aop_dir);
-                emit2("mov", "mem stack");
+                emit_mov("mem", "stack");
+                // But set high byte to zero
+                /* load_address_16o(a2->aopu.aop_dir, 0); */
+                /* emit_mov("mem", "zero"); */
                 cost(2);
             } else {
                 cost(10);
@@ -1220,8 +1225,25 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
             }
         }
     } else if (AOP_IS_SFR(a2)) {
-        load_address_16(a1->aopu.aop_dir);
-        emit_mov("mem", a2->aopu.aop_dir);
+        if (a1->size == a2->size) {
+            if (a1->size == 1) {
+                load_address_16(a1->aopu.aop_dir);
+                emit_mov("mem", a2->aopu.aop_dir);
+            } else if (a1->size == 2) {
+                
+            }
+        } else if (a1->size == 2) {
+            if (a2->size == 1) {
+                load_address_16o(a1->aopu.aop_dir, 0);
+                emit_mov("mem", "zero");
+                load_address_16o(a1->aopu.aop_dir, 1);
+                emit_mov("mem", a2->aopu.aop_dir);
+            } else {
+                AOP_MOVE_DEBUG;
+            }
+        } else {
+            AOP_MOVE_DEBUG;
+        }
     } else if (AOP_IS_SPILL(a2)) {
         for (int i = 0; i < a1->size; ++i) {
             load_address_16o(a2->aopu.immd, a2->aopu.immd_off + i);
@@ -1345,6 +1367,12 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
         } else if (AOP_IS_SPILL(a2) && a2->size == 1) {
             TRACE;
             load_address_16(a2->aopu.immd);
+            aop_move(a1, ASMOP_MEM);
+        } else if (AOP_IS_SPILL(a2) && a2->size == 2) {
+            TRACE;
+            load_address_16(a2->aopu.immd);
+            aop_move(a1, ASMOP_ZERO);
+            load_address_16o(a2->aopu.immd, 1);
             aop_move(a1, ASMOP_MEM);
         } else {
             AOP_MOVE_DEBUG;
@@ -1525,11 +1553,17 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
             } else if (AOP_IS_IMMEDIATE(a2)) {
                 if (index == 0) {
                     emit2("mov", "%s il ,lo8(%s + %d)", a1->aopu.aop_dir, a2->aopu.immd, a2->aopu.immd_off);
+                    cost(1);
                 } else if (index == 1) {
                     emit2("mov", "%s il ,hi8(%s + %d)", a1->aopu.aop_dir, a2->aopu.immd, a2->aopu.immd_off);
+                    cost(1);
                 } else {
                     AOP_MOVE_DEBUG;
                 }
+            } else if (AOP_IS_SPILL(a2)) {
+                TRACE;
+                load_address_16o(a2->aopu.immd, a2->aopu.immd_off + index);
+                aop_move(a1, ASMOP_MEM);
             } else {
                 AOP_MOVE_DEBUG;
             }
@@ -1577,6 +1611,7 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                 emit_mov(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.aop_dir);
             } else if (AOP_IS_IMMEDIATE(a2)) {
                 emit2("mov", "%s il ,%s + %d", a1->aopu.bytes[0].byteu.reg->name, a2->aopu.immd, a2->aopu.immd_off + index);
+                cost(1);
                 /* emit2(";", "implement reg <- immediate"); */
                 /* load_address_16o(a2->aopu.immd, a2->aopu.immd_off + index); */
                 /* aop_move(a1, ASMOP_MEM); */
@@ -2126,41 +2161,7 @@ static void genPointerGet(iCode *ic) {
                     } else if (is_mem(left)) {
                         emit_macro_load_address_from_ptr(op_get_mem_label(left));
                         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-
-                        /* { // read 2 to stack */
-                        /*     load_address_16o(op_get_mem_label(left), 0); */
-                        /*     emit2("mov", "stack mem"); */
-                        /*     load_address_16o(op_get_mem_label(left), 1); */
-                        /*     emit2("mov", "stack mem"); */
-                        /*     cost(2); */
-                        /* } */
-                        /* emit2("mov", "adl stack"); */
-                        /* emit2("mov", "adh stack"); */
-                        /* emit2("mov", "stack mem"); */
-                        /* cost(3); */
-
-                        /* { // read 2 to stack */
-                        /*     load_address_16o(op_get_mem_label(left), 0); */
-                        /*     emit2("mov", "stack mem"); */
-                        /*     load_address_16o(op_get_mem_label(left), 1); */
-                        /*     emit2("mov", "stack mem"); */
-                        /*     cost(2); */
-                        /* } */
-
-                        /* emit2("add_16s_8", "%d", 1); */
-
-                        /* emit2("mov", "adl stack"); */
-                        /* emit2("mov", "adh stack"); */
-                        /* emit2("mov", "stack mem"); */
-
-                        /* emit2("mov", "adl stack"); */
-                        /* emit2("mov", "adh stack"); */
-
-                        /* cost(5); */
-
-
                         read_reg("mem", result);
-
                     } else if (is_reg(left)) {
                         emit2("lad", "%s",     op_get_mem_label(result));
                         emit2("mov", "mem %s", op_get_register_name_i(left, 0));
@@ -2361,8 +2362,7 @@ static void genPointerSet(iCode *ic) {
                 D2(printf("has remat: %s + %d\n", result->name, result->offset));
                 emit2("mov", "adh il ,hi8(%s + %d)", result->name, result->offset);
                 emit2("mov", "adl il ,lo8(%s + %d)", result->name, result->offset);
-                /* emit2("mov", "mem il ,%d", val); */
-                cost(3);
+                cost(2);
             } else if (OP_SYMBOL(left)->isspilt) {
                 // left has the address to write to
                 // right is the value to write
@@ -2733,8 +2733,15 @@ static void genCast(iCode *ic) {
     operand *result = IC_RESULT (ic);
     operand *right = IC_RIGHT (ic);
 
+    aopOp(result);
+    aopOp(right);
+    aop_move(result->aop, right->aop);
+    return;
+
     int size_result = operandSize(result);
     int size_right = operandSize(right);
+
+    
 
     if (size_result == 2 && size_right == 1) {
         if (is_mem(result)) {
@@ -2783,11 +2790,6 @@ static void genCast(iCode *ic) {
                 aopOp(result);
                 aopOp(right);
                 aop_move(result->aop, right->aop);
-                /* // store only low byte */
-                /* load_address_16o(op_get_mem_label(right), 1); */
-                /* emit_mov("stack", "mem"); */
-                /* load_address_16(op_get_mem_label(result)); */
-                /* emit_mov("mem", "stack"); */
             } else if (is_reg(result)) {
                 aopOp(result);
                 aopOp(right);
@@ -3023,9 +3025,9 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
             }
         } else {
-            cost(1);
             aop_move(ASMOP_ALUA, left);
             emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
+            cost(1);
             if (right) {
                 aop_move(ASMOP_ALUB, right);
             }

@@ -82,7 +82,7 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	lad	_index
+	lad	_index + 0
 	mov	stack mem
 	add_8s_16	_array
 	lad	_main_sloc0_1_0 + 0
@@ -100,10 +100,10 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	lad	_index
+	lad	_index + 0
 	mov	stack mem
 	add_8s_16	_array
-;	no need to move registers to themselves
+;	Not moving register r to itself.
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adl r

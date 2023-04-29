@@ -101,7 +101,7 @@ L_crc8_one00106:
 L_crc8_one00125:
 ;	src/crc8.c: 10: if (crc & 0x80)
 ;; genAssign
-	lad	_crc8_one_PARM_1
+	lad	_crc8_one_PARM_1 + 0
 	mov	x mem
 ;; genALUOp
 ;;	ALU and (0)
@@ -188,9 +188,9 @@ L_crc8_one00104:
 L_crc800103:
 ;; genCmp
 	mov	alus il ,9	; less-than 
-	lad	_crc8_sloc0_1_0
+	lad	_crc8_sloc0_1_0 + 0
 	mov	alua mem
-	lad	_crc8_PARM_2
+	lad	_crc8_PARM_2 + 0
 	mov	alub mem
 	mov	test aluc
 ;; genIfx
@@ -232,12 +232,12 @@ L_crc800120:
 L_crc800121:
 	mov	r stack
 ;; genAssign
-;	Not moving register r to itself...
+;	Not moving register r to itself.
 ;	src/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_crc8_sloc0_1_0
+	lad	_crc8_sloc0_1_0 + 0
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1

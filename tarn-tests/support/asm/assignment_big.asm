@@ -83,9 +83,11 @@ __sdcc_program_startup:
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	lad	_vvv + 0
-	mov	adh mem
+	mov	stack mem
 	lad	_vvv + 1
-	mov	adl mem
+	mov	stack mem
+	mov	adl stack
+	mov	adh stack
 	mov	r mem
 	mov	jmpl stack
 	mov	jmph stack

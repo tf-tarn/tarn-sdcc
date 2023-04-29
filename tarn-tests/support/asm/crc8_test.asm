@@ -90,7 +90,7 @@ L_crc8_one00106:
 L_crc8_one00125:
 ;	src/crc8_test.c: 12: if (crc & 0x80)
 ;; genAssign
-	lad	_crc8_one_PARM_1
+	lad	_crc8_one_PARM_1 + 0
 	mov	x mem
 ;; genALUOp
 ;;	ALU and (0)

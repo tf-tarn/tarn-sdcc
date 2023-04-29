@@ -83,7 +83,7 @@ __sdcc_program_startup:
 ;	src/2.c: 4: switch(which) {
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-	lad	_multiply_or_divide_PARM_1
+	lad	_multiply_or_divide_PARM_1 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	test aluc
@@ -91,7 +91,7 @@ __sdcc_program_startup:
 	gotonz	L_multiply_or_divide00101
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-	lad	_multiply_or_divide_PARM_1
+	lad	_multiply_or_divide_PARM_1 + 0
 	mov	alua mem
 	mov	alub il ,1
 	mov	test aluc

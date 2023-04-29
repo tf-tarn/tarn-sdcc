@@ -103,7 +103,7 @@ __sdcc_program_startup:
 ;	src/parse_hex_digit.c: 4: if (c >= '0' && c <= '9') {
 ;; genCmp
 	mov	alus il ,9	; less-than 
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	alua mem
 	mov	alub il ,48
 	mov	test aluc
@@ -111,7 +111,7 @@ __sdcc_program_startup:
 	gotonz	L_parse_hex_digit00102
 ;; genCmp
 	mov	alus il ,11	; greater-than 
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	alua mem
 	mov	alub il ,57
 	mov	test aluc
@@ -121,7 +121,7 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 1 1 1
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,208
@@ -135,7 +135,7 @@ L_parse_hex_digit00102:
 ;	src/parse_hex_digit.c: 7: if (c >= 'a' && c <= 'f') {
 ;; genCmp
 	mov	alus il ,9	; less-than 
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	alua mem
 	mov	alub il ,97
 	mov	test aluc
@@ -143,7 +143,7 @@ L_parse_hex_digit00102:
 	gotonz	L_parse_hex_digit00105
 ;; genCmp
 	mov	alus il ,11	; greater-than 
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	alua mem
 	mov	alub il ,102
 	mov	test aluc
@@ -153,7 +153,7 @@ L_parse_hex_digit00102:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,169
@@ -167,7 +167,7 @@ L_parse_hex_digit00105:
 ;	src/parse_hex_digit.c: 10: if (c >= 'A' && c <= 'F') {
 ;; genCmp
 	mov	alus il ,9	; less-than 
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	alua mem
 	mov	alub il ,65
 	mov	test aluc
@@ -175,7 +175,7 @@ L_parse_hex_digit00105:
 	gotonz	L_parse_hex_digit00108
 ;; genCmp
 	mov	alus il ,11	; greater-than 
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	alua mem
 	mov	alub il ,70
 	mov	test aluc
@@ -185,7 +185,7 @@ L_parse_hex_digit00105:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,201
@@ -224,7 +224,7 @@ L_parse_hex_digit00108:
 L_main00103:
 	mov	r stack
 ;; genAssign
-;	Not moving register r to itself...
+;	Not moving register r to itself.
 ;	src/parse_hex_digit.c: 20: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -245,7 +245,7 @@ L_main00103:
 L_main00104:
 	mov	r stack
 ;; genAssign
-;	Not moving register r to itself...
+;	Not moving register r to itself.
 ;	src/parse_hex_digit.c: 22: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -266,7 +266,7 @@ L_main00104:
 L_main00105:
 	mov	r stack
 ;; genAssign
-;	Not moving register r to itself...
+;	Not moving register r to itself.
 ;	src/parse_hex_digit.c: 24: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -287,7 +287,7 @@ L_main00105:
 L_main00106:
 	mov	r stack
 ;; genAssign
-;	Not moving register r to itself...
+;	Not moving register r to itself.
 ;	src/parse_hex_digit.c: 26: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -308,7 +308,7 @@ L_main00106:
 L_main00107:
 	mov	r stack
 ;; genAssign
-;	Not moving register r to itself...
+;	Not moving register r to itself.
 ;	src/parse_hex_digit.c: 28: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -329,7 +329,7 @@ L_main00107:
 L_main00108:
 	mov	r stack
 ;; genAssign
-;	Not moving register r to itself...
+;	Not moving register r to itself.
 ;	src/parse_hex_digit.c: 30: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14

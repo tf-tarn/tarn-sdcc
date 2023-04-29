@@ -123,12 +123,12 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 11: array[index++] = '5';
 ;; genAssign
-	lad	_index
+	lad	_index + 0
 	mov	r mem
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_index
+	lad	_index + 0
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
@@ -152,12 +152,12 @@ __sdcc_program_startup:
 	mov	mem il ,53
 ;	src/write_array.c: 12: array[index++] = '4';
 ;; genAssign
-	lad	_index
+	lad	_index + 0
 	mov	r mem
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_index
+	lad	_index + 0
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
@@ -181,12 +181,12 @@ __sdcc_program_startup:
 	mov	mem il ,52
 ;	src/write_array.c: 13: array[index++] = '3';
 ;; genAssign
-	lad	_index
+	lad	_index + 0
 	mov	r mem
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_index
+	lad	_index + 0
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
@@ -210,14 +210,14 @@ __sdcc_program_startup:
 	mov	mem il ,51
 ;	src/write_array.c: 14: array[index++] = '2';
 ;; genAssign
-	lad	_index
+	lad	_index + 0
 	mov	stack mem
 	lad	_main_sloc3_1_0 + 0
 	mov	mem stack
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_index
+	lad	_index + 0
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
@@ -242,14 +242,14 @@ __sdcc_program_startup:
 	mov	mem il ,50
 ;	src/write_array.c: 15: array[index++] = '1';
 ;; genAssign
-	lad	_index
+	lad	_index + 0
 	mov	stack mem
 	lad	_main_sloc5_1_0 + 0
 	mov	mem stack
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 1 1 1
-	lad	_index
+	lad	_index + 0
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1

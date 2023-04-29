@@ -96,7 +96,7 @@ __sdcc_program_startup:
 L_main00103:
 	mov	r stack
 ;; genAssign
-;	Not moving register r to itself...
+;	Not moving register r to itself.
 ;	src/function_non-void.c: 6: return val;
 	mov	jmpl stack
 	mov	jmph stack

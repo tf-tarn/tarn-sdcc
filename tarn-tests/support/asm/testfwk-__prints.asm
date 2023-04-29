@@ -40,7 +40,9 @@ _main_PARM_2:
 ;--------------------------------------------------------
 	.area	_overlay
 ___prints_sloc0_1_0:
-	.ds	2
+	.ds	1
+___prints_sloc1_1_0:
+	.ds	1
 ;--------------------------------------------------------
 ; Stack segment in internal ram
 ;--------------------------------------------------------
@@ -87,8 +89,8 @@ __sdcc_program_startup:
 	___div:
 ;	src/testfwk-__prints.c: 9: while (num >= denom)
 ;; genAssign
-	mov	r il ,0
-	mov	x il ,0
+	mov	r zero
+	mov	x zero
 ;; genLabel
 L___div00101:
 ;; genCmp
@@ -101,7 +103,7 @@ L___div00101:
 	mov	stack x
 	mov	stack r
 	add_16s_8	1
-;	no need to move registers to themselves
+;	Not moving register r to itself.
 ;	src/testfwk-__prints.c: 12: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)
@@ -176,47 +178,44 @@ L___mod00103:
 	___prints:
 ;	src/testfwk-__prints.c: 32: while ('\0' != (c = *s))
 ;; genAssign
-	lad	___prints_PARM_1
-	mov	stack mem
-	lad	___prints_sloc0_1_0 + 0
-	mov	mem stack
+	lad	___prints_PARM_1 + 0
+	mov	x mem
 	lad	___prints_PARM_1 + 1
-	mov	stack mem
-	lad	___prints_sloc0_1_0 + 1
-	mov	mem stack
+	mov	r mem
 ;; genLabel
 L___prints00101:
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          ___prints_sloc0_1_0
-	load_address_from_ptr	___prints_sloc0_1_0
-	mov	r mem
+	mov	adl r
+	mov	adh x
+	mov	stack mem
+	lad	___prints_sloc0_1_0 + 0
+	mov	mem stack
 ;; genAssign
-	mov	x r
+	lad	___prints_sloc0_1_0 + 0
+	mov	stack mem
+	lad	___prints_sloc1_1_0 + 0
+	mov	mem stack
 ;; genIfx
-	mov	alua r
+;	load_reg: spilt
+	lad	___prints_sloc0_1_0
+	mov	alua mem
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
 	gotonz	L___prints00104
 ;	src/testfwk-__prints.c: 34: pic = c;
 ;; genAssign
-	mov	pic x
+	lad	___prints_sloc1_1_0 + 0
+	mov	pic mem
 ;	src/testfwk-__prints.c: 35: ++s;
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	lad	___prints_sloc0_1_0 + 0
-	mov	stack mem
-	lad	___prints_sloc0_1_0 + 1
-	mov	stack mem
+	mov	stack x
+	mov	stack r
 	add_16s_8	1
-	lad	___prints_sloc0_1_0 + 0
-	mov	mem x
-	lad	___prints_sloc0_1_0 + 1
-	mov	mem r
-	restore_rx
+;	Not moving register r to itself.
 ;; genGoto
 	goto	L___prints00101
 ;; genLabel

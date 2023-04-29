@@ -166,7 +166,7 @@ L_main00103:
 ;	src/string_loop_function.c: 24: switch (var) {
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-	lad	_var
+	lad	_var + 0
 	mov	alua mem
 	mov	alub zero
 	mov	test aluc
@@ -174,7 +174,7 @@ L_main00103:
 	gotonz	L_main00104
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-	lad	_var
+	lad	_var + 0
 	mov	alua mem
 	mov	alub il ,1
 	mov	test aluc
@@ -182,7 +182,7 @@ L_main00103:
 	gotonz	L_main00105
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-	lad	_var
+	lad	_var + 0
 	mov	alua mem
 	mov	alub il ,2
 	mov	test aluc

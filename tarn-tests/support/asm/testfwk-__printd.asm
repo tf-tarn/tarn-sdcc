@@ -33,13 +33,13 @@ ___printd_PARM_1:
 	.ds	2
 ___printd_buf_131072_13:
 	.ds	6
-___printd_sloc1_1_0:
-	.ds	1
 ___printd_sloc2_1_0:
-	.ds	2
+	.ds	1
 ___printd_sloc3_1_0:
 	.ds	2
 ___printd_sloc4_1_0:
+	.ds	2
+___printd_sloc5_1_0:
 	.ds	2
 _main_PARM_1:
 	.ds	2
@@ -54,7 +54,9 @@ _main_PARM_2:
 ;--------------------------------------------------------
 	.area	_overlay
 ___prints_sloc0_1_0:
-	.ds	2
+	.ds	1
+___prints_sloc1_1_0:
+	.ds	1
 ;--------------------------------------------------------
 ; Stack segment in internal ram
 ;--------------------------------------------------------
@@ -101,8 +103,8 @@ __sdcc_program_startup:
 	___div:
 ;	src/testfwk-__printd.c: 9: while (num >= denom) {
 ;; genAssign
-	mov	r il ,0
-	mov	x il ,0
+	mov	r zero
+	mov	x zero
 ;; genLabel
 L___div00101:
 ;; genCmp
@@ -115,7 +117,7 @@ L___div00101:
 	mov	stack x
 	mov	stack r
 	add_16s_8	1
-;	no need to move registers to themselves
+;	Not moving register r to itself.
 ;	src/testfwk-__printd.c: 11: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)
@@ -190,47 +192,44 @@ L___mod00103:
 	___prints:
 ;	src/testfwk-__printd.c: 30: while ('\0' != (c = *s)) {
 ;; genAssign
-	lad	___prints_PARM_1
-	mov	stack mem
-	lad	___prints_sloc0_1_0 + 0
-	mov	mem stack
+	lad	___prints_PARM_1 + 0
+	mov	x mem
 	lad	___prints_PARM_1 + 1
-	mov	stack mem
-	lad	___prints_sloc0_1_0 + 1
-	mov	mem stack
+	mov	r mem
 ;; genLabel
 L___prints00101:
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
-;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          ___prints_sloc0_1_0
-	load_address_from_ptr	___prints_sloc0_1_0
-	mov	r mem
+	mov	adl r
+	mov	adh x
+	mov	stack mem
+	lad	___prints_sloc0_1_0 + 0
+	mov	mem stack
 ;; genAssign
-	mov	x r
+	lad	___prints_sloc0_1_0 + 0
+	mov	stack mem
+	lad	___prints_sloc1_1_0 + 0
+	mov	mem stack
 ;; genIfx
-	mov	alua r
+;	load_reg: spilt
+	lad	___prints_sloc0_1_0
+	mov	alua mem
 	mov	alus il ,10	; equal-to 
 	mov	alub zero
 	mov	test aluc
 	gotonz	L___prints00104
 ;	src/testfwk-__printd.c: 31: pic = c;
 ;; genAssign
-	mov	pic x
+	lad	___prints_sloc1_1_0 + 0
+	mov	pic mem
 ;	src/testfwk-__printd.c: 32: ++s;
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	lad	___prints_sloc0_1_0 + 0
-	mov	stack mem
-	lad	___prints_sloc0_1_0 + 1
-	mov	stack mem
+	mov	stack x
+	mov	stack r
 	add_16s_8	1
-	lad	___prints_sloc0_1_0 + 0
-	mov	mem x
-	lad	___prints_sloc0_1_0 + 1
-	mov	mem r
-	restore_rx
+;	Not moving register r to itself.
 ;; genGoto
 	goto	L___prints00101
 ;; genLabel
@@ -275,7 +274,7 @@ L___printd00109:
 ;	src/testfwk-__printd.c: 43: char MEMSPACE_BUF *p = &buf[sizeof (buf) - 1];
 ;	src/testfwk-__printd.c: 44: char neg = 0;
 ;; genAssign
-	lad	___printd_sloc1_1_0 + 0
+	lad	___printd_sloc2_1_0 + 0
 	mov	mem zero
 ;	src/testfwk-__printd.c: 46: buf[sizeof(buf) - 1] = '\0';
 ;; genPointerSet
@@ -304,15 +303,15 @@ L___printd00109:
 	restore_rx
 ;	src/testfwk-__printd.c: 50: neg = 1;
 ;; genAssign
-	lad	___printd_sloc1_1_0 + 0
+	lad	___printd_sloc2_1_0 + 0
 	mov	mem il ,1
 ;	src/testfwk-__printd.c: 53: while (0 != n) {
 ;; genLabel
 L___printd00116:
 ;; genAssign
-	lad	___printd_sloc2_1_0 + 0
+	lad	___printd_sloc3_1_0 + 0
 	mov	mem il ,hi8(___printd_buf_131072_13 + 5)
-	lad	___printd_sloc2_1_0 + 1
+	lad	___printd_sloc3_1_0 + 1
 	mov	mem il ,lo8(___printd_buf_131072_13 + 5)
 ;; genLabel
 L___printd00103:
@@ -338,14 +337,14 @@ L___printd00145:
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 2 2 1
-	lad	___printd_sloc2_1_0 + 0
+	lad	___printd_sloc3_1_0 + 0
 	mov	stack mem
-	lad	___printd_sloc2_1_0 + 1
+	lad	___printd_sloc3_1_0 + 1
 	mov	stack mem
 	add_16s_16l	65535
-	lad	___printd_sloc2_1_0 + 0
+	lad	___printd_sloc3_1_0 + 0
 	mov	mem x
-	lad	___printd_sloc2_1_0 + 1
+	lad	___printd_sloc3_1_0 + 1
 	mov	mem r
 	restore_rx
 ;	src/testfwk-__printd.c: 55: *p = '0' + __mod (n, 10);
@@ -368,14 +367,14 @@ L___printd00145:
 	mov	stack il ,lo8(L___printd00147)
 	goto	___mod
 L___printd00147:
-	lad	___printd_sloc3_1_0 + 1
+	lad	___printd_sloc4_1_0 + 1
 	mov	mem stack
-	lad	___printd_sloc3_1_0 + 0
+	lad	___printd_sloc4_1_0 + 0
 	mov	mem stack
 ;; genCast
-	lad	___printd_sloc3_1_0
+	lad	___printd_sloc4_1_0
 	mov	r zero
-	lad	___printd_sloc3_1_0 + 1
+	lad	___printd_sloc4_1_0 + 1
 	mov	r mem
 ;; genALUOp
 ;;	ALU plus (4)
@@ -387,8 +386,8 @@ L___printd00147:
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
 ;	left: reg? mem? remat? spilt? nregs regs label
-;	           yes         yes    2          ___printd_sloc2_1_0
-	load_address_from_ptr	___printd_sloc2_1_0
+;	           yes         yes    2          ___printd_sloc3_1_0
+	load_address_from_ptr	___printd_sloc3_1_0
 	mov	mem r
 ;	src/testfwk-__printd.c: 56: n = __div (n, 10);
 ;; genAssign
@@ -410,16 +409,16 @@ L___printd00147:
 	mov	stack il ,lo8(L___printd00148)
 	goto	___div
 L___printd00148:
-	lad	___printd_sloc4_1_0 + 1
+	lad	___printd_sloc5_1_0 + 1
 	mov	mem stack
-	lad	___printd_sloc4_1_0 + 0
+	lad	___printd_sloc5_1_0 + 0
 	mov	mem stack
 ;; genAssign
-	lad	___printd_sloc4_1_0 + 0
+	lad	___printd_sloc5_1_0 + 0
 	mov	stack mem
 	lad	___printd_PARM_1 + 0
 	mov	mem stack
-	lad	___printd_sloc4_1_0 + 1
+	lad	___printd_sloc5_1_0 + 1
 	mov	stack mem
 	lad	___printd_PARM_1 + 1
 	mov	mem stack
@@ -428,14 +427,14 @@ L___printd00148:
 ;; genLabel
 L___printd00118:
 ;; genAssign
-	lad	___printd_sloc2_1_0 + 0
+	lad	___printd_sloc3_1_0 + 0
 	mov	x mem
-	lad	___printd_sloc2_1_0 + 1
+	lad	___printd_sloc3_1_0 + 1
 	mov	r mem
 ;	src/testfwk-__printd.c: 59: if (neg)
 ;; genIfx
 ;	load_reg: spilt
-	lad	___printd_sloc1_1_0
+	lad	___printd_sloc2_1_0
 	mov	alua mem
 	mov	alus il ,10	; equal-to 
 	mov	alub zero

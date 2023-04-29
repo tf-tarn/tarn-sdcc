@@ -63,27 +63,23 @@ typedef struct asmop_byte
 
 /* asmop: A homogenised type for all the different
    spaces an operand can be in */
-typedef struct asmop
-{
-  AOP_TYPE type;
-  short size;
+typedef struct asmop {
+    AOP_TYPE type;
+    short size;
     bool regalloc_dry_run;
-  union
-  {
-    value *aop_lit;
-    struct
-      {
-        char *immd;
-        int immd_off;
-        bool code; /* in code space */
-        bool func; /* function address */
-      };
-    char *aop_dir;
-    int stk_off;
-    asmop_byte bytes[8];
-  } aopu;
-}
-asmop;
+    union {
+        value *aop_lit;
+        struct {
+            char *immd;
+            int immd_off;
+            bool code; /* in code space */
+            bool func; /* function address */
+        };
+        char *aop_dir;
+        int stk_off;
+        asmop_byte bytes[8];
+    } aopu;
+} asmop;
 
 void genTarnCode (iCode *);
 void tarn_emitDebuggerSymbol (const char *);

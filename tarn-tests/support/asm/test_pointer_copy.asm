@@ -96,9 +96,11 @@ __sdcc_program_startup:
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	lad	_vvv + 0
-	mov	adh mem
+	mov	stack mem
 	lad	_vvv + 1
-	mov	adl mem
+	mov	stack mem
+	mov	adl stack
+	mov	adh stack
 	mov	pic mem
 ;	src/test_pointer_copy.c: 22: pic = vvv[(char)1];
 ;; genALUOp
@@ -109,7 +111,7 @@ __sdcc_program_startup:
 	lad	_vvv + 1
 	mov	stack mem
 	add_16s_8	1
-;	no need to move registers to themselves
+;	Not moving register r to itself.
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adl r

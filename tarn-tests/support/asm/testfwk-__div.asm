@@ -78,8 +78,8 @@ __sdcc_program_startup:
 	___div:
 ;	src/testfwk-__div.c: 7: while (num >= denom)
 ;; genAssign
-	mov	r il ,0
-	mov	x il ,0
+	mov	r zero
+	mov	x zero
 ;; genLabel
 L___div00101:
 ;; genCmp
@@ -92,7 +92,7 @@ L___div00101:
 	mov	stack x
 	mov	stack r
 	add_16s_8	1
-;	no need to move registers to themselves
+;	Not moving register r to itself.
 ;	src/testfwk-__div.c: 10: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)

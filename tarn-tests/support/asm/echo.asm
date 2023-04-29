@@ -82,7 +82,7 @@ L_main00104:
 ;	src/echo.c: 9: if (byte != 0xff) {
 ;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
-	lad	_main_byte_65536_2
+	lad	_main_byte_65536_2 + 0
 	mov	alua mem
 	mov	alub il ,255
 	mov	test aluc

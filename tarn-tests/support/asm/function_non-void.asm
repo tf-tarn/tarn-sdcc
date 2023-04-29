@@ -97,8 +97,6 @@ L_main00103:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
-; genAssign: aop_move didn't work
-;	genAssign: registers r, r same; skipping assignment
 ;	src/function_non-void.c: 6: return val;
 	mov	jmpl stack
 	mov	jmph stack

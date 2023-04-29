@@ -225,8 +225,6 @@ L_main00103:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
-; genAssign: aop_move didn't work
-;	genAssign: registers r, r same; skipping assignment
 ;	src/parse_hex_digit.c: 20: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -248,8 +246,6 @@ L_main00104:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
-; genAssign: aop_move didn't work
-;	genAssign: registers r, r same; skipping assignment
 ;	src/parse_hex_digit.c: 22: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -271,8 +267,6 @@ L_main00105:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
-; genAssign: aop_move didn't work
-;	genAssign: registers r, r same; skipping assignment
 ;	src/parse_hex_digit.c: 24: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -294,8 +288,6 @@ L_main00106:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
-; genAssign: aop_move didn't work
-;	genAssign: registers r, r same; skipping assignment
 ;	src/parse_hex_digit.c: 26: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -317,8 +309,6 @@ L_main00107:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
-; genAssign: aop_move didn't work
-;	genAssign: registers r, r same; skipping assignment
 ;	src/parse_hex_digit.c: 28: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14
@@ -340,8 +330,6 @@ L_main00108:
 	mov	r stack
 ;; genAssign
 ;	Not moving register r to itself...
-; genAssign: aop_move didn't work
-;	genAssign: registers r, r same; skipping assignment
 ;	src/parse_hex_digit.c: 30: pic = 0x0e; pic = c; pic = 0x0f; pic = '\n';
 ;; genAssign
 	mov	pic il ,14

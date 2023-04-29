@@ -151,9 +151,10 @@ L_main00103:
 ;; genGetByte      = 
 ;	left operand AOP_REG
 ;	  size = 2
+;	  registers = x r 
 ;	right operand AOP_LIT
 ;	  size = 2
-;	  value = 08 00 
+;	  value = 00 08 
 ;	result operand AOP_SFR
 ;	  size = 1
 ;	offset = 1, 0
@@ -190,9 +191,10 @@ L_main00104:
 ;; genGetByte      = 
 ;	left operand AOP_REG
 ;	  size = 2
+;	  registers = x r 
 ;	right operand AOP_LIT
 ;	  size = 2
-;	  value = 08 00 
+;	  value = 00 08 
 ;	result operand AOP_SFR
 ;	  size = 1
 ;	offset = 1, 0
@@ -229,9 +231,10 @@ L_main00105:
 ;; genGetByte      = 
 ;	left operand AOP_REG
 ;	  size = 2
+;	  registers = x r 
 ;	right operand AOP_LIT
 ;	  size = 2
-;	  value = 08 00 
+;	  value = 00 08 
 ;	result operand AOP_SFR
 ;	  size = 1
 ;	offset = 1, 0
@@ -268,9 +271,10 @@ L_main00106:
 ;; genGetByte      = 
 ;	left operand AOP_REG
 ;	  size = 2
+;	  registers = x r 
 ;	right operand AOP_LIT
 ;	  size = 2
-;	  value = 08 00 
+;	  value = 00 08 
 ;	result operand AOP_SFR
 ;	  size = 1
 ;	offset = 1, 0

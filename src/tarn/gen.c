@@ -160,6 +160,7 @@ static struct asmop asmop_x;
 static struct asmop asmop_rx;
 static struct asmop asmop_xr;
 static struct asmop asmop_adhl;
+static struct asmop asmop_adl;
 static struct asmop asmop_zero;
 static struct asmop asmop_one;
 static struct asmop asmop_two;
@@ -174,6 +175,7 @@ static struct asmop *const ASMOP_R = &asmop_r;
 static struct asmop *const ASMOP_X = &asmop_x;
 static struct asmop *const ASMOP_RX = &asmop_rx;
 static struct asmop *const ASMOP_XR = &asmop_xr;
+static struct asmop *const ASMOP_ADL = &asmop_adl;
 static struct asmop *const ASMOP_ADHL = &asmop_adhl;
 static struct asmop *const ASMOP_ZERO = &asmop_zero;
 static struct asmop *const ASMOP_ONE = &asmop_one;
@@ -184,6 +186,35 @@ static struct asmop *const ASMOP_ALUB = &asmop_alub;
 static struct asmop *const ASMOP_ALUC = &asmop_aluc;
 static struct asmop *const ASMOP_MEM = &asmop_mem;
 static struct asmop *const ASMOP_STACK = &asmop_stack;
+
+struct register_asmop_map_entry_t {
+    const char *name;
+    const asmop *const op;
+};
+
+struct register_asmop_map_entry_t register_asmop_map[] = {
+    { "adl", ASMOP_ADL },
+    { "alua", ASMOP_ALUA },
+    { "alub", ASMOP_ALUA },
+    { "aluc", ASMOP_ALUA },
+    { "mem", ASMOP_ALUA },
+    { "r", ASMOP_R },
+    { "rx", ASMOP_RX },
+    { "stack", ASMOP_ALUA },
+    { "x", ASMOP_X },
+    { "xr", ASMOP_XR },
+    { 0, 0 }
+};
+
+const asmop *const get_register_asmop(const char *name) {
+    for (unsigned i = 0; register_asmop_map[i].name; ++i) {
+        if (!strcmp(name, register_asmop_map[i].name)) {
+            return register_asmop_map[i].op;
+        }
+    }
+
+    return NULL;
+}
 
 void
 tarn_init_asmops (void)
@@ -222,6 +253,11 @@ tarn_init_asmops (void)
   asmop_stack.size = 1;
   asmop_stack.aopu.bytes[0].in_reg = true;
   asmop_stack.aopu.bytes[0].byteu.reg = tarn_regs + STACK_IDX;
+
+  asmop_adl.type = AOP_REG;
+  asmop_adl.size = 1;
+  asmop_adl.aopu.bytes[0].in_reg = true;
+  asmop_adl.aopu.bytes[0].byteu.reg = tarn_regs + ADL_IDX;
 
   asmop_rx.type = AOP_REG;
   asmop_rx.size = 2;
@@ -745,7 +781,7 @@ void emit_asmop(const char *label, asmop *aop) {
         switch (aop->type) {
         case AOP_LIT:
             *buf = 0;
-            for (int i = 0; i < aop->size; ++i) {
+            for (int i = aop->size - 1; i >= 0; i--) {
                 sprintf(buf + strlen(buf), "%02x ", byteOfVal(aop->aopu.aop_lit, i));
             }
             emit2(";", "  value = %s", buf);
@@ -763,9 +799,15 @@ void emit_asmop(const char *label, asmop *aop) {
         case AOP_CODE:
         case AOP_DUMMY:
         case AOP_INVALID:
-        case AOP_REG:
         case AOP_REGDIR:
         case AOP_SFR:
+            break;
+        case AOP_REG:
+            *buf = 0;
+            for (int i = aop->size - 1; i >= 0; i--) {
+                sprintf(buf + strlen(buf), "%s ", aop->aopu.bytes[i].byteu.reg->name);
+            }
+            emit2(";", "  registers = %s", buf);
             break;
         case AOP_STL:
             emit2(";", "  other");
@@ -1354,7 +1396,6 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
 }
 
 static bool aop_move(asmop *a1, asmop *a2) {
-       
     if (AOP_IS_SPILL(a1)) {
         return aop_move_spill(a1, a2);
     }
@@ -2264,12 +2305,23 @@ static void genPointerSet(iCode *ic) {
                 print_op_diagnostics("right", right);
                 print_op_diagnostics("left ", left);
             } else if (is_reg(left)) {
-                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
-                load_reg("stack", right);
-                emit2("mov", "adh zero");
-                emit2("mov", "adl %s", op_get_register_name(left));
-                emit2("mov", "mem stack");
-                cost(3);
+                aopOp(left);
+                aopOp(right);
+                emit_asmop("left", left->aop);
+                emit_asmop("right", right->aop);
+                // we need to move the thing in right to the memory
+                // location pointed to by left
+                if (size_right == 1) {
+                    /* aop_move(ASMOP_STACK, right->aop); */
+                    load_reg("stack", right);
+                    emit2("mov", "adh zero");
+                    aop_move(ASMOP_ADL, left->aop);
+                    emit2("mov", "adl %s", op_get_register_name(left));
+                    emit2("mov", "mem stack");
+                    cost(3);
+                } else {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                }
             } else if (is_mem(left)) {
                 // left has the address to write to
                 // right is the value to write
@@ -2535,9 +2587,9 @@ genAssign (iCode *ic)
     aopOp(result);
     aopOp(right);
 
-    if (aop_move(result->aop, right->aop)) {
-        return;
-    }
+    aop_move(result->aop, right->aop);
+    return;
+
     emit2("", "; genAssign: aop_move didn't work");
 
     int size_result = operandSize(result);
@@ -2700,7 +2752,11 @@ static void genCast(iCode *ic) {
                 load_address_16o(op_get_mem_label(result), 1);
                 load_reg("mem", right);
             } else if (is_reg(result)) {
-                emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                emit2("", "; implement me (%s:%d)     vvvvv", __FILE__, __LINE__);
+                aopOp(result);
+                aopOp(right);
+                aop_move(result->aop, right->aop);
+                emit2("", "; implement me (%s:%d)     ^^^^^", __FILE__, __LINE__);
             } else {
                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
             }
@@ -3232,6 +3288,10 @@ genLeftShift (const iCode *ic)
 
     if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genLeftShift", ic); }
 
+    aopOp(left);
+    aopOp(right);
+    aopOp(result);
+
     if (IS_OP_LITERAL(right)) {
         if (byteOfVal(OP_VALUE(right), 0) == 1) {
             // one bit, multiply by two, ie. add self to self.
@@ -3280,8 +3340,30 @@ genLeftShift (const iCode *ic)
                         emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                     }
                 }
+            } else  if (size_result == 2 && size_left == 1) {
+
+                if (AOP_IS_REG(result->aop)) {
+                    emit_asmop("left ", left->aop);
+                    emit_asmop("right ", right->aop);
+                    emit_asmop("result ", result->aop);
+
+                    const asmop *const op2 = get_register_asmop(result->aop->aopu.bytes[1].byteu.reg->name);
+                    aop_move(op2, left->aop);
+
+                    const asmop *const op1 = get_register_asmop(result->aop->aopu.bytes[0].byteu.reg->name);
+                    aop_move(op1, ASMOP_ZERO);
+                } else {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                    emit_asmop("left ", left->aop);
+                    emit_asmop("right ", right->aop);
+                    emit_asmop("result ", result->aop);
+                }
+
             } else {
                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
+                emit_asmop("left ", left->aop);
+                emit_asmop("right ", right->aop);
+                emit_asmop("result ", result->aop);
             }
         } else {
             wassertl(0, "Left shift by other than 1 or 8 not implemented.");

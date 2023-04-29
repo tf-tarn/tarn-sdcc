@@ -86,7 +86,7 @@ __sdcc_program_startup:
 ;; genCast
 	lad	_val1 + 1
 	mov	stack mem
-	lad	_val2
+	lad	_val2 + 0
 	mov	mem stack
 ;	src/casting.c: 8: return val1;
 	mov	jmpl stack

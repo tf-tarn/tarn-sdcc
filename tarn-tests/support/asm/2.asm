@@ -164,7 +164,7 @@ L_multiply_or_divide00103:
 	gotonz	L_multiply_or_divide00105
 ;	src/2.c: 12: a = 4;
 ;; genAssign
-	lad	_multiply_or_divide_PARM_2
+	lad	_multiply_or_divide_PARM_2 + 0
 	mov	mem il ,4
 ;; genGoto
 	goto	L_multiply_or_divide00106

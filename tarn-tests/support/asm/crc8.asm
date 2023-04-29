@@ -130,7 +130,7 @@ L_crc8_one00125:
 	mov	alua x
 	mov	alus il ,2	; xor 
 	mov	alub il ,7
-	lad	_crc8_one_PARM_1
+	lad	_crc8_one_PARM_1 + 0
 	mov	mem aluc
 ;; genGoto
 	goto	L_crc8_one00107
@@ -143,7 +143,7 @@ L_crc8_one00102:
 	mov	alua x
 	mov	alus il ,4	; plus 
 	mov	alub x
-	lad	_crc8_one_PARM_1
+	lad	_crc8_one_PARM_1 + 0
 	mov	mem aluc
 ;; genLabel
 L_crc8_one00107:
@@ -222,7 +222,7 @@ L_crc800120:
 	mov	alua r
 	mov	alus il ,2	; xor 
 	mov	alub x
-	lad	_crc8_one_PARM_1
+	lad	_crc8_one_PARM_1 + 0
 	mov	mem aluc
 ;	src/crc8.c: 29: crc = crc8_one(crc);
 ;; genCall
@@ -276,7 +276,7 @@ L_crc800101:
 	lad	_crc8_PARM_1 + 1
 	mov	mem x
 ;; genAssign
-	lad	_crc8_PARM_2
+	lad	_crc8_PARM_2 + 0
 	mov	mem il ,200
 ;; genCall
 	mov	stack il ,hi8(L_main00103)

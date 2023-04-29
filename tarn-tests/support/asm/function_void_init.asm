@@ -76,7 +76,7 @@ __sdcc_program_startup:
 	_g:
 ;	src/function_void_init.c: 3: var = 1;
 ;; genAssign
-	lad	_var
+	lad	_var + 0
 	mov	mem il ,1
 ;; genLabel
 ;	src/function_void_init.c: 4: }

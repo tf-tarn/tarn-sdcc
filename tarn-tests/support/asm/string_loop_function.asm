@@ -151,7 +151,7 @@ L_print00101:
 	gotonz	L_main00102
 ;	src/string_loop_function.c: 19: var = 1;
 ;; genAssign
-	lad	_var
+	lad	_var + 0
 	mov	mem il ,1
 ;; genGoto
 	goto	L_main00103
@@ -159,7 +159,7 @@ L_print00101:
 L_main00102:
 ;	src/string_loop_function.c: 21: var = 1;
 ;; genAssign
-	lad	_var
+	lad	_var + 0
 	mov	mem il ,1
 ;; genLabel
 L_main00103:

@@ -119,7 +119,7 @@ L_crc8_one00125:
 	mov	alua x
 	mov	alus il ,2	; xor 
 	mov	alub il ,7
-	lad	_crc8_one_PARM_1
+	lad	_crc8_one_PARM_1 + 0
 	mov	mem aluc
 ;; genGoto
 	goto	L_crc8_one00107
@@ -132,7 +132,7 @@ L_crc8_one00102:
 	mov	alua x
 	mov	alus il ,4	; plus 
 	mov	alub x
-	lad	_crc8_one_PARM_1
+	lad	_crc8_one_PARM_1 + 0
 	mov	mem aluc
 ;; genLabel
 L_crc8_one00107:

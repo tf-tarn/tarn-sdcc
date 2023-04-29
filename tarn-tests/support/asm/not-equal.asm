@@ -76,7 +76,7 @@ __sdcc_program_startup:
 	_main:
 ;	src/not-equal.c: 4: volatile unsigned char a = 1;
 ;; genAssign
-	lad	_main_a_65536_2
+	lad	_main_a_65536_2 + 0
 	mov	mem il ,1
 ;	src/not-equal.c: 5: volatile unsigned int n = 1;
 ;; genAssign

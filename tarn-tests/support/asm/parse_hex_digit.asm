@@ -215,7 +215,7 @@ L_parse_hex_digit00108:
 	_main:
 ;	src/parse_hex_digit.c: 19: c = parse_hex_digit('0');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,48
 ;; genCall
 	mov	stack il ,hi8(L_main00103)
@@ -235,7 +235,7 @@ L_main00103:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 21: c = parse_hex_digit('1');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,49
 ;; genCall
 	mov	stack il ,hi8(L_main00104)
@@ -255,7 +255,7 @@ L_main00104:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 23: c = parse_hex_digit('2');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,50
 ;; genCall
 	mov	stack il ,hi8(L_main00105)
@@ -275,7 +275,7 @@ L_main00105:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 25: c = parse_hex_digit('3');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,51
 ;; genCall
 	mov	stack il ,hi8(L_main00106)
@@ -295,7 +295,7 @@ L_main00106:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 27: c = parse_hex_digit('4');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,52
 ;; genCall
 	mov	stack il ,hi8(L_main00107)
@@ -315,7 +315,7 @@ L_main00107:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 29: c = parse_hex_digit('5');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,53
 ;; genCall
 	mov	stack il ,hi8(L_main00108)
@@ -335,7 +335,7 @@ L_main00108:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 31: c = parse_hex_digit('6');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,54
 ;; genCall
 	mov	stack il ,hi8(L_main00109)
@@ -358,7 +358,7 @@ L_main00109:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 33: c = parse_hex_digit('7');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,55
 ;; genCall
 	mov	stack il ,hi8(L_main00110)
@@ -381,7 +381,7 @@ L_main00110:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 35: c = parse_hex_digit('8');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,56
 ;; genCall
 	mov	stack il ,hi8(L_main00111)
@@ -404,7 +404,7 @@ L_main00111:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 37: c = parse_hex_digit('9');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,57
 ;; genCall
 	mov	stack il ,hi8(L_main00112)
@@ -427,7 +427,7 @@ L_main00112:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 39: c = parse_hex_digit('a');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,97
 ;; genCall
 	mov	stack il ,hi8(L_main00113)
@@ -450,7 +450,7 @@ L_main00113:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 41: c = parse_hex_digit('b');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,98
 ;; genCall
 	mov	stack il ,hi8(L_main00114)
@@ -473,7 +473,7 @@ L_main00114:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 43: c = parse_hex_digit('c');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,99
 ;; genCall
 	mov	stack il ,hi8(L_main00115)
@@ -496,7 +496,7 @@ L_main00115:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 45: c = parse_hex_digit('d');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,100
 ;; genCall
 	mov	stack il ,hi8(L_main00116)
@@ -519,7 +519,7 @@ L_main00116:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 47: c = parse_hex_digit('e');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,101
 ;; genCall
 	mov	stack il ,hi8(L_main00117)
@@ -542,7 +542,7 @@ L_main00117:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 49: c = parse_hex_digit('f');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,102
 ;; genCall
 	mov	stack il ,hi8(L_main00118)
@@ -565,7 +565,7 @@ L_main00118:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 51: c = parse_hex_digit('x');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,120
 ;; genCall
 	mov	stack il ,hi8(L_main00119)
@@ -588,7 +588,7 @@ L_main00119:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 53: c = parse_hex_digit(' ');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,32
 ;; genCall
 	mov	stack il ,hi8(L_main00120)
@@ -611,7 +611,7 @@ L_main00120:
 	mov	pic il ,10
 ;	src/parse_hex_digit.c: 55: c = parse_hex_digit('/');
 ;; genAssign
-	lad	_parse_hex_digit_PARM_1
+	lad	_parse_hex_digit_PARM_1 + 0
 	mov	mem il ,47
 ;; genCall
 	mov	stack il ,hi8(L_main00121)

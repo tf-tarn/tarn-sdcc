@@ -132,7 +132,7 @@ __sdcc_program_startup:
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
-	lad	_index
+	lad	_index + 0
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)
@@ -161,7 +161,7 @@ __sdcc_program_startup:
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
-	lad	_index
+	lad	_index + 0
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)
@@ -190,7 +190,7 @@ __sdcc_program_startup:
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
-	lad	_index
+	lad	_index + 0
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)
@@ -221,7 +221,7 @@ __sdcc_program_startup:
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
-	lad	_index
+	lad	_index + 0
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)
@@ -253,7 +253,7 @@ __sdcc_program_startup:
 	mov	alua mem
 	mov	alus il ,4	; plus 
 	mov	alub il ,1
-	lad	_index
+	lad	_index + 0
 	mov	mem aluc
 ;; genALUOp
 ;;	ALU plus (4)

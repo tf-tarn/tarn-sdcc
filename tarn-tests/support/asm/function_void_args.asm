@@ -89,7 +89,7 @@ __sdcc_program_startup:
 	mov	alus il ,4	; plus 
 	lad	_g_PARM_2 + 0
 	mov	alub mem
-	lad	_var
+	lad	_var + 0
 	mov	mem aluc
 ;; genLabel
 ;	src/function_void_args.c: 4: }
@@ -105,10 +105,10 @@ __sdcc_program_startup:
 	_main:
 ;	src/function_void_args.c: 6: g(1, 2);
 ;; genAssign
-	lad	_g_PARM_1
+	lad	_g_PARM_1 + 0
 	mov	mem il ,1
 ;; genAssign
-	lad	_g_PARM_2
+	lad	_g_PARM_2 + 0
 	mov	mem il ,2
 ;; genCall
 	mov	stack il ,hi8(L_main00103)

@@ -94,6 +94,8 @@ const tarn_reg_list_entry_t tarn_src_registers[TARN_SRC_REG_COUNT] = {
 #define ALUS_LT        9
 #define ALUS_EQ        10
 #define ALUS_GT        11
+// These don't exist; we do acrobatics to transform them into the
+// operations above.
 #define ALUS_MINUS     16
 #define ALUS_UNDEFINED 17
 
@@ -2989,7 +2991,7 @@ static void genIfx_impl(iCode *ic, int invert) {
                 invert = 1 - invert;
 
             } else if (cond->aop->size == 2) {
-                aop_cmp(EQ_OP, cond->aop, ASMOP_ZERO, IC_TRUE(ic), IC_FALSE(ic), false);
+                aop_cmp(ic->op, cond->aop, ASMOP_ZERO, IC_TRUE(ic), IC_FALSE(ic), false);
                 do_gen_ifx = false;
             } else {
                 emit2(";", "implement me");
@@ -3078,7 +3080,7 @@ bool aop_alu_move_result(asmop *result, asmop *value, bool needs_restore, iCode 
 }
 
 void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
-#define MOVE_AOP_DEBUG { emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); emit_asmop("left ", left); emit_asmop("right", right); emit_asmop("result", result); }
+#define MOVE_AOP_DEBUG { emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); emit2(";", "op = %s", alu_operations[op]); emit_asmop("left ", left); emit_asmop("right", right); emit_asmop("result", result); }
 
     int size_left = left->size;
     int size_right = right ? right->size : 0;
@@ -3237,6 +3239,10 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                     cost(19);
                     aop_alu_move_result(result, ASMOP_RX, true, ifx);
                 }
+            } else if (AOP_IS_LIT(right)) {
+                emit2("add_16m_16l", "%s %d", left->aopu.aop_dir, ulFromVal(right->aopu.aop_lit));
+                cost(19);
+                aop_alu_move_result(result, ASMOP_RX, true, ifx);
             } else {
                 MOVE_AOP_DEBUG;
             }
@@ -3244,6 +3250,15 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
             if (AOP_IS_SPILL(right)) {
                 emit2("add_16m_16m", "%s %s", left->aopu.immd, right->aopu.immd);
                 cost(19);
+                aop_alu_move_result(result, ASMOP_RX, true, ifx);
+            } else {
+                MOVE_AOP_DEBUG;
+            }
+        } else if (AOP_IS_REG(left)) {
+            if (AOP_IS_LIT(right)) {
+                aop_move(ASMOP_STACK, left);
+                emit2("add_16s_16l", "%d", ulFromVal(right->aopu.aop_lit));
+                cost(20);
                 aop_alu_move_result(result, ASMOP_RX, true, ifx);
             } else {
                 MOVE_AOP_DEBUG;
@@ -3480,6 +3495,7 @@ int alus_from_ic_op(unsigned int op) {
         return ALUS_GT;
     case '<':
         return ALUS_LT;
+    case IFX:
     case EQ_OP:
         return ALUS_EQ;
     default:
@@ -3489,7 +3505,8 @@ int alus_from_ic_op(unsigned int op) {
 
 void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, symbol *false_branch, bool invert) {
     #define AOP_CMP_DEBUG { emit2("", "; aop_cmp debug (%s:%d)", __FILE__, __LINE__); emit_asmop("left ", left); emit_asmop("right", right); }
-
+/* #undef D2 */
+/* #define D2(x) do { x; } while (0) */
 
     D2(emit2("\t;; compare", ""));
 
@@ -3512,26 +3529,25 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
     /* } */
 
 
-    symbol *result_desired_maybe = new_label(NULL);
-    symbol *result_undesired = new_label(NULL);
-    symbol *result_desired;
+    symbol *next_comparison = new_label(NULL);
+    symbol *end_of_comparison = new_label(NULL);
+    /* symbol *result_undesired = new_label(NULL); */
+    /* symbol *result_desired; */
 
     bool true_and_false = true_branch && false_branch;
 
     if (true_and_false) {
-        D2(emit2(";", "has TRUE/FALSE ifx"));
-        result_desired = true_branch;
-        result_undesired = false_branch;
-    } else if (true_branch) {
-        D2(emit2(";", "has TRUE ifx"));
-        result_desired = true_branch;
-    } else if (false_branch) {
-        D2(emit2(";", "has FALSE ifx"));
-        result_desired = false_branch;
-    } else {
-        D2(emit2(";", "no ifx"));
-        result_desired = new_label(NULL);
-        result_undesired = result_desired;
+        wassertl (0, "has TRUE and FALSE ifx");
+    /* } else if (true_branch) { */
+    /*     D2(emit2(";", "has TRUE ifx")); */
+    /*     result_desired = true_branch; */
+    /* } else if (false_branch) { */
+    /*     D2(emit2(";", "has FALSE ifx")); */
+    /*     result_desired = false_branch; */
+    /* } else { */
+    /*     D2(emit2(";", "no ifx")); */
+    /*     result_desired = new_label(NULL); */
+    /*     result_undesired = result_desired; */
     }
 
     /* if (result_desired) { */
@@ -3541,11 +3557,25 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
     /*     emit2(";", "result undesired is !tlabel", label_num(result_undesired)); */
     /* } */
 
+    /* if (op == IFX) { */
+    /*     emit2(";", "is IFX"); */
+    /* } else { */
+    /*     emit2(";", "is not IFX"); */
+    /* } */
+
+    /* if (true_branch) { */
+    /*     emit2(";", "has true branch"); */
+    /* } */
+    /* if (false_branch) { */
+    /*     emit2(";", "has false branch"); */
+    /* } */
+
     if (invert) {
-        D2(emit2(";", "invert"));
-        symbol *temp = result_desired;
-        result_desired = result_undesired;
-        result_undesired = temp;
+        wassertl (0, "invert");
+        /* D2(emit2(";", "invert")); */
+        /* symbol *temp = result_desired; */
+        /* result_desired = result_undesired; */
+        /* result_undesired = temp; */
     }
 
     int max_size = right->size;
@@ -3561,54 +3591,45 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
     /* } */
 
     if (left->size == right->size && left->size == 2 && op != EQ_OP) {
-        if (AOP_IS_DIRECT(left) && AOP_IS_DIRECT(right)) {
-            if (true_and_false) {
-                if (!regalloc_dry_run) {
-                    emit2("compare_16m_16m__tf", "%d %s %s !tlabel !tlabel",
-                          alus_op,
-                          left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired), label_num(result_undesired));
-                }
-            } else if (true_branch) {
-                if (!regalloc_dry_run) {
-                    emit2("compare_16m_16m__t", "%d %s %s !tlabel",
-                          alus_op,
-                          left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired));
-                }
-            } else if (false_branch) {
-                if (!regalloc_dry_run) {
-                    emit2("compare_16m_16m__f", "%d %s %s !tlabel",
-                          alus_op,
-                          left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired));
-                }
-            } else {
-                AOP_CMP_DEBUG;
-            }
-        } else if (AOP_IS_LIT(left) && AOP_IS_DIRECT(right)) {
-            if (true_and_false) {
-                if (!regalloc_dry_run) {
-                    emit2("compare_16l_16m__tf", "%d %d %s !tlabel !tlabel",
-                          alus_op,
-                          ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired), label_num(result_undesired));
-                }
-            } else if (true_branch) {
-                if (!regalloc_dry_run) {
-                    emit2("compare_16l_16m__t", "%d %d %s !tlabel",
-                          alus_op,
-                          ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired));
-                }
-            } else if (false_branch) {
-                if (!regalloc_dry_run) {
-                    emit2("compare_16l_16m__f", "%d %d %s !tlabel",
-                          alus_op,
-                          ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired));
-                }
-            } else {
-                AOP_CMP_DEBUG;
-            }
-        }
+        /* if (AOP_IS_DIRECT(left) && AOP_IS_DIRECT(right)) { */
+        /*     if (true_branch) { */
+        /*         if (!regalloc_dry_run) { */
+        /*             emit2("compare_16m_16m__t", "%d %s %s !tlabel", */
+        /*                   alus_op, */
+        /*                   left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired)); */
+        /*         } */
+        /*     } else if (false_branch) { */
+        /*         if (!regalloc_dry_run) { */
+        /*             emit2("compare_16m_16m__f", "%d %s %s !tlabel", */
+        /*                   alus_op, */
+        /*                   left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired)); */
+        /*         } */
+        /*     } else { */
+        /*         AOP_CMP_DEBUG; */
+        /*     } */
+        /* } else if (AOP_IS_LIT(left) && AOP_IS_DIRECT(right)) { */
+        /*     if (true_branch) { */
+        /*         if (!regalloc_dry_run) { */
+        /*             emit2("compare_16l_16m__t", "%d %d %s !tlabel", */
+        /*                   alus_op, */
+        /*                   ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired)); */
+        /*         } */
+        /*     } else if (false_branch) { */
+        /*         if (!regalloc_dry_run) { */
+        /*             emit2("compare_16l_16m__f", "%d %d %s !tlabel", */
+        /*                   alus_op, */
+        /*                   ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired)); */
+        /*         } */
+        /*     } else { */
+        /*         AOP_CMP_DEBUG; */
+        /*     } */
+        /* } */
+        AOP_CMP_DEBUG;
     } else if (left->size == right->size
         || AOP_IS_LIT(left)
         || AOP_IS_LIT(right)) {
+
+        /* emit2(";", "op is %d (EQ %d, NE %d)", op, EQ_OP, NE_OP); */
 
         if (left->size == 1) {
             D2(emit2(";", "begin single-byte comparison"));
@@ -3646,40 +3667,68 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
 
                 emit_mov("test", "aluc");
                 if (i < max_size - 1) {
-                    D2(emit2(";", "not last -> jump to desired maybe"));
-                    emit_jump_to_label(result_desired_maybe, 1);
-                } else {
-                    D2(emit2(";", "last -> jump to desired"));
-                    if (true_branch) {
-                        emit_jump_to_label(result_undesired, 1);
+                    D2(emit2(";", "If equal, jump to next comparison"));
+                    emit_jump_to_label(next_comparison, 1);
+                    if (op == IFX) {
+                        D2(emit2(";", "Otherwise, skip all remaining comparisons and go to the end"));
+                        emit_jump_to_label(end_of_comparison, 0);
                     } else {
-                        emit_jump_to_label(result_desired, 1);
+                        D2(emit2(";", "Otherwise, skip all remaining comparisons and go to the end"));
+                        emit_jump_to_label(end_of_comparison, 0);
+                    }
+                } else {
+                    if (true_branch) {
+                        if (op == IFX) {
+                            D2(emit2(";", "If equal, jump to end of comparison and fall through"));
+                            emit_jump_to_label(end_of_comparison, 1);
+                            D2(emit2(";", "Otherwise jump to true branch."));
+                            emit_jump_to_label(true_branch, 0);
+                        } else {
+                            D2(emit2(";", "If equal, jump to true branch"));
+                            emit_jump_to_label(true_branch, 1);
+                            D2(emit2(";", "Otherwise fall through"));
+                        }
+                    } else {
+                        if (op == IFX) {
+                            D2(emit2(";", "If equal, skip statement body."));
+                            emit_jump_to_label(false_branch, 1);
+                            D2(emit2(";", "Otherwise fall through."));
+                        } else {
+                            D2(emit2(";", "If equal, jump to end of comparison and fall through."));
+                            emit_jump_to_label(end_of_comparison, 1);
+                            D2(emit2(";", "Otherwise jump to the false branch."));
+                            emit_jump_to_label(false_branch, 0);
+                        }
                     }
                 }
 
-                D2(emit2(";", "test failed; jump to undesired"));
-                if (true_branch) {
-                    emit_jump_to_label(result_desired, 0);
-                } else {
-                    emit_jump_to_label(result_undesired, 0);
-                }
+                
+
+                /* if (true_branch) { */
+                /*     D2(emit2(";", "true branch -> jump to desired")); */
+                /*     emit_jump_to_label(result_desired, 0); */
+                /* } else { */
+                /*     D2(emit2(";", "false branch -> jump to desired")); */
+                /*     emit_jump_to_label(result_undesired, 0); */
+                /* } */
 
                 if (i < max_size - 1) {
-                    D2(emit2(";", "emit desired maybe !tlabel", label_num(result_desired_maybe)));
-                    tarn_emit_label(result_desired_maybe);
-                    result_desired_maybe = new_label(NULL);
-                    D2(emit2(";", "next desired maybe is !tlabel", label_num(result_desired_maybe)));
+                    D2(emit2(";", "emit next comparison label !tlabel", label_num(next_comparison)));
+                    tarn_emit_label(next_comparison);
+                    next_comparison = new_label(NULL);
+                    D2(emit2(";", "next next comparison label is !tlabel", label_num(next_comparison)));
                 }
             }
-            if (!true_and_false) {
-                if (invert) {
-                    D2(emit2(";", "emit desired !tlabel", label_num(result_desired)));
-                    tarn_emit_label(result_desired);
-                } else {
-                    D2(emit2(";", "emit undesired !tlabel", label_num(result_undesired)));
-                    tarn_emit_label(result_undesired);
-                }
-            }
+
+            /* if (invert) { */
+            /*     D2(emit2(";", "emit desired !tlabel", label_num(result_desired))); */
+            /*     tarn_emit_label(result_desired); */
+            /* } else { */
+            /*     D2(emit2(";", "emit undesired !tlabel", label_num(result_undesired))); */
+            /*     tarn_emit_label(result_undesired); */
+            /* } */
+            emit2(";", "emit end of comparison label");
+            tarn_emit_label(end_of_comparison);
             emit2(";", "end multibyte comparison");
         }
     } else {
@@ -3688,6 +3737,8 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
     }
 
 #undef AOP_CMP_DEBUG
+/* #undef D2 */
+/* #define D2(x) /\*do { x; } while (0)*\/ */
 }
 
 static void genCmpEQorNE   (iCode *ic, iCode *ifx)       {

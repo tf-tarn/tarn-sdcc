@@ -2,7 +2,7 @@
 ; File Created by SDCC : free open source ANSI-C Compiler
 ; Version 4.2.0 #13081 (Linux)
 ;--------------------------------------------------------
-	.file	"not_equal.c"
+	.file	"arithmetic.c"
 	
 .include "/home/tarn/projects/tarnos/asm/src/macros/macros.s"
 ;--------------------------------------------------------
@@ -20,8 +20,6 @@ _main_PARM_1:
 _main_PARM_2:
 	.ds	2
 _main_a_65536_2:
-	.ds	1
-_main_n_65536_2:
 	.ds	2
 ;--------------------------------------------------------
 ; ram data
@@ -68,116 +66,143 @@ __sdcc_program_startup:
 ; code
 ;--------------------------------------------------------
 	.section code,"ax"
-;	src/not-equal.c: 3: int main(int argc, char **argv) {
+;	src/arithmetic.c: 3: int main(int argc, char **argv) {
 ;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/not-equal.c: 4: volatile unsigned char a = 1;
+;	src/arithmetic.c: 4: volatile int a = 0x1024;
 ;; genAssign
 	lad	_main_a_65536_2 + 0
-	mov	mem il ,1
-;	src/not-equal.c: 5: volatile unsigned int n = 1;
-;; genAssign
-	lad	_main_n_65536_2 + 0
-	mov	mem il ,0
-	lad	_main_n_65536_2 + 1
-	mov	mem il ,1
-;	src/not-equal.c: 19: pic = '6';
-;; genAssign
-	mov	pic il ,54
-;	src/not-equal.c: 20: while (n != 0) {
-;; genLabel
-L_main00101:
-;; genIfx
+	mov	mem il ,16
+	lad	_main_a_65536_2 + 1
+	mov	mem il ,36
+;	src/arithmetic.c: 7: if (a + 5 == (0x1024 + 5)) {
+;; genALUOp
+;;	ALU plus (4)
+;;	ALU operand size 2 2 2
+	add_16m_16l	_main_a_65536_2 5
+;; genCmpEQorNE
 	mov	alus il ,10	; equal-to 
 ;	begin multibyte (2) comparison
-	mov	alua zero
-	lad	_main_n_65536_2
-	mov	alub mem
-	mov	test aluc
-	gotonz	L_main00125
-	goto	L_main00126
-L_main00125:
-	mov	alua zero
-	lad	_main_n_65536_2 + 1
-	mov	alub mem
-	mov	test aluc
-	gotonz	L_main00103
-;	emit end of comparison label
-L_main00126:
-;	end multibyte comparison
-;	src/not-equal.c: 21: pic = '7';
-;; genAssign
-	mov	pic il ,55
-;	src/not-equal.c: 22: n = 0;
-;; genAssign
-	lad	_main_n_65536_2 + 0
-	mov	mem il ,0
-	lad	_main_n_65536_2 + 1
-	mov	mem il ,0
-;; genGoto
-	goto	L_main00101
-;; genLabel
-L_main00103:
-;	src/not-equal.c: 25: n = 0;
-;; genAssign
-	lad	_main_n_65536_2 + 0
-	mov	mem il ,0
-	lad	_main_n_65536_2 + 1
-	mov	mem il ,0
-;	src/not-equal.c: 27: pic = '8';
-;; genAssign
-	mov	pic il ,56
-;	src/not-equal.c: 28: while (n == 0) {
-;; genLabel
-L_main00104:
-;; genIfx
-	mov	alus il ,10	; equal-to 
-;	begin multibyte (2) comparison
-	mov	alua zero
-	lad	_main_n_65536_2
-	mov	alub mem
-	mov	test aluc
-	gotonz	L_main00128
-	goto	L_main00129
-L_main00128:
-	mov	alua zero
-	lad	_main_n_65536_2 + 1
-	mov	alub mem
+	mov	alua il ,41
+	mov	alub r
 	mov	test aluc
 	gotonz	L_main00129
-	goto	L_main00106
-;	emit end of comparison label
+	goto	L_main00130
 L_main00129:
+	mov	alua il ,16
+	mov	alub x
+	mov	test aluc
+	gotonz	L_main00130
+	goto	L_main00102
+;	emit end of comparison label
+L_main00130:
 ;	end multibyte comparison
-;	src/not-equal.c: 29: pic = '9';
+;	src/arithmetic.c: 8: pic = 1;
 ;; genAssign
-	mov	pic il ,57
-;	src/not-equal.c: 30: n = 1;
-;; genAssign
-	lad	_main_n_65536_2 + 0
-	mov	mem il ,0
-	lad	_main_n_65536_2 + 1
-	mov	mem il ,1
+	mov	pic il ,1
 ;; genGoto
-	goto	L_main00104
+	goto	L_main00103
+;; genLabel
+L_main00102:
+;	src/arithmetic.c: 10: pic = 0;
+;; genAssign
+	mov	pic il ,0
+;; genLabel
+L_main00103:
+;	src/arithmetic.c: 13: if (a + 5 != (0x1024 + 5)) {
+;; genALUOp
+;;	ALU plus (4)
+;;	ALU operand size 2 2 2
+	add_16m_16l	_main_a_65536_2 5
+;; genCmpEQorNE
+	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) comparison
+	mov	alua il ,41
+	mov	alub r
+	mov	test aluc
+	gotonz	L_main00132
+	goto	L_main00133
+L_main00132:
+	mov	alua il ,16
+	mov	alub x
+	mov	test aluc
+	gotonz	L_main00105
+;	emit end of comparison label
+L_main00133:
+;	end multibyte comparison
+;	src/arithmetic.c: 14: pic = 0;
+;; genAssign
+	mov	pic il ,0
+;; genGoto
+	goto	L_main00106
+;; genLabel
+L_main00105:
+;	src/arithmetic.c: 16: pic = 2;
+;; genAssign
+	mov	pic il ,2
 ;; genLabel
 L_main00106:
-;	src/not-equal.c: 32: pic = '9' + 1;
+;	src/arithmetic.c: 19: if (a + 5 != (0x1024 + 5)) {
+;; genALUOp
+;;	ALU plus (4)
+;;	ALU operand size 2 2 2
+	add_16m_16l	_main_a_65536_2 5
+;; genCmpEQorNE
+	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) comparison
+	mov	alua il ,41
+	mov	alub r
+	mov	test aluc
+	gotonz	L_main00135
+	goto	L_main00136
+L_main00135:
+	mov	alua il ,16
+	mov	alub x
+	mov	test aluc
+	gotonz	L_main00108
+;	emit end of comparison label
+L_main00136:
+;	end multibyte comparison
+;	src/arithmetic.c: 20: pic = 3;
 ;; genAssign
-	mov	pic il ,58
-;	src/not-equal.c: 42: __endasm;
-	halt
-;	src/not-equal.c: 44: return 0;
-	mov	jmpl stack
-	mov	jmph stack
-	mov	stack il ,0
-	mov	stack il ,0
-	jump
+	mov	pic il ,3
 ;; genLabel
-;	src/not-equal.c: 45: }
+L_main00108:
+;	src/arithmetic.c: 22: if (a + 5 == (0x1024 + 5)) {
+;; genALUOp
+;;	ALU plus (4)
+;;	ALU operand size 2 2 2
+	add_16m_16l	_main_a_65536_2 5
+;; genCmpEQorNE
+	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) comparison
+	mov	alua il ,41
+	mov	alub r
+	mov	test aluc
+	gotonz	L_main00138
+	goto	L_main00139
+L_main00138:
+	mov	alua il ,16
+	mov	alub x
+	mov	test aluc
+	gotonz	L_main00139
+	goto	L_main00110
+;	emit end of comparison label
+L_main00139:
+;	end multibyte comparison
+;	src/arithmetic.c: 23: pic = 3;
+;; genAssign
+	mov	pic il ,3
+;; genLabel
+L_main00110:
+;	src/arithmetic.c: 25: pic = 4;
+;; genAssign
+	mov	pic il ,4
+;; genLabel
+;	src/arithmetic.c: 32: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

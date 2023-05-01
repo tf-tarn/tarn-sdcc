@@ -151,14 +151,6 @@ L_main00103:
 	mov	r mem
 ;	src/testfwk-__div.c: 18: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
-;	left operand AOP_REG
-;	  size = 2
-;	  registers = x r 
-;	right operand AOP_LIT
-;	  size = 2
-;	  value = 00 08 
-;	result operand AOP_SFR
-;	  size = 1
 ;	offset = 1, 0
 	mov	pic x
 ;	src/testfwk-__div.c: 19: pic = a & 0xff;

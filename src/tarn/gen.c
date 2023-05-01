@@ -844,9 +844,9 @@ static void tarn_emit_label(symbol *label) {
     if (!label) {
         return;
     }
-    emitLabel(label);
-    /* emit2("", "L_%d:", label_num(label)); */
     if (!regalloc_dry_run) {
+        emitLabel(label);
+        /* emit2("", "L_%d:", label_num(label)); */
         genLine.lineCurr->isLabel = 1;
     }
 }
@@ -1278,6 +1278,13 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
                 load_address_16o(a1->aopu.aop_dir, i);
                 aop_move(ASMOP_MEM, ASMOP_STACK);
             }
+        } else if (AOP_IS_CODE(a2)) {
+            for (int i = 0; i < a1->size; ++i) {
+                load_address_16o(a2->aopu.aop_dir, i);
+                aop_move(ASMOP_STACK, ASMOP_MEM);
+                load_address_16o(a1->aopu.aop_dir, i);
+                aop_move(ASMOP_MEM, ASMOP_STACK);
+            }
         } else {
             AOP_MOVE_DEBUG;
         }
@@ -1311,23 +1318,31 @@ static bool aop_move_sfr(asmop *a1, asmop *a2) {
                 AOP_MOVE_DEBUG;
             }
         } else if (AOP_IS_DIRECT(a2)) {
-            if (a2->size == 2) {
-                // means it must be spilled ?
-                // gotta be a better way to do this...
-                emit_macro_load_address_from_ptr(a2->aopu.aop_dir);
-                aop_move(a1, ASMOP_MEM);
-            } else if (a2->size == 1) {
-                load_address_16(a2->aopu.aop_dir);
-                emit_mov(a1->aopu.aop_dir, "mem");
-            } else {
-                AOP_MOVE_DEBUG;
-            }
+            load_address_16o(a2->aopu.aop_dir, a2->size - 1);
+            emit_mov(a1->aopu.aop_dir, "mem");
+
+            /* if (a2->size == 2) { */
+            /*     // means it must be spilled ? */
+            /*     // gotta be a better way to do this... */
+            /*     emit_macro_load_address_from_ptr(a2->aopu.aop_dir); */
+            /*     aop_move(a1, ASMOP_MEM); */
+            /* } else if (a2->size == 1) { */
+            /*     load_address_16(a2->aopu.aop_dir); */
+            /*     emit_mov(a1->aopu.aop_dir, "mem"); */
+            /* } else { */
+            /*     AOP_MOVE_DEBUG; */
+            /* } */
         } else if (AOP_IS_REG(a2)) {
             emit_mov(a1->aopu.aop_dir, a2->aopu.bytes[0].byteu.reg->name);
         } else if (AOP_IS_SPILL(a2)) {
             TRACE;
-            load_address_16o(a2->aopu.immd, a2->aopu.immd_off);
-            emit_mov(a1->aopu.aop_dir, "mem");
+            if (a2->aopu.immd_off == 0) {
+                load_address_16o(a2->aopu.immd, a2->size - 1);
+                emit_mov(a1->aopu.aop_dir, "mem");
+            } else {
+                /* load_address_16o(a2->aopu.immd, a2->aopu.immd_off); ??? */
+                AOP_MOVE_DEBUG;
+            }
         } else {
             AOP_MOVE_DEBUG;
         }
@@ -1341,7 +1356,7 @@ static bool aop_move_sfr(asmop *a1, asmop *a2) {
 // Move a2 to a1, where a1 is a register operand.
 static bool aop_move_reg(asmop *a1, asmop *a2) {
     if (a1->size == a2->size) {
-        if (AOP_IS_DIRECT(a2)) {
+        if (AOP_IS_DIRECT(a2) || AOP_IS_CODE(a2)) {
             if (a1 == ASMOP_ADHL) {
                 for (int i = 0; i < a2->size; ++i) {
                     load_address_16o(a2->aopu.aop_dir, i);
@@ -1470,6 +1485,7 @@ static bool aop_move_immediate(asmop *a1, asmop *a2) {
 }
 
 static bool aop_move(asmop *a1, asmop *a2) {
+
     if (AOP_IS_SPILL(a1)) {
         return aop_move_spill(a1, a2);
     }
@@ -1608,7 +1624,7 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
         }
     } else if (AOP_IS_REG(a1)) {
         if (a1->size == 1) {
-            if (AOP_IS_DIRECT(a2)) {
+            if (AOP_IS_DIRECT(a2) || AOP_IS_CODE(a2)) {
                 if (a2->size == 2) {
                     if (index == 0) {
                         load_address_16(a2->aopu.aop_dir);
@@ -1700,10 +1716,6 @@ static void genGetByte(iCode *ic) {
     aopOp(left);
     aopOp(right);
     aopOp(result);
-
-    emit_asmop("left", left->aop);
-    emit_asmop("right", right->aop);
-    emit_asmop("result", result->aop);
 
     int offset = (int) ulFromVal (right->aop->aopu.aop_lit) / 8;
     emit2(";", "offset = %d, %d", offset, left->aop->size - offset - 1);
@@ -2791,6 +2803,8 @@ static void genCast(iCode *ic) {
 
     aopOp(result);
     aopOp(right);
+    /* emit_asmop("result ", result->aop); */
+    /* emit_asmop("right ", right->aop); */
     aop_move(result->aop, right->aop);
     return;
 
@@ -3522,36 +3536,55 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
         max_size = left->size;
     }
 
+    /* if (result_desired) { */
+    /*     emit2(";", "desired: %d (%d)", label_num(result_desired), regalloc_dry_run ? 1 : 0); */
+    /* } */
+    /* if (result_undesired) { */
+    /*     emit2(";", "undesired: %d (%d)", label_num(result_undesired), regalloc_dry_run ? 1 : 0); */
+    /* } */
+
     if (left->size == right->size && left->size == 2 && op != EQ_OP) {
         if (AOP_IS_DIRECT(left) && AOP_IS_DIRECT(right)) {
             if (true_and_false) {
-                emit2("compare_16m_16m__tf", "%d %s %s !tlabel !tlabel",
-                      alus_op,
-                      left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired), label_num(result_undesired));
+                if (!regalloc_dry_run) {
+                    emit2("compare_16m_16m__tf", "%d %s %s !tlabel !tlabel",
+                          alus_op,
+                          left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired), label_num(result_undesired));
+                }
             } else if (true_branch) {
-                emit2("compare_16m_16m__t", "%d %s %s !tlabel",
-                      alus_op,
-                      left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired));
+                if (!regalloc_dry_run) {
+                    emit2("compare_16m_16m__t", "%d %s %s !tlabel",
+                          alus_op,
+                          left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired));
+                }
             } else if (false_branch) {
-                emit2("compare_16m_16m__f", "%d %s %s !tlabel",
-                      alus_op,
-                      left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_undesired));
+                if (!regalloc_dry_run) {
+                    emit2("compare_16m_16m__f", "%d %s %s !tlabel",
+                          alus_op,
+                          left->aopu.aop_dir, right->aopu.aop_dir, label_num(result_desired));
+                }
             } else {
                 AOP_CMP_DEBUG;
             }
         } else if (AOP_IS_LIT(left) && AOP_IS_DIRECT(right)) {
             if (true_and_false) {
-                emit2("compare_16l_16m__tf", "%d %d %s !tlabel !tlabel",
-                      alus_op,
-                      ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired), label_num(result_undesired));
+                if (!regalloc_dry_run) {
+                    emit2("compare_16l_16m__tf", "%d %d %s !tlabel !tlabel",
+                          alus_op,
+                          ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired), label_num(result_undesired));
+                }
             } else if (true_branch) {
-                emit2("compare_16l_16m__t", "%d %d %s !tlabel",
-                      alus_op,
-                      ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired));
+                if (!regalloc_dry_run) {
+                    emit2("compare_16l_16m__t", "%d %d %s !tlabel",
+                          alus_op,
+                          ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired));
+                }
             } else if (false_branch) {
-                emit2("compare_16l_16m__f", "%d %d %s !tlabel",
-                      alus_op,
-                      ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired));
+                if (!regalloc_dry_run) {
+                    emit2("compare_16l_16m__f", "%d %d %s !tlabel",
+                          alus_op,
+                          ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(result_desired));
+                }
             } else {
                 AOP_CMP_DEBUG;
             }

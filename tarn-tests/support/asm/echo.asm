@@ -90,7 +90,7 @@ L_main00104:
 	gotonz	L_main00104
 ;	src/echo.c: 10: pic = byte;
 ;; genAssign
-	lad	_main_byte_65536_2
+	lad	_main_byte_65536_2 + 0
 	mov	pic mem
 ;; genGoto
 	goto	L_main00104

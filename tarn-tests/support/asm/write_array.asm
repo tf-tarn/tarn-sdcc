@@ -304,7 +304,7 @@ __sdcc_program_startup:
 	mov	pic mem
 ;	src/write_array.c: 23: pic = index;
 ;; genAssign
-	lad	_index
+	lad	_index + 0
 	mov	pic mem
 ;	src/write_array.c: 27: __endasm;
 	halt

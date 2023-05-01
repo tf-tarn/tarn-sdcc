@@ -51,8 +51,8 @@ __printd (int n)
         }
 
         while (0 != n) {
-            --p;
-            *p = '0' + __mod (n, 10);
+            /* --p; */
+            *--p = '0' + __mod (n, 10);
             n = __div (n, 10);
         }
 
@@ -63,12 +63,29 @@ __printd (int n)
     }
 }
 
+_putchar(char c) {
+    pic = c;
+}
+
+void __ok (__code const char *szCond, __code const char *szFile, int line)
+{
+  __prints("--- OK: \"");
+  __prints(szCond);
+  __prints(" at ");
+  __prints(szFile);
+  _putchar(':');
+  __printd(line);
+  _putchar('\n');
+}
+
 int main(int argc, char **argv) {
     __printd(0);
     __printd(99);
     __printd(1123);
     __printd(45678);
     __printd(9012);
+
+    __ok("condition", "<filename>", 99);
 
     __asm
         halt

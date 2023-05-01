@@ -9,10 +9,16 @@
 ; Public variables in this module
 ;--------------------------------------------------------
 	.globl	_main
+	.globl	___ok
+	.globl	__putchar
 	.globl	___printd
 	.globl	___prints
 	.globl	_main_PARM_2
 	.globl	_main_PARM_1
+	.globl	___ok_PARM_3
+	.globl	___ok_PARM_2
+	.globl	___ok_PARM_1
+	.globl	__putchar_PARM_1
 	.globl	___printd_PARM_1
 	.globl	___prints_PARM_1
 ;--------------------------------------------------------
@@ -40,6 +46,14 @@ ___printd_sloc3_1_0:
 ___printd_sloc4_1_0:
 	.ds	2
 ___printd_sloc5_1_0:
+	.ds	2
+__putchar_PARM_1:
+	.ds	1
+___ok_PARM_1:
+	.ds	2
+___ok_PARM_2:
+	.ds	2
+___ok_PARM_3:
 	.ds	2
 _main_PARM_1:
 	.ds	2
@@ -331,7 +345,7 @@ L___printd00144:
 	goto	L___printd00145
 L___printd00145:
 ;	end multibyte comparison
-;	src/testfwk-__printd.c: 54: --p;
+;	src/testfwk-__printd.c: 55: *--p = '0' + __mod (n, 10);
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 2 2 1
@@ -345,7 +359,6 @@ L___printd00145:
 	lad	___printd_sloc3_1_0 + 1
 	mov	mem r
 	restore_rx
-;	src/testfwk-__printd.c: 55: *p = '0' + __mod (n, 10);
 ;; genAssign
 	lad	___printd_PARM_1
 	mov	stack mem ; hi
@@ -460,13 +473,133 @@ L___printd00111:
 	mov	jmpl stack
 	mov	jmph stack
 	jump
-;	src/testfwk-__printd.c: 66: int main(int argc, char **argv) {
+;	src/testfwk-__printd.c: 66: _putchar(char c) {
+;; genLabel
+;	-----------------------------------------
+;	 function _putchar
+;	-----------------------------------------
+	__putchar:
+;	src/testfwk-__printd.c: 67: pic = c;
+;; genAssign
+	lad	__putchar_PARM_1 + 0
+	mov	pic mem
+;; genLabel
+;	src/testfwk-__printd.c: 68: }
+;; genEndFunction
+	mov	jmpl stack
+	mov	jmph stack
+	jump
+;	src/testfwk-__printd.c: 70: void __ok (__code const char *szCond, __code const char *szFile, int line)
+;; genLabel
+;	-----------------------------------------
+;	 function __ok
+;	-----------------------------------------
+	___ok:
+;	src/testfwk-__printd.c: 72: __prints("--- OK: \"");
+;; genCast
+	lad	___prints_PARM_1
+	mov	mem il ,hi8(___str_0 + 0) ; hi
+	lad	___prints_PARM_1 + 1
+	mov	mem il ,lo8(___str_0 + 0) ; lo
+;; genCall
+	mov	stack il ,hi8(L___ok00103)
+	mov	stack il ,lo8(L___ok00103)
+	goto	___prints
+L___ok00103:
+	; function returns nothing
+;	src/testfwk-__printd.c: 73: __prints(szCond);
+;; genCast
+	lad	___ok_PARM_1
+	mov	stack mem ; hi
+	lad	___ok_PARM_1 + 1
+	mov	stack mem ; lo
+	lad	___prints_PARM_1 + 1
+	mov	mem stack ; lo
+	lad	___prints_PARM_1
+	mov	mem stack ; hi
+;; genCall
+	mov	stack il ,hi8(L___ok00104)
+	mov	stack il ,lo8(L___ok00104)
+	goto	___prints
+L___ok00104:
+	; function returns nothing
+;	src/testfwk-__printd.c: 74: __prints(" at ");
+;; genCast
+	lad	___prints_PARM_1
+	mov	mem il ,hi8(___str_1 + 0) ; hi
+	lad	___prints_PARM_1 + 1
+	mov	mem il ,lo8(___str_1 + 0) ; lo
+;; genCall
+	mov	stack il ,hi8(L___ok00105)
+	mov	stack il ,lo8(L___ok00105)
+	goto	___prints
+L___ok00105:
+	; function returns nothing
+;	src/testfwk-__printd.c: 75: __prints(szFile);
+;; genCast
+	lad	___ok_PARM_2
+	mov	stack mem ; hi
+	lad	___ok_PARM_2 + 1
+	mov	stack mem ; lo
+	lad	___prints_PARM_1 + 1
+	mov	mem stack ; lo
+	lad	___prints_PARM_1
+	mov	mem stack ; hi
+;; genCall
+	mov	stack il ,hi8(L___ok00106)
+	mov	stack il ,lo8(L___ok00106)
+	goto	___prints
+L___ok00106:
+	; function returns nothing
+;	src/testfwk-__printd.c: 76: _putchar(':');
+;; genAssign
+	lad	__putchar_PARM_1 + 0
+	mov	mem il ,58
+;; genCall
+	mov	stack il ,hi8(L___ok00107)
+	mov	stack il ,lo8(L___ok00107)
+	goto	__putchar
+L___ok00107:
+	; function returns nothing
+;	src/testfwk-__printd.c: 77: __printd(line);
+;; genAssign
+	lad	___ok_PARM_3
+	mov	stack mem ; hi
+	lad	___ok_PARM_3 + 1
+	mov	stack mem ; lo
+	lad	___printd_PARM_1 + 1
+	mov	mem stack ; lo
+	lad	___printd_PARM_1
+	mov	mem stack ; hi
+;; genCall
+	mov	stack il ,hi8(L___ok00108)
+	mov	stack il ,lo8(L___ok00108)
+	goto	___printd
+L___ok00108:
+	; function returns nothing
+;	src/testfwk-__printd.c: 78: _putchar('\n');
+;; genAssign
+	lad	__putchar_PARM_1 + 0
+	mov	mem il ,10
+;; genCall
+	mov	stack il ,hi8(L___ok00109)
+	mov	stack il ,lo8(L___ok00109)
+	goto	__putchar
+L___ok00109:
+	; function returns nothing
+;; genLabel
+;	src/testfwk-__printd.c: 79: }
+;; genEndFunction
+	mov	jmpl stack
+	mov	jmph stack
+	jump
+;	src/testfwk-__printd.c: 81: int main(int argc, char **argv) {
 ;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/testfwk-__printd.c: 67: __printd(0);
+;	src/testfwk-__printd.c: 82: __printd(0);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,0
@@ -478,7 +611,7 @@ L___printd00111:
 	goto	___printd
 L_main00103:
 	; function returns nothing
-;	src/testfwk-__printd.c: 68: __printd(99);
+;	src/testfwk-__printd.c: 83: __printd(99);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,0
@@ -490,7 +623,7 @@ L_main00103:
 	goto	___printd
 L_main00104:
 	; function returns nothing
-;	src/testfwk-__printd.c: 69: __printd(1123);
+;	src/testfwk-__printd.c: 84: __printd(1123);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,4
@@ -502,7 +635,7 @@ L_main00104:
 	goto	___printd
 L_main00105:
 	; function returns nothing
-;	src/testfwk-__printd.c: 70: __printd(45678);
+;	src/testfwk-__printd.c: 85: __printd(45678);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,178
@@ -514,7 +647,7 @@ L_main00105:
 	goto	___printd
 L_main00106:
 	; function returns nothing
-;	src/testfwk-__printd.c: 71: __printd(9012);
+;	src/testfwk-__printd.c: 86: __printd(9012);
 ;; genAssign
 	lad	___printd_PARM_1 + 0
 	mov	mem il ,35
@@ -526,21 +659,66 @@ L_main00106:
 	goto	___printd
 L_main00107:
 	; function returns nothing
-;	src/testfwk-__printd.c: 75: __endasm;
+;	src/testfwk-__printd.c: 88: __ok("condition", "<filename>", 99);
+;; genAddrOf
+;; genAddrOf: operand size 2, 10, 1
+	lad	___ok_PARM_1
+	mov	mem il ,hi8(___str_2 + 0)
+	lad	___ok_PARM_1 + 1
+	mov	mem il ,lo8(___str_2 + 0)
+;; genAddrOf
+;; genAddrOf: operand size 2, 11, 1
+	lad	___ok_PARM_2
+	mov	mem il ,hi8(___str_3 + 0)
+	lad	___ok_PARM_2 + 1
+	mov	mem il ,lo8(___str_3 + 0)
+;; genAssign
+	lad	___ok_PARM_3 + 0
+	mov	mem il ,0
+	lad	___ok_PARM_3 + 1
+	mov	mem il ,99
+;; genCall
+	mov	stack il ,hi8(L_main00108)
+	mov	stack il ,lo8(L_main00108)
+	goto	___ok
+L_main00108:
+	; function returns nothing
+;	src/testfwk-__printd.c: 92: __endasm;
 	halt
-;	src/testfwk-__printd.c: 77: return 0;
+;	src/testfwk-__printd.c: 94: return 0;
 	mov	jmpl stack
 	mov	jmph stack
 	mov	stack il ,0
 	mov	stack il ,0
 	jump
 ;; genLabel
-;	src/testfwk-__printd.c: 78: }
+;	src/testfwk-__printd.c: 95: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
 	.section code,"ax"
 	.section const
+	.section const
+___str_0:
+	.ascii	"--- OK: "
+	.byte 0x22
+	.byte 0x00
+	.section code,"ax"
+	.section const
+___str_1:
+	.ascii	" at "
+	.byte 0x00
+	.section code,"ax"
+	.section const
+___str_2:
+	.ascii	"condition"
+	.byte 0x00
+	.section code,"ax"
+	.section const
+___str_3:
+	.ascii	"<filename>"
+	.byte 0x00
+	.section code,"ax"
 	.section initr,"a"
 	.section cabs

@@ -31,8 +31,6 @@ _main_sloc2_1_0:
 	.ds	2
 _main_sloc3_1_0:
 	.ds	2
-_main_sloc4_1_0:
-	.ds	2
 ;--------------------------------------------------------
 ; ram data
 ;--------------------------------------------------------
@@ -151,14 +149,6 @@ L_main00103:
 	mov	r mem
 ;	src/testfwk-__mod.c: 16: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
-;	left operand AOP_REG
-;	  size = 2
-;	  registers = x r 
-;	right operand AOP_LIT
-;	  size = 2
-;	  value = 00 08 
-;	result operand AOP_SFR
-;	  size = 1
 ;	offset = 1, 0
 	mov	pic x
 ;	src/testfwk-__mod.c: 17: pic = a & 0xff;
@@ -191,14 +181,6 @@ L_main00104:
 	mov	r mem
 ;	src/testfwk-__mod.c: 20: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
-;	left operand AOP_REG
-;	  size = 2
-;	  registers = x r 
-;	right operand AOP_LIT
-;	  size = 2
-;	  value = 00 08 
-;	result operand AOP_SFR
-;	  size = 1
 ;	offset = 1, 0
 	mov	pic x
 ;	src/testfwk-__mod.c: 21: pic = a & 0xff;
@@ -231,14 +213,6 @@ L_main00105:
 	mov	r mem
 ;	src/testfwk-__mod.c: 24: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
-;	left operand AOP_REG
-;	  size = 2
-;	  registers = x r 
-;	right operand AOP_LIT
-;	  size = 2
-;	  value = 00 08 
-;	result operand AOP_SFR
-;	  size = 1
 ;	offset = 1, 0
 	mov	pic x
 ;	src/testfwk-__mod.c: 25: pic = a & 0xff;
@@ -265,31 +239,17 @@ L_main00106:
 	lad	_main_sloc3_1_0 + 0
 	mov	mem stack
 ;; genAssign
-	lad	_main_sloc3_1_0 + 1
-	mov	stack mem
-	lad	_main_sloc4_1_0 + 0
-	mov	mem stack
 	lad	_main_sloc3_1_0 + 0
-	mov	stack mem
-	lad	_main_sloc4_1_0 + 1
-	mov	mem stack
+	mov	x mem
+	lad	_main_sloc3_1_0 + 1
+	mov	r mem
 ;	src/testfwk-__mod.c: 28: pic = (a >> 8) & 0xff;
 ;; genGetByte      = 
-;	left operand AOP_SPILL
-;	  size = 2
-;	  location = _main_sloc4_1_0+0 (immediate)
-;	right operand AOP_LIT
-;	  size = 2
-;	  value = 00 08 
-;	result operand AOP_SFR
-;	  size = 1
 ;	offset = 1, 0
-	lad	_main_sloc4_1_0 + 1
-	mov	pic mem
+	mov	pic x
 ;	src/testfwk-__mod.c: 29: pic = a & 0xff;
 ;; genCast
-	lad	_main_sloc4_1_0 + 0
-	mov	pic mem
+	mov	pic r
 ;	src/testfwk-__mod.c: 38: __endasm;
 	halt
 ;	src/testfwk-__mod.c: 40: return 0;

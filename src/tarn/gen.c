@@ -1351,7 +1351,7 @@ static bool aop_move_sfr(asmop *a1, asmop *a2) {
     }
 
     return true;
-}                         
+}
 
 // Move a2 to a1, where a1 is a register operand.
 static bool aop_move_reg(asmop *a1, asmop *a2) {
@@ -1478,6 +1478,13 @@ static bool aop_move_immediate(asmop *a1, asmop *a2) {
                 /*     aop_move(aop_byte_of(a2, i), ASMOP_STACK); */
                 /* } */
             }
+        } else {
+            if (a1->size < 2) {
+                load_address_16o(a1->aopu.immd, a1->aopu.immd_off);
+                aop_move(ASMOP_MEM, a2);
+            } else {
+                AOP_MOVE_DEBUG;
+            }
         }
     } else {
         AOP_MOVE_DEBUG;
@@ -1485,7 +1492,6 @@ static bool aop_move_immediate(asmop *a1, asmop *a2) {
 }
 
 static bool aop_move(asmop *a1, asmop *a2) {
-
     if (AOP_IS_SPILL(a1)) {
         return aop_move_spill(a1, a2);
     }
@@ -1497,7 +1503,7 @@ static bool aop_move(asmop *a1, asmop *a2) {
     if (AOP_IS_SFR(a1)) {
         return aop_move_sfr(a1, a2);
     }
-    
+
     if (AOP_IS_REG(a1)) {
         return aop_move_reg(a1, a2);
     }
@@ -1712,7 +1718,7 @@ static void genGetByte(iCode *ic) {
     operand *left = IC_LEFT (ic);
     operand *right = IC_RIGHT (ic);
     operand *result = IC_RESULT (ic);
-  
+
     aopOp(left);
     aopOp(right);
     aopOp(result);
@@ -2811,7 +2817,7 @@ static void genCast(iCode *ic) {
     int size_result = operandSize(result);
     int size_right = operandSize(right);
 
-    
+
 
     if (size_result == 2 && size_right == 1) {
         if (is_mem(result)) {
@@ -3079,6 +3085,8 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
 
     wassertl(size_right > 0 || op == ALUS_NOT, "Binary ALU operation with NULL right!");
 
+    bool move_aluc_to_result = true;
+
     if (size_left == 1 && size_right < 2) {
         if (op == ALUS_MINUS) {
             if (AOP_IS_LIT(right)) {
@@ -3090,6 +3098,15 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
                 emit2("mov", "alub il ,%d", 0xff & (-byteOfVal(right->aopu.aop_lit, 0)));
                 cost(2);
+            } else if (AOP_IS_DIRECT(right)) {
+                // negate right and put back in alua
+                aop_alu(ALUS_NOT, right, NULL, ASMOP_ALUC, NULL);
+                aop_alu(ALUS_PLUS, ASMOP_ALUC, ASMOP_ONE, ASMOP_ALUA, NULL);
+
+                // alus is still plus!
+                aop_move(ASMOP_ALUB, left);
+                aop_move(result, ASMOP_ALUC);
+                move_aluc_to_result = false;
             } else {
                 MOVE_AOP_DEBUG;
                 emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
@@ -3104,7 +3121,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
             // no else because this means a unary operation and alub isn't used
         }
         if (!ifx) {
-            if (result != ASMOP_ALUC) {
+            if (move_aluc_to_result && result != ASMOP_ALUC) {
                 aop_alu_move_result(result, ASMOP_ALUC, false, ifx);
             }
         }
@@ -3493,7 +3510,7 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
     /* if (false_branch) { */
     /*     emit2(";", "false branch is !tlabel", label_num(false_branch)); */
     /* } */
-    
+
 
     symbol *result_desired_maybe = new_label(NULL);
     symbol *result_undesired = new_label(NULL);

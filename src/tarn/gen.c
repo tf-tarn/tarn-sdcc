@@ -1206,27 +1206,23 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
                 emit_mov_lit("mem", byteOfVal(a2->aopu.aop_lit, a2->size - i - 1));
             }
         } else if (AOP_IS_DIRECT(a2)) {
-            if (a1->size == a2->size) {
-                if (a1->size == 2) {
-                    // TODO change to use only one stack slot
-                    load_address_16(a2->aopu.aop_dir);
-                    emit2("mov", "stack mem ; hi");
-                    load_address_16o(a2->aopu.aop_dir, 1);
-                    emit2("mov", "stack mem ; lo");
-                    load_address_16o(a1->aopu.aop_dir, 1);
-                    emit2("mov", "mem stack ; lo");
-                    load_address_16(a1->aopu.aop_dir);
-                    emit2("mov", "mem stack ; hi");
-                    cost(4);
-                } else if (a1->size == 1) {
-                    load_address_16(a2->aopu.aop_dir);
-                    emit2("mov", "stack mem");
-                    load_address_16(a1->aopu.aop_dir);
-                    emit2("mov", "mem stack");
-                    cost(2);
-                } else {
-                    AOP_MOVE_DEBUG;
-                }
+            if (a1->size == 2) {
+                // TODO change to use only one stack slot
+                load_address_16(a2->aopu.aop_dir);
+                emit2("mov", "stack mem ; hi");
+                load_address_16o(a2->aopu.aop_dir, 1);
+                emit2("mov", "stack mem ; lo");
+                load_address_16o(a1->aopu.aop_dir, 1);
+                emit2("mov", "mem stack ; lo");
+                load_address_16(a1->aopu.aop_dir);
+                emit2("mov", "mem stack ; hi");
+                cost(4);
+            } else if (a1->size == 1) {
+                load_address_16(a2->aopu.aop_dir);
+                emit2("mov", "stack mem");
+                load_address_16(a1->aopu.aop_dir);
+                emit2("mov", "mem stack");
+                cost(2);
             } else {
                 AOP_MOVE_DEBUG;
             }
@@ -1279,6 +1275,18 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
             }
             load_address_16o(a1->aopu.aop_dir, a1->size - 1);
             emit_mov("mem", a2->aopu.aop_dir);
+        } else if (AOP_IS_DIRECT(a2)) {
+            int offset = a1->size - a2->size;
+            for (int i = 0; i < a2->size; ++i) {
+                load_address_16o(a2->aopu.aop_dir, i);
+                emit_mov("stack", "mem");
+                load_address_16o(a1->aopu.aop_dir, i + offset);
+                emit_mov("mem", "stack");
+            }
+            for (int i = 0; i < offset; ++i) {
+                load_address_16o(a1->aopu.aop_dir, i);
+                emit_mov("mem", "zero");
+            }
         } else {
             AOP_MOVE_DEBUG;
         }

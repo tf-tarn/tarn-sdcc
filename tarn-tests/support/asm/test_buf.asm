@@ -132,10 +132,10 @@ L_main00118:
 ;;	ALU operand size 2 2 1
 	mov	stack r
 	add_8s_16	_main_buf_65536_2 + 0
-	lad	_main_sloc0_1_0 + 0
-	mov	mem x
 	lad	_main_sloc0_1_0 + 1
 	mov	mem r
+	lad	_main_sloc0_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1

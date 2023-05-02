@@ -112,13 +112,13 @@ __sdcc_program_startup:
 	lad	_val3 + 0
 	mov	mem x
 	restore_rx
-;	src/shift_left_8.c: 12: pic = *(0 + (char*)(&val3)); // b
+;	src/shift_left_8.c: 12: pic = *(0 + (char*)(&val3)); // a
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adh il ,hi8(_val3 + 0)
 	mov	adl il ,lo8(_val3 + 0)
 	mov	pic mem
-;	src/shift_left_8.c: 13: pic = *(1 + (char*)(&val3)); // a
+;	src/shift_left_8.c: 13: pic = *(1 + (char*)(&val3)); // b
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1
 	mov	adh il ,hi8(_val3 + 1)

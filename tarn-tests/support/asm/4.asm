@@ -85,10 +85,10 @@ __sdcc_program_startup:
 	lad	_index + 0
 	mov	stack mem
 	add_8s_16	_array
-	lad	_main_sloc0_1_0 + 0
-	mov	mem x
 	lad	_main_sloc0_1_0 + 1
 	mov	mem r
+	lad	_main_sloc0_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1

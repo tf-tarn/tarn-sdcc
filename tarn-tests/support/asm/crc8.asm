@@ -205,10 +205,10 @@ L_crc800118:
 	mov	stack mem
 	load_stack_from_ptr	_crc8_sloc0_1_0
 	add_8s_16s
-	lad	_crc8_sloc1_1_0 + 0
-	mov	mem x
 	lad	_crc8_sloc1_1_0 + 1
 	mov	mem r
+	lad	_crc8_sloc1_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1

@@ -123,9 +123,9 @@ __sdcc_program_startup:
 L___div00101:
 ;; genCmp
 ;	begin multibyte (2) comparison
-	lad	___div_PARM_1
+	lad	___div_PARM_1 + 0
 	mov	alua mem
-	lad	___div_PARM_2
+	lad	___div_PARM_2 + 0
 	mov	alub mem
 	mov	alus il ,10	; equal-to 
 	mov	test aluc
@@ -185,9 +185,9 @@ L___div00103:
 L___mod00101:
 ;; genCmp
 ;	begin multibyte (2) comparison
-	lad	___mod_PARM_1
+	lad	___mod_PARM_1 + 0
 	mov	alua mem
-	lad	___mod_PARM_2
+	lad	___mod_PARM_2 + 0
 	mov	alub mem
 	mov	alus il ,10	; equal-to 
 	mov	test aluc
@@ -294,7 +294,7 @@ L___prints00104:
 ;	src/testfwk-__printd.c: 39: if (0 == n) {
 ;; genIfx
 ;	begin multibyte (2) comparison
-	lad	___printd_PARM_1
+	lad	___printd_PARM_1 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -334,7 +334,7 @@ L___printd00109:
 ;; genCmp
 ;	begin multibyte (2) comparison
 	mov	alua zero
-	lad	___printd_PARM_1
+	lad	___printd_PARM_1 + 0
 	mov	alub mem
 	mov	alus il ,10	; equal-to 
 	mov	test aluc
@@ -382,7 +382,7 @@ L___printd00116:
 L___printd00103:
 ;; genIfx
 ;	begin multibyte (2) comparison
-	lad	___printd_PARM_1
+	lad	___printd_PARM_1 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -407,10 +407,10 @@ L___printd00147:
 	lad	___printd_sloc3_1_0 + 1
 	mov	stack mem
 	add_16s_16l	65535
-	lad	___printd_sloc3_1_0 + 0
-	mov	mem x
 	lad	___printd_sloc3_1_0 + 1
 	mov	mem r
+	lad	___printd_sloc3_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genAssign
 	lad	___printd_PARM_1

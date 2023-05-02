@@ -87,9 +87,9 @@ __sdcc_program_startup:
 L___mod00101:
 ;; genCmp
 ;	begin multibyte (2) comparison
-	lad	___mod_PARM_1
+	lad	___mod_PARM_1 + 0
 	mov	alua mem
-	lad	___mod_PARM_2
+	lad	___mod_PARM_2 + 0
 	mov	alub mem
 	mov	alus il ,10	; equal-to 
 	mov	test aluc

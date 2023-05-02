@@ -264,16 +264,16 @@ tarn_init_asmops (void)
   asmop_rx.type = AOP_REG;
   asmop_rx.size = 2;
   asmop_rx.aopu.bytes[0].in_reg = true;
-  asmop_rx.aopu.bytes[0].byteu.reg = tarn_regs + R_IDX;
+  asmop_rx.aopu.bytes[0].byteu.reg = tarn_regs + X_IDX;
   asmop_rx.aopu.bytes[1].in_reg = true;
-  asmop_rx.aopu.bytes[1].byteu.reg = tarn_regs + X_IDX;
+  asmop_rx.aopu.bytes[1].byteu.reg = tarn_regs + R_IDX;
 
   asmop_xr.type = AOP_REG;
   asmop_xr.size = 2;
   asmop_xr.aopu.bytes[0].in_reg = true;
-  asmop_xr.aopu.bytes[0].byteu.reg = tarn_regs + X_IDX;
+  asmop_xr.aopu.bytes[0].byteu.reg = tarn_regs + R_IDX;
   asmop_xr.aopu.bytes[1].in_reg = true;
-  asmop_xr.aopu.bytes[1].byteu.reg = tarn_regs + R_IDX;
+  asmop_xr.aopu.bytes[1].byteu.reg = tarn_regs + X_IDX;
 
   asmop_adhl.type = AOP_REG;
   asmop_adhl.size = 2;
@@ -766,7 +766,7 @@ void emit_asmop(const char *label, asmop *aop) {
         switch (aop->type) {
         case AOP_LIT:
             *buf = 0;
-            for (int i = aop->size - 1; i >= 0; i--) {
+            for (int i = 0; i < aop->size; ++i) {
                 sprintf(buf + strlen(buf), "%02x ", byteOfVal(aop->aopu.aop_lit, i));
             }
             emit2(";", "  value = %s", buf);
@@ -789,7 +789,7 @@ void emit_asmop(const char *label, asmop *aop) {
             break;
         case AOP_REG:
             *buf = 0;
-            for (int i = aop->size - 1; i >= 0; i--) {
+            for (int i = 0; i < aop->size; ++i) {
                 sprintf(buf + strlen(buf), "%s ", aop->aopu.bytes[i].byteu.reg->name);
             }
             emit2(";", "  registers = %s", buf);
@@ -1188,8 +1188,9 @@ static bool aop_move_spill(asmop *a1, asmop *a2) {
             }
         } else {
             for (int i = 0; i < a2->size; ++i) {
-                load_address_16o(a1->aopu.immd, a1->aopu.immd_off + i);
-                aop_move_byte(ASMOP_MEM, a2, a2->size - i - 1);
+                // address offset is backwards because we are BIG ENDIAN
+                load_address_16o(a1->aopu.immd, a1->aopu.immd_off + (a2->size - i - 1));
+                aop_move_byte(ASMOP_MEM, a2, i);
             }
         }
     }
@@ -1230,9 +1231,10 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
                 AOP_MOVE_DEBUG;
             }
         } else if (AOP_IS_REG(a2)) {
-            // regression test fails here
+            // regression test fails here // does it?
             for (int i = 0; i < a1->size; ++i) {
-                load_address_16o(a1->aopu.aop_dir, (a1->size - 1) - i);
+                // address offset is backwards because we are BIG ENDIAN
+                load_address_16o(a1->aopu.aop_dir, a1->size - i - 1);
                 emit_mov("mem", a2->aopu.bytes[i].byteu.reg->name);
             }
         } else if (AOP_IS_IMMEDIATE(a2)) {
@@ -1378,12 +1380,22 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
             if (aopSame(a1, 0, a2, 0, a1->size)) {
                 return false;
             }
-            for (int i = 0; i < a2->size; ++i) {
-                if (strcmp(a1->aopu.bytes[i].byteu.reg->name, a2->aopu.bytes[i].byteu.reg->name)) {
-                    emit_mov(a1->aopu.bytes[i].byteu.reg->name, a2->aopu.bytes[i].byteu.reg->name);
-                } else {
-                    emit2(";", "Not moving register %s to itself.", a2->aopu.bytes[i].byteu.reg->name);
-                    return false;
+            if (a1->size == 2
+                && !strcmp(a1->aopu.bytes[1].byteu.reg->name, a2->aopu.bytes[0].byteu.reg->name)
+                && !strcmp(a1->aopu.bytes[0].byteu.reg->name, a2->aopu.bytes[1].byteu.reg->name)) {
+                // Special case: swap two registers.
+                emit_mov("stack", a2->aopu.bytes[0].byteu.reg->name);
+                emit_mov(a1->aopu.bytes[1].byteu.reg->name, a2->aopu.bytes[1].byteu.reg->name);
+                emit_mov(a1->aopu.bytes[0].byteu.reg->name, "stack");
+                
+            } else {
+                for (int i = 0; i < a2->size; ++i) {
+                    if (strcmp(a1->aopu.bytes[i].byteu.reg->name, a2->aopu.bytes[i].byteu.reg->name)) {
+                        emit_mov(a1->aopu.bytes[i].byteu.reg->name, a2->aopu.bytes[i].byteu.reg->name);
+                    } else {
+                        emit2(";", "Not moving register %s to itself.", a2->aopu.bytes[i].byteu.reg->name);
+                        return false;
+                    }
                 }
             }
         } else if (AOP_IS_LIT(a2)) {
@@ -1614,11 +1626,10 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
             if (AOP_IS_DIRECT(a2) || AOP_IS_CODE(a2)) {
                 if (a2->size == 2) {
                     if (index == 0) {
-                        load_address_16(a2->aopu.aop_dir);
-                        cost(8);
+                        load_address_16o(a2->aopu.aop_dir, 1);
                         aop_move(a1, ASMOP_MEM);
                     } else if (index == 1) {
-                        load_address_16o(a2->aopu.aop_dir, 1);
+                        load_address_16o(a2->aopu.aop_dir, 0);
                         aop_move(a1, ASMOP_MEM);
                     } else {
                         AOP_MOVE_DEBUG;
@@ -2082,6 +2093,7 @@ static void genPointerGet(iCode *ic) {
                             /* emit2("mov", "mem %s", op_get_register_name_i(left, 1)); */
                             aopOp(result);
                             aopOp(left);
+                            aopOp(right);
                             aop_move(ASMOP_ADHL, left->aop);
                             aop_move(result->aop, ASMOP_MEM);
                         } else {
@@ -3050,7 +3062,7 @@ bool aop_alu_move_result(asmop *result, asmop *value, bool needs_restore, iCode 
         return true;
     }
 
-    if (aop_move(result, value) && needs_restore) {
+    if (aop_move(result, value) && needs_restore && !aopSame(result, 0, ASMOP_XR, 0, result->size)) {
         emit2("restore_rx", "");
         cost(6);
     }
@@ -3067,6 +3079,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
     wassertl(size_right > 0 || op == ALUS_NOT, "Binary ALU operation with NULL right!");
 
     bool move_aluc_to_result = true;
+
 
     if (size_left == 1 && size_right < 2) {
         if (op == ALUS_MINUS) {
@@ -3116,7 +3129,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
     } else if (size_left == 2 && size_right == 1) {
         if (AOP_IS_LIT(right)) {
             // TODO this seems hacky....
-            if (AOP_IS_REG(left)) {
+            if (AOP_IS_DIRECT(left) || AOP_IS_REG(left)) {
                 for (int i = 0; i < size_left; ++i) {
                     aop_move_byte(ASMOP_STACK, left, size_left - i - 1);
                 }
@@ -3131,28 +3144,34 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 emit2("add_16s_8", "%d", byteOfVal(right->aopu.aop_lit, 0));
             }
             cost(15);
-            aop_alu_move_result(result, ASMOP_RX, true, ifx);
+            aop_alu_move_result(result, ASMOP_XR, true, ifx);
         } else if (AOP_IS_REG(right)) {
             if (AOP_IS_IMMEDIATE(left)) {
                 aop_move(ASMOP_STACK, right);
                 emit2("add_8s_16", "%s + %d", left->aopu.immd, left->aopu.immd_off);
                 cost(15);
-                aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                aop_alu_move_result(result, ASMOP_XR, true, ifx);
             } else {
-                for (int i = 0; i < size_left; ++i) {
-                    aop_move_byte(ASMOP_STACK, left, i);
+                if (AOP_IS_DIRECT(left)) {
+                    for (int i = size_left - 1; i >= 0; --i) {
+                        aop_move_byte(ASMOP_STACK, left, i);
+                    }
+                } else {
+                    for (int i = 0; i < size_left; ++i) {
+                        aop_move_byte(ASMOP_STACK, left, i);
+                    }
                 }
                 aop_move(ASMOP_STACK, right);
                 emit2("add_8s_16s", "");
                 cost(15);
-                aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                aop_alu_move_result(result, ASMOP_XR, true, ifx);
             }
         } else {
             if (AOP_IS_IMMEDIATE(left)) {
                 aop_move(ASMOP_STACK, right);
                 emit2("add_8s_16", "%s", left->aopu.immd);
                 cost(15);
-                aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                aop_alu_move_result(result, ASMOP_XR, true, ifx);
             } else if (AOP_IS_SPILL(left)) {
                 if (AOP_IS_DIRECT(right)) {
                     load_address_16(right->aopu.aop_dir);
@@ -3164,7 +3183,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
 
                     emit2("add_8s_16s", "");
                     cost(15);
-                    aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                    aop_alu_move_result(result, ASMOP_XR, true, ifx);
                 } else {
                     MOVE_AOP_DEBUG;
                 }
@@ -3179,7 +3198,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
 
                     emit2("add_8s_16s", "");
                     cost(15);
-                    aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                    aop_alu_move_result(result, ASMOP_XR, true, ifx);
                 } else {
                     MOVE_AOP_DEBUG;
                 }
@@ -3193,7 +3212,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 aop_move(ASMOP_STACK, right);
                 emit2("add_16s_16l", "%d", ulFromVal(left->aopu.aop_lit));
                 cost(20);
-                aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                aop_alu_move_result(result, ASMOP_XR, true, ifx);
             } else {
                 MOVE_AOP_DEBUG;
             }
@@ -3212,16 +3231,16 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 if (op == ALUS_MINUS) {
                     emit2("sub_16m_16m", "%s %s", left->aopu.aop_dir, right->aopu.aop_dir);
                     cost(54);
-                    aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                    aop_alu_move_result(result, ASMOP_XR, true, ifx);
                 } else {
                     emit2("add_16m_16m", "%s %s", left->aopu.aop_dir, right->aopu.aop_dir);
                     cost(19);
-                    aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                    aop_alu_move_result(result, ASMOP_XR, true, ifx);
                 }
             } else if (AOP_IS_LIT(right)) {
                 emit2("add_16m_16l", "%s %d", left->aopu.aop_dir, ulFromVal(right->aopu.aop_lit));
                 cost(19);
-                aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                aop_alu_move_result(result, ASMOP_XR, true, ifx);
             } else {
                 MOVE_AOP_DEBUG;
             }
@@ -3229,7 +3248,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
             if (AOP_IS_SPILL(right)) {
                 emit2("add_16m_16m", "%s %s", left->aopu.immd, right->aopu.immd);
                 cost(19);
-                aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                aop_alu_move_result(result, ASMOP_XR, true, ifx);
             } else {
                 MOVE_AOP_DEBUG;
             }
@@ -3238,7 +3257,7 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
                 aop_move(ASMOP_STACK, left);
                 emit2("add_16s_16l", "%d", ulFromVal(right->aopu.aop_lit));
                 cost(20);
-                aop_alu_move_result(result, ASMOP_RX, true, ifx);
+                aop_alu_move_result(result, ASMOP_XR, true, ifx);
             } else {
                 MOVE_AOP_DEBUG;
             }
@@ -3275,7 +3294,7 @@ static void genUminus(iCode *ic) {
         if (left->aop->size == 2) {
             emit2("add_16s_8", "%d", 1);
             cost(15);
-            aop_move(result->aop, ASMOP_RX);
+            aop_move(result->aop, ASMOP_XR);
             if (!aopSame(result->aop, 0, ASMOP_RX, 0, left->aop->size)) {
                 emit2("restore_rx", "");
                 cost(6);
@@ -3530,43 +3549,6 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
         max_size = left->size;
     }
 
-    /* if (left->size == right->size && left->size == 2 && op != EQ_OP) { */
-    /*     AOP_CMP_DEBUG; */
-    /*     if (AOP_IS_DIRECT(left) && AOP_IS_DIRECT(right)) { */
-    /*         if (true_branch) { */
-    /*             if (!regalloc_dry_run) { */
-    /*                 emit2("compare_16m_16m__t", "%d %s %s !tlabel", */
-    /*                       alus_op, */
-    /*                       left->aopu.aop_dir, right->aopu.aop_dir, label_num(true_branch)); */
-    /*             } */
-    /*         } else if (false_branch) { */
-    /*             if (!regalloc_dry_run) { */
-    /*                 emit2("compare_16m_16m__f", "%d %s %s !tlabel", */
-    /*                       alus_op, */
-    /*                       left->aopu.aop_dir, right->aopu.aop_dir, label_num(true_branch)); */
-    /*             } */
-    /*         } else { */
-    /*             AOP_CMP_DEBUG; */
-    /*         } */
-    /*     } else if (AOP_IS_LIT(left) && AOP_IS_DIRECT(right)) { */
-    /*         if (true_branch) { */
-    /*             if (!regalloc_dry_run) { */
-    /*                 emit2("compare_16l_16m__t", "%d %d %s !tlabel", */
-    /*                       alus_op, */
-    /*                       ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(true_branch)); */
-    /*             } */
-    /*         } else if (false_branch) { */
-    /*             if (!regalloc_dry_run) { */
-    /*                 emit2("compare_16l_16m__f", "%d %d %s !tlabel", */
-    /*                       alus_op, */
-    /*                       ulFromVal(left->aopu.aop_lit), right->aopu.aop_dir, label_num(false_branch)); */
-    /*             } */
-    /*         } else { */
-    /*             AOP_CMP_DEBUG; */
-    /*         } */
-    /*     } */
-    /*     AOP_CMP_DEBUG; */
-    /* } else */
     if (left->size == right->size
         || AOP_IS_LIT(left)
         || AOP_IS_LIT(right)) {
@@ -3653,16 +3635,6 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
                     }
                 }
 
-                
-
-                /* if (true_branch) { */
-                /*     D2(emit2(";", "true branch -> jump to desired")); */
-                /*     emit_jump_to_label(result_desired, 0); */
-                /* } else { */
-                /*     D2(emit2(";", "false branch -> jump to desired")); */
-                /*     emit_jump_to_label(result_undesired, 0); */
-                /* } */
-
                 if (i < max_size - 1) {
                     D2(emit2(";", "emit next comparison label !tlabel", label_num(next_comparison)));
                     tarn_emit_label(next_comparison);
@@ -3671,13 +3643,6 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
                 }
             }
 
-            /* if (invert) { */
-            /*     D2(emit2(";", "emit desired !tlabel", label_num(result_desired))); */
-            /*     tarn_emit_label(result_desired); */
-            /* } else { */
-            /*     D2(emit2(";", "emit undesired !tlabel", label_num(result_undesired))); */
-            /*     tarn_emit_label(result_undesired); */
-            /* } */
             emit2(";", "emit end of comparison sequence label");
             tarn_emit_label(end_of_comparison);
             emit2(";", "end multibyte comparison");
@@ -3713,17 +3678,13 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
               return\@:
               gotonz \less_than_label
             */
-            if (AOP_IS_REG(left)) {
-                aop_move_byte(ASMOP_ALUA, left, 1);
-            } else {
-                aop_move_byte(ASMOP_ALUA, left, 0);
-            }
+            /* if (AOP_IS_REG(left)) { */
+            /*     aop_move_byte(ASMOP_ALUA, left, 1); */
+            /* } else { */
+            aop_move_byte(ASMOP_ALUA, left, 1);
+            /* } */
             // indexing for literals is wrong
-            if (AOP_IS_LIT(right)) {
-                aop_move_byte(ASMOP_ALUB, right, 1);
-            } else {
-                aop_move_byte(ASMOP_ALUB, right, 0);
-            }
+            aop_move_byte(ASMOP_ALUB, right, 1);
             emit2("mov", "alus il ,%d\t; %s ", ALUS_EQ, alu_operations[ALUS_EQ]);
             cost(1);
             emit_mov("test", "aluc");
@@ -3741,16 +3702,12 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
             
             D2(emit2(";", "compare low byte"));
             tarn_emit_label(compare_low_byte);
-            if (AOP_IS_REG(left)) {
-                aop_move_byte(ASMOP_ALUA, left, 0);
-            } else {
-                aop_move_byte(ASMOP_ALUA, left, 1);
-            }
-            if (AOP_IS_LIT(right)) {
-                aop_move_byte(ASMOP_ALUB, right, 0);
-            } else {
-                aop_move_byte(ASMOP_ALUB, right, 1);
-            }
+            /* if (AOP_IS_REG(left)) { */
+            /*     aop_move_byte(ASMOP_ALUA, left, 0); */
+            /* } else { */
+            aop_move_byte(ASMOP_ALUA, left, 0);
+            /* } */
+            aop_move_byte(ASMOP_ALUB, right, 0);
             emit_mov("test", "aluc");
 
             tarn_emit_label(return_label);

@@ -139,10 +139,10 @@ __sdcc_program_startup:
 ;;	ALU operand size 2 2 1
 	mov	stack r
 	add_8s_16	_array + 0
-	lad	_main_sloc0_1_0 + 0
-	mov	mem x
 	lad	_main_sloc0_1_0 + 1
 	mov	mem r
+	lad	_main_sloc0_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
@@ -168,10 +168,10 @@ __sdcc_program_startup:
 ;;	ALU operand size 2 2 1
 	mov	stack r
 	add_8s_16	_array + 0
-	lad	_main_sloc1_1_0 + 0
-	mov	mem x
 	lad	_main_sloc1_1_0 + 1
 	mov	mem r
+	lad	_main_sloc1_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
@@ -197,10 +197,10 @@ __sdcc_program_startup:
 ;;	ALU operand size 2 2 1
 	mov	stack r
 	add_8s_16	_array + 0
-	lad	_main_sloc2_1_0 + 0
-	mov	mem x
 	lad	_main_sloc2_1_0 + 1
 	mov	mem r
+	lad	_main_sloc2_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
@@ -229,10 +229,10 @@ __sdcc_program_startup:
 	lad	_main_sloc3_1_0 + 0
 	mov	stack mem
 	add_8s_16	_array
-	lad	_main_sloc4_1_0 + 0
-	mov	mem x
 	lad	_main_sloc4_1_0 + 1
 	mov	mem r
+	lad	_main_sloc4_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1
@@ -261,10 +261,10 @@ __sdcc_program_startup:
 	lad	_main_sloc5_1_0 + 0
 	mov	stack mem
 	add_8s_16	_array
-	lad	_main_sloc6_1_0 + 0
-	mov	mem x
 	lad	_main_sloc6_1_0 + 1
 	mov	mem r
+	lad	_main_sloc6_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genPointerSet
 ;; genPointerSet: operand size 2, 1

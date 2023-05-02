@@ -9,8 +9,8 @@ int main (int argc, char **argv) {
 
     // I mean, it's kind of a useless test, I guess, but that's what
     // shifting means in this case...
-    pic = *(0 + (char*)(&val3)); // b
-    pic = *(1 + (char*)(&val3)); // a
+    pic = *(0 + (char*)(&val3)); // a
+    pic = *(1 + (char*)(&val3)); // b
 
     __asm
         halt

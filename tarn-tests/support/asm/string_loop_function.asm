@@ -88,16 +88,16 @@ L_print00103:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	lad	_print_PARM_1
+	lad	_print_PARM_1 + 0
 	mov	stack mem
 	lad	_print_PARM_1 + 1
 	mov	stack mem
 	mov	stack r
 	add_8s_16s
-	lad	_print_sloc0_1_0 + 0
-	mov	mem x
 	lad	_print_sloc0_1_0 + 1
 	mov	mem r
+	lad	_print_sloc0_1_0 + 0
+	mov	mem x
 	restore_rx
 ;; genPointerGet
 ;; genPointerGet: operand size 1, 2, 1

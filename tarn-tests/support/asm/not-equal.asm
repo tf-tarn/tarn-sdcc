@@ -142,7 +142,7 @@ L_main00106:
 L_main00107:
 ;; genIfx
 ;	begin multibyte (2) comparison
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -179,7 +179,7 @@ L_main00109:
 L_main00110:
 ;; genIfx
 ;	begin multibyte (2) comparison
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -218,7 +218,7 @@ L_main00112:
 L_main00113:
 ;; genCmp
 ;	begin multibyte (2) comparison
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -243,7 +243,7 @@ L_main00242:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	stack mem
 	lad	_main_n_65536_2 + 1
 	mov	stack mem
@@ -265,7 +265,7 @@ L_main00115:
 L_main00116:
 ;; genCmp
 ;	begin multibyte (2) comparison
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -290,7 +290,7 @@ L_main00245:
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 2 2 1
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	stack mem
 	lad	_main_n_65536_2 + 1
 	mov	stack mem
@@ -376,7 +376,7 @@ L_main00124:
 L_main00125:
 ;; genIfx
 ;	begin multibyte (2) comparison
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -419,7 +419,7 @@ L_main00127:
 L_main00128:
 ;; genIfx
 ;	begin multibyte (2) comparison
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -464,7 +464,7 @@ L_main00130:
 L_main00131:
 ;; genCmp
 ;	begin multibyte (2) comparison
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -489,7 +489,7 @@ L_main00255:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	stack mem
 	lad	_main_n_65536_2 + 1
 	mov	stack mem
@@ -517,7 +517,7 @@ L_main00133:
 L_main00134:
 ;; genCmp
 ;	begin multibyte (2) comparison
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	alua mem
 	mov	alub zero
 	mov	alus il ,10	; equal-to 
@@ -542,7 +542,7 @@ L_main00258:
 ;; genALUOp
 ;;	ALU minus (16)
 ;;	ALU operand size 2 2 1
-	lad	_main_n_65536_2
+	lad	_main_n_65536_2 + 0
 	mov	stack mem
 	lad	_main_n_65536_2 + 1
 	mov	stack mem

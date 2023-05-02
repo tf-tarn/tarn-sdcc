@@ -106,7 +106,7 @@ __sdcc_program_startup:
 ;; genALUOp
 ;;	ALU plus (4)
 ;;	ALU operand size 2 2 1
-	lad	_vvv
+	lad	_vvv + 0
 	mov	stack mem
 	lad	_vvv + 1
 	mov	stack mem

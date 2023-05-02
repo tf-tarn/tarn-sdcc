@@ -200,10 +200,10 @@ L_main00104:
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_1 + 0) ; lo
 ;; genCall
-	mov	stack il ,hi8(L_main00132)
-	mov	stack il ,lo8(L_main00132)
+	mov	stack il ,hi8(L_main00126)
+	mov	stack il ,lo8(L_main00126)
 	goto	_print
-L_main00132:
+L_main00126:
 	; function returns nothing
 ;	src/string_loop_function.c: 27: break;
 ;; genGoto
@@ -218,10 +218,10 @@ L_main00105:
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_0 + 0) ; lo
 ;; genCall
-	mov	stack il ,hi8(L_main00133)
-	mov	stack il ,lo8(L_main00133)
+	mov	stack il ,hi8(L_main00127)
+	mov	stack il ,lo8(L_main00127)
 	goto	_print
-L_main00133:
+L_main00127:
 	; function returns nothing
 ;	src/string_loop_function.c: 30: break;
 ;; genGoto
@@ -236,10 +236,10 @@ L_main00106:
 	lad	_print_PARM_1 + 1
 	mov	mem il ,lo8(___str_1 + 0) ; lo
 ;; genCall
-	mov	stack il ,hi8(L_main00134)
-	mov	stack il ,lo8(L_main00134)
+	mov	stack il ,hi8(L_main00128)
+	mov	stack il ,lo8(L_main00128)
 	goto	_print
-L_main00134:
+L_main00128:
 	; function returns nothing
 ;	src/string_loop_function.c: 34: }
 ;; genLabel

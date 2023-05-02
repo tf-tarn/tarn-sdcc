@@ -123,9 +123,9 @@ L_main00103:
 	mov	alub il ,6
 	mov	test aluc
 ;; genIfx
-	gotonz	L_main00120
+	gotonz	L_main00118
 	goto	L_main00101
-L_main00120:
+L_main00118:
 ;	src/test_buf.c: 18: pic = buf[i];
 ;; genALUOp
 ;;	ALU plus (4)

@@ -94,8 +94,25 @@ __sdcc_program_startup:
 ;; genLabel
 L___div00101:
 ;; genCmp
+;	begin multibyte (2) comparison
+	lad	___div_PARM_1
+	mov	alua mem
+	lad	___div_PARM_2
+	mov	alub mem
+	mov	alus il ,10	; equal-to 
+	mov	test aluc
 	mov	alus il ,9	; less-than 
-	compare_16m_16m__t	9 ___div_PARM_1 ___div_PARM_2 L___div00103
+	gotonz	L___div00116
+	mov	test aluc
+	goto	L___div00117
+L___div00116:
+	lad	___div_PARM_1 + 1
+	mov	alua mem
+	lad	___div_PARM_2 + 1
+	mov	alub mem
+	mov	test aluc
+L___div00117:
+	gotonz	L___div00103
 ;	src/testfwk-__prints.c: 11: q++;
 ;; genALUOp
 ;;	ALU plus (4)
@@ -139,8 +156,25 @@ L___div00103:
 ;; genLabel
 L___mod00101:
 ;; genCmp
+;	begin multibyte (2) comparison
+	lad	___mod_PARM_1
+	mov	alua mem
+	lad	___mod_PARM_2
+	mov	alub mem
+	mov	alus il ,10	; equal-to 
+	mov	test aluc
 	mov	alus il ,9	; less-than 
-	compare_16m_16m__t	9 ___mod_PARM_1 ___mod_PARM_2 L___mod00103
+	gotonz	L___mod00115
+	mov	test aluc
+	goto	L___mod00116
+L___mod00115:
+	lad	___mod_PARM_1 + 1
+	mov	alua mem
+	lad	___mod_PARM_2 + 1
+	mov	alub mem
+	mov	test aluc
+L___mod00116:
+	gotonz	L___mod00103
 ;	src/testfwk-__prints.c: 22: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)

@@ -114,10 +114,10 @@ L_multiply_or_divide00101:
 	lad	__muluchar_PARM_2
 	mov	mem stack
 ;; genCall
-	mov	stack il ,hi8(L_multiply_or_divide00125)
-	mov	stack il ,lo8(L_multiply_or_divide00125)
+	mov	stack il ,hi8(L_multiply_or_divide00121)
+	mov	stack il ,lo8(L_multiply_or_divide00121)
 	goto	__muluchar
-L_multiply_or_divide00125:
+L_multiply_or_divide00121:
 ;	result: reg? mem? remat? spilt? nregs regs label
 ;	        yes                     1     r,        
 	mov	r stack
@@ -140,10 +140,10 @@ L_multiply_or_divide00102:
 	lad	__divuchar_PARM_2
 	mov	mem stack
 ;; genCall
-	mov	stack il ,hi8(L_multiply_or_divide00126)
-	mov	stack il ,lo8(L_multiply_or_divide00126)
+	mov	stack il ,hi8(L_multiply_or_divide00122)
+	mov	stack il ,lo8(L_multiply_or_divide00122)
 	goto	__divuchar
-L_multiply_or_divide00126:
+L_multiply_or_divide00122:
 ;	result: reg? mem? remat? spilt? nregs regs label
 ;	        yes                     1     r,        
 	mov	r stack

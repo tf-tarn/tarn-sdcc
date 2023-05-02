@@ -96,9 +96,9 @@ L_crc8_one00106:
 	mov	alub il ,8
 	mov	test aluc
 ;; genIfx
-	gotonz	L_crc8_one00125
+	gotonz	L_crc8_one00123
 	goto	L_crc8_one00104
-L_crc8_one00125:
+L_crc8_one00123:
 ;	src/crc8.c: 10: if (crc & 0x80)
 ;; genAssign
 	lad	_crc8_one_PARM_1 + 0
@@ -194,9 +194,9 @@ L_crc800103:
 	mov	alub mem
 	mov	test aluc
 ;; genIfx
-	gotonz	L_crc800120
+	gotonz	L_crc800118
 	goto	L_crc800101
-L_crc800120:
+L_crc800118:
 ;	src/crc8.c: 28: crc ^= data[i]; /* XOR-in the next input uint8_t */
 ;; genALUOp
 ;;	ALU plus (4)
@@ -226,10 +226,10 @@ L_crc800120:
 	mov	mem aluc
 ;	src/crc8.c: 29: crc = crc8_one(crc);
 ;; genCall
-	mov	stack il ,hi8(L_crc800121)
-	mov	stack il ,lo8(L_crc800121)
+	mov	stack il ,hi8(L_crc800119)
+	mov	stack il ,lo8(L_crc800119)
 	goto	_crc8_one
-L_crc800121:
+L_crc800119:
 	mov	r stack
 ;; genAssign
 ;	src/crc8.c: 27: for (uint8_t i = 0; i < len; ++i) {

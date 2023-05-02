@@ -122,8 +122,25 @@ __sdcc_program_startup:
 ;; genLabel
 L___div00101:
 ;; genCmp
+;	begin multibyte (2) comparison
+	lad	___div_PARM_1
+	mov	alua mem
+	lad	___div_PARM_2
+	mov	alub mem
+	mov	alus il ,10	; equal-to 
+	mov	test aluc
 	mov	alus il ,9	; less-than 
-	compare_16m_16m__t	9 ___div_PARM_1 ___div_PARM_2 L___div00103
+	gotonz	L___div00116
+	mov	test aluc
+	goto	L___div00117
+L___div00116:
+	lad	___div_PARM_1 + 1
+	mov	alua mem
+	lad	___div_PARM_2 + 1
+	mov	alub mem
+	mov	test aluc
+L___div00117:
+	gotonz	L___div00103
 ;	src/testfwk-__printd.c: 10: q++;
 ;; genALUOp
 ;;	ALU plus (4)
@@ -167,8 +184,25 @@ L___div00103:
 ;; genLabel
 L___mod00101:
 ;; genCmp
+;	begin multibyte (2) comparison
+	lad	___mod_PARM_1
+	mov	alua mem
+	lad	___mod_PARM_2
+	mov	alub mem
+	mov	alus il ,10	; equal-to 
+	mov	test aluc
 	mov	alus il ,9	; less-than 
-	compare_16m_16m__t	9 ___mod_PARM_1 ___mod_PARM_2 L___mod00103
+	gotonz	L___mod00115
+	mov	test aluc
+	goto	L___mod00116
+L___mod00115:
+	lad	___mod_PARM_1 + 1
+	mov	alua mem
+	lad	___mod_PARM_2 + 1
+	mov	alub mem
+	mov	test aluc
+L___mod00116:
+	gotonz	L___mod00103
 ;	src/testfwk-__printd.c: 20: num -= denom;
 ;; genALUOp
 ;;	ALU minus (16)
@@ -259,23 +293,25 @@ L___prints00104:
 	___printd:
 ;	src/testfwk-__printd.c: 39: if (0 == n) {
 ;; genIfx
-	mov	alus il ,10	; equal-to 
 ;	begin multibyte (2) comparison
-	mov	alua zero
 	lad	___printd_PARM_1
-	mov	alub mem
+	mov	alua mem
+	mov	alub zero
+	mov	alus il ,10	; equal-to 
 	mov	test aluc
+	mov	alus il ,10	; equal-to 
+	gotonz	L___printd00140
+	mov	test aluc
+	goto	L___printd00141
+L___printd00140:
+	lad	___printd_PARM_1 + 1
+	mov	alua mem
+	mov	alub zero
+	mov	test aluc
+L___printd00141:
 	gotonz	L___printd00139
 	goto	L___printd00109
 L___printd00139:
-	mov	alua zero
-	lad	___printd_PARM_1 + 1
-	mov	alub mem
-	mov	test aluc
-	gotonz	L___printd00140
-	goto	L___printd00109
-L___printd00140:
-;	end multibyte comparison
 ;	src/testfwk-__printd.c: 40: pic = '0';
 ;; genAssign
 	mov	pic il ,48
@@ -296,8 +332,25 @@ L___printd00109:
 	mov	mem il ,0
 ;	src/testfwk-__printd.c: 48: if (0 > n) {
 ;; genCmp
+;	begin multibyte (2) comparison
+	mov	alua zero
+	lad	___printd_PARM_1
+	mov	alub mem
+	mov	alus il ,10	; equal-to 
+	mov	test aluc
 	mov	alus il ,11	; greater-than 
-	compare_16l_16m__f	11 0 ___printd_PARM_1 L___printd00116
+	gotonz	L___printd00143
+	mov	test aluc
+	goto	L___printd00144
+L___printd00143:
+	mov	alua zero
+	lad	___printd_PARM_1 + 1
+	mov	alub mem
+	mov	test aluc
+L___printd00144:
+	gotonz	L___printd00142
+	goto	L___printd00116
+L___printd00142:
 ;	src/testfwk-__printd.c: 49: n = -n;
 ;; genUminus
 	mov	alus il ,3
@@ -328,23 +381,23 @@ L___printd00116:
 ;; genLabel
 L___printd00103:
 ;; genIfx
-	mov	alus il ,10	; equal-to 
 ;	begin multibyte (2) comparison
-	mov	alua zero
 	lad	___printd_PARM_1
-	mov	alub mem
+	mov	alua mem
+	mov	alub zero
+	mov	alus il ,10	; equal-to 
 	mov	test aluc
-	gotonz	L___printd00144
-	goto	L___printd00145
-L___printd00144:
-	mov	alua zero
+	mov	alus il ,10	; equal-to 
+	gotonz	L___printd00146
+	mov	test aluc
+	goto	L___printd00147
+L___printd00146:
 	lad	___printd_PARM_1 + 1
-	mov	alub mem
+	mov	alua mem
+	mov	alub zero
 	mov	test aluc
+L___printd00147:
 	gotonz	L___printd00118
-	goto	L___printd00145
-L___printd00145:
-;	end multibyte comparison
 ;	src/testfwk-__printd.c: 55: *--p = '0' + __mod (n, 10);
 ;; genALUOp
 ;;	ALU minus (16)
@@ -374,10 +427,10 @@ L___printd00145:
 	lad	___mod_PARM_2 + 1
 	mov	mem il ,10
 ;; genCall
-	mov	stack il ,hi8(L___printd00147)
-	mov	stack il ,lo8(L___printd00147)
+	mov	stack il ,hi8(L___printd00148)
+	mov	stack il ,lo8(L___printd00148)
 	goto	___mod
-L___printd00147:
+L___printd00148:
 	lad	___printd_sloc4_1_0 + 1
 	mov	mem stack
 	lad	___printd_sloc4_1_0 + 0
@@ -414,10 +467,10 @@ L___printd00147:
 	lad	___div_PARM_2 + 1
 	mov	mem il ,10
 ;; genCall
-	mov	stack il ,hi8(L___printd00148)
-	mov	stack il ,lo8(L___printd00148)
+	mov	stack il ,hi8(L___printd00149)
+	mov	stack il ,lo8(L___printd00149)
 	goto	___div
-L___printd00148:
+L___printd00149:
 	lad	___printd_sloc5_1_0 + 1
 	mov	mem stack
 	lad	___printd_sloc5_1_0 + 0
@@ -461,10 +514,10 @@ L___printd00107:
 	lad	___prints_PARM_1 + 0
 	mov	mem x
 ;; genCall
-	mov	stack il ,hi8(L___printd00149)
-	mov	stack il ,lo8(L___printd00149)
+	mov	stack il ,hi8(L___printd00150)
+	mov	stack il ,lo8(L___printd00150)
 	goto	___prints
-L___printd00149:
+L___printd00150:
 	; function returns nothing
 ;; genLabel
 L___printd00111:

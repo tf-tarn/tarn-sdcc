@@ -85,9 +85,9 @@ L_crc8_one00106:
 	mov	alub il ,8
 	mov	test aluc
 ;; genIfx
-	gotonz	L_crc8_one00125
+	gotonz	L_crc8_one00123
 	goto	L_crc8_one00104
-L_crc8_one00125:
+L_crc8_one00123:
 ;	src/crc8one.c: 10: if (crc & 0x80)
 ;; genAssign
 	lad	_crc8_one_PARM_1 + 0

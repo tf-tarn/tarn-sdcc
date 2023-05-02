@@ -106,9 +106,11 @@ L_crc8_one00123:
 ;; genALUOp
 ;;	ALU and (0)
 ;;	ALU operand size 2 1 1
-	mov	alua x
+;	begin bitwise ALU operation
 	mov	alus il ,0	; and 
+	mov	alua x
 	mov	alub il ,128
+;	end bitwise ALU operation
 ;; ALU op has ifx!
 	mov	alua aluc
 	mov	alus il ,10	; equal-to 
@@ -127,11 +129,13 @@ L_crc8_one00123:
 ;; genALUOp
 ;;	ALU xor (2)
 ;;	ALU operand size 1 1 1
-	mov	alua x
+;	begin bitwise ALU operation
 	mov	alus il ,2	; xor 
+	mov	alua x
 	mov	alub il ,7
 	lad	_crc8_one_PARM_1 + 0
 	mov	mem aluc
+;	end bitwise ALU operation
 ;; genGoto
 	goto	L_crc8_one00107
 ;; genLabel
@@ -219,11 +223,13 @@ L_crc800118:
 ;; genALUOp
 ;;	ALU xor (2)
 ;;	ALU operand size 1 1 1
-	mov	alua r
+;	begin bitwise ALU operation
 	mov	alus il ,2	; xor 
+	mov	alua r
 	mov	alub x
 	lad	_crc8_one_PARM_1 + 0
 	mov	mem aluc
+;	end bitwise ALU operation
 ;	src/crc8.c: 29: crc = crc8_one(crc);
 ;; genCall
 	mov	stack il ,hi8(L_crc800119)

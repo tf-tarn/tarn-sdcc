@@ -141,23 +141,23 @@ L_main00106:
 ;; genLabel
 L_main00107:
 ;; genIfx
-;	begin multibyte (2) comparison
+	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) equality check
+	mov	alua zero
 	lad	_main_n_65536_2 + 0
-	mov	alua mem
-	mov	alub zero
-	mov	alus il ,10	; equal-to 
+	mov	alub mem
 	mov	test aluc
-	mov	alus il ,10	; equal-to 
-	gotonz	L_main00237
-	mov	test aluc
-	goto	L_main00238
-L_main00237:
+	gotonz	L_main00236
+	goto	L_main00237
+L_main00236:
+	mov	alua zero
 	lad	_main_n_65536_2 + 1
-	mov	alua mem
-	mov	alub zero
+	mov	alub mem
 	mov	test aluc
-L_main00238:
 	gotonz	L_main00109
+;	emit end of comparison sequence label
+L_main00237:
+;	end multibyte equality check
 ;	src/comparison.c: 21: pic = '6';
 ;; genAssign
 	mov	pic il ,54
@@ -178,25 +178,24 @@ L_main00109:
 ;; genLabel
 L_main00110:
 ;; genIfx
-;	begin multibyte (2) comparison
+	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) equality check
+	mov	alua zero
 	lad	_main_n_65536_2 + 0
-	mov	alua mem
-	mov	alub zero
-	mov	alus il ,10	; equal-to 
+	mov	alub mem
 	mov	test aluc
-	mov	alus il ,10	; equal-to 
-	gotonz	L_main00240
-	mov	test aluc
-	goto	L_main00241
-L_main00240:
-	lad	_main_n_65536_2 + 1
-	mov	alua mem
-	mov	alub zero
-	mov	test aluc
-L_main00241:
 	gotonz	L_main00239
-	goto	L_main00112
+	goto	L_main00240
 L_main00239:
+	mov	alua zero
+	lad	_main_n_65536_2 + 1
+	mov	alub mem
+	mov	test aluc
+	gotonz	L_main00240
+	goto	L_main00112
+;	emit end of comparison sequence label
+L_main00240:
+;	end multibyte equality check
 ;	src/comparison.c: 27: pic = '8';
 ;; genAssign
 	mov	pic il ,56
@@ -375,23 +374,23 @@ L_main00124:
 ;; genLabel
 L_main00125:
 ;; genIfx
-;	begin multibyte (2) comparison
+	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) equality check
+	mov	alua zero
 	lad	_main_n_65536_2 + 0
-	mov	alua mem
-	mov	alub zero
-	mov	alus il ,10	; equal-to 
+	mov	alub mem
 	mov	test aluc
-	mov	alus il ,10	; equal-to 
-	gotonz	L_main00250
-	mov	test aluc
-	goto	L_main00251
-L_main00250:
+	gotonz	L_main00249
+	goto	L_main00250
+L_main00249:
+	mov	alua zero
 	lad	_main_n_65536_2 + 1
-	mov	alua mem
-	mov	alub zero
+	mov	alub mem
 	mov	test aluc
-L_main00251:
 	gotonz	L_main00127
+;	emit end of comparison sequence label
+L_main00250:
+;	end multibyte equality check
 ;	src/comparison.c: 65: pic = 0x55;
 ;; genAssign
 	mov	pic il ,85
@@ -418,25 +417,24 @@ L_main00127:
 ;; genLabel
 L_main00128:
 ;; genIfx
-;	begin multibyte (2) comparison
+	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) equality check
+	mov	alua zero
 	lad	_main_n_65536_2 + 0
-	mov	alua mem
-	mov	alub zero
-	mov	alus il ,10	; equal-to 
+	mov	alub mem
 	mov	test aluc
-	mov	alus il ,10	; equal-to 
-	gotonz	L_main00253
-	mov	test aluc
-	goto	L_main00254
-L_main00253:
-	lad	_main_n_65536_2 + 1
-	mov	alua mem
-	mov	alub zero
-	mov	test aluc
-L_main00254:
 	gotonz	L_main00252
-	goto	L_main00130
+	goto	L_main00253
 L_main00252:
+	mov	alua zero
+	lad	_main_n_65536_2 + 1
+	mov	alub mem
+	mov	test aluc
+	gotonz	L_main00253
+	goto	L_main00130
+;	emit end of comparison sequence label
+L_main00253:
+;	end multibyte equality check
 ;	src/comparison.c: 73: pic = 0x57;
 ;; genAssign
 	mov	pic il ,87

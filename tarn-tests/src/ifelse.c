@@ -32,6 +32,20 @@ char test_int(int n) {
     return 0;
 }
 
+int litbitint (unsigned int a)
+{
+  register unsigned int b = a + 1; /* Suggest allocating b to accumulator */
+
+  if (b & 0x0001)
+    return(0);
+  else if (b & 0x0004)
+    return(1);
+  else if (b & 0x2010)
+    return(2);
+  else
+    return(3);
+}
+
 int main(int argc, char **argv) {
     volatile unsigned char a = 1;
     volatile unsigned int n = 1;
@@ -78,6 +92,26 @@ int main(int argc, char **argv) {
 
     pic = test_char(a);
     pic = test_int(a);
+
+    pic = 0xff;
+
+    int x = litbitint (0x0001u - 1);
+    int y = litbitint (0x8fe8u - 1);
+    int z = litbitint (0x3030u - 1);
+
+    /* pic = x >> 8; */
+    /* pic = x; */
+    pic = y >> 8;
+    pic = y;
+    /* pic = z >> 8; */
+    /* pic = z; */
+
+    pic = 0xff;
+
+    /* pic = (litbitint (0x0001u - 1) == 0); */
+    pic = (litbitint (0x8fe8u - 1) == 3);
+    /* pic = (litbitint (0x3030u - 1) == 2); */
+
 
     pic = 0xff;
 

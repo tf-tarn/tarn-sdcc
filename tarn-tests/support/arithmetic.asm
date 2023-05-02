@@ -84,23 +84,22 @@ __sdcc_program_startup:
 ;;	ALU operand size 2 2 2
 	add_16m_16l	_main_a_65536_2 5
 ;; genCmpEQorNE
-;	begin multibyte (2) comparison
-	mov	alua x
-	mov	alub il ,16
 	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) equality check
+	mov	alua il ,16
+	mov	alub x
 	mov	test aluc
-	mov	alus il ,10	; equal-to 
-	gotonz	L_main00130
-	mov	test aluc
-	goto	L_main00131
-L_main00130:
-	mov	alua r
-	mov	alub il ,41
-	mov	test aluc
-L_main00131:
 	gotonz	L_main00129
-	goto	L_main00102
+	goto	L_main00130
 L_main00129:
+	mov	alua il ,41
+	mov	alub r
+	mov	test aluc
+	gotonz	L_main00130
+	goto	L_main00102
+;	emit end of comparison sequence label
+L_main00130:
+;	end multibyte equality check
 ;	src/arithmetic.c: 8: pic = 1;
 ;; genAssign
 	mov	pic il ,1
@@ -119,21 +118,21 @@ L_main00103:
 ;;	ALU operand size 2 2 2
 	add_16m_16l	_main_a_65536_2 5
 ;; genCmpEQorNE
-;	begin multibyte (2) comparison
-	mov	alua x
-	mov	alub il ,16
 	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) equality check
+	mov	alua il ,16
+	mov	alub x
 	mov	test aluc
-	mov	alus il ,10	; equal-to 
-	gotonz	L_main00133
+	gotonz	L_main00132
+	goto	L_main00133
+L_main00132:
+	mov	alua il ,41
+	mov	alub r
 	mov	test aluc
-	goto	L_main00134
-L_main00133:
-	mov	alua r
-	mov	alub il ,41
-	mov	test aluc
-L_main00134:
 	gotonz	L_main00105
+;	emit end of comparison sequence label
+L_main00133:
+;	end multibyte equality check
 ;	src/arithmetic.c: 14: pic = 0;
 ;; genAssign
 	mov	pic il ,0
@@ -152,21 +151,21 @@ L_main00106:
 ;;	ALU operand size 2 2 2
 	add_16m_16l	_main_a_65536_2 5
 ;; genCmpEQorNE
-;	begin multibyte (2) comparison
-	mov	alua x
-	mov	alub il ,16
 	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) equality check
+	mov	alua il ,16
+	mov	alub x
 	mov	test aluc
-	mov	alus il ,10	; equal-to 
-	gotonz	L_main00136
+	gotonz	L_main00135
+	goto	L_main00136
+L_main00135:
+	mov	alua il ,41
+	mov	alub r
 	mov	test aluc
-	goto	L_main00137
-L_main00136:
-	mov	alua r
-	mov	alub il ,41
-	mov	test aluc
-L_main00137:
 	gotonz	L_main00108
+;	emit end of comparison sequence label
+L_main00136:
+;	end multibyte equality check
 ;	src/arithmetic.c: 20: pic = 3;
 ;; genAssign
 	mov	pic il ,3
@@ -178,23 +177,22 @@ L_main00108:
 ;;	ALU operand size 2 2 2
 	add_16m_16l	_main_a_65536_2 5
 ;; genCmpEQorNE
-;	begin multibyte (2) comparison
-	mov	alua x
-	mov	alub il ,16
 	mov	alus il ,10	; equal-to 
+;	begin multibyte (2) equality check
+	mov	alua il ,16
+	mov	alub x
 	mov	test aluc
-	mov	alus il ,10	; equal-to 
-	gotonz	L_main00139
-	mov	test aluc
-	goto	L_main00140
-L_main00139:
-	mov	alua r
-	mov	alub il ,41
-	mov	test aluc
-L_main00140:
 	gotonz	L_main00138
-	goto	L_main00110
+	goto	L_main00139
 L_main00138:
+	mov	alua il ,41
+	mov	alub r
+	mov	test aluc
+	gotonz	L_main00139
+	goto	L_main00110
+;	emit end of comparison sequence label
+L_main00139:
+;	end multibyte equality check
 ;	src/arithmetic.c: 23: pic = 3;
 ;; genAssign
 	mov	pic il ,3

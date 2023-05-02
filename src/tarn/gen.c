@@ -88,6 +88,7 @@ const tarn_reg_list_entry_t tarn_src_registers[TARN_SRC_REG_COUNT] = {
 };
 
 #define ALUS_AND       0
+#define ALUS_OR        1
 #define ALUS_XOR       2
 #define ALUS_NOT       3
 #define ALUS_PLUS      4
@@ -107,7 +108,7 @@ bool is_associative(int op) {
 
 const char *alu_operations[] = {
     "and",
-    "?",
+    "or",
     "xor",
     "not",
 
@@ -165,8 +166,8 @@ static struct asmop asmop_adhl;
 static struct asmop asmop_adl;
 static struct asmop asmop_zero;
 static struct asmop asmop_one;
-static struct asmop asmop_two;
-static struct asmop asmop_mone;
+/* static struct asmop asmop_two; */
+/* static struct asmop asmop_mone; */
 static struct asmop asmop_alua;
 static struct asmop asmop_alub;
 static struct asmop asmop_aluc;
@@ -181,8 +182,8 @@ static struct asmop *const ASMOP_ADL = &asmop_adl;
 static struct asmop *const ASMOP_ADHL = &asmop_adhl;
 static struct asmop *const ASMOP_ZERO = &asmop_zero;
 static struct asmop *const ASMOP_ONE = &asmop_one;
-static struct asmop *const ASMOP_TWO = &asmop_two;
-static struct asmop *const ASMOP_MONE = &asmop_mone;
+/* static struct asmop *const ASMOP_TWO = &asmop_two; */
+/* static struct asmop *const ASMOP_MONE = &asmop_mone; */
 static struct asmop *const ASMOP_ALUA = &asmop_alua;
 static struct asmop *const ASMOP_ALUB = &asmop_alub;
 static struct asmop *const ASMOP_ALUC = &asmop_aluc;
@@ -294,13 +295,13 @@ tarn_init_asmops (void)
   asmop_one.size = 1;
   asmop_one.aopu.aop_lit = constVal ("1");
 
-  asmop_two.type = AOP_LIT;
-  asmop_two.size = 1;
-  asmop_two.aopu.aop_lit = constVal ("2");
+  /* asmop_two.type = AOP_LIT; */
+  /* asmop_two.size = 1; */
+  /* asmop_two.aopu.aop_lit = constVal ("2"); */
 
-  asmop_mone.type = AOP_LIT;
-  asmop_mone.size = 8; // Maximum size for asmop.
-  asmop_mone.aopu.aop_lit = constVal ("-1");
+  /* asmop_mone.type = AOP_LIT; */
+  /* asmop_mone.size = 8; // Maximum size for asmop. */
+  /* asmop_mone.aopu.aop_lit = constVal ("-1"); */
 }
 
 
@@ -1074,7 +1075,7 @@ void load_address_16o(const char *sym_name, int offset) {
 #define AOP_IS_SPILL(aop)       (aop->type == AOP_SPILL)
 
 ////////////////////////////////////////////////////////////////////////////////
-void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, symbol *false_branch, bool invert);
+void aop_cmp(unsigned int op, asmop *left, asmop *right, asmop *result, symbol *true_branch, symbol *false_branch, bool invert);
 void aop_move_byte(asmop *a1, asmop *a2, int index);
 asmop *aop_byte_of(asmop *aop, unsigned index);
 static bool aop_move(asmop *a1, asmop *a2);
@@ -1088,6 +1089,10 @@ asmop *aop_byte_of(asmop *aop, unsigned index) {
     // We reverse immd_off for direct and immediate AOPs in this
     // function because addresses are stored big-endian. (Who decided
     // that?)
+
+    if (index >= aop->size) {
+        wassertl (index < aop->size, "aop_byte_of: index >= aop->size");
+    }
 
     if (AOP_IS_DIRECT(aop)) {
         asmop *newop = newAsmop (AOP_IMMD);
@@ -1115,7 +1120,7 @@ asmop *aop_byte_of(asmop *aop, unsigned index) {
             return ASMOP_ONE;
         }
 
-        asmop *newop = newAsmop (AOP_IMMD);
+        asmop *newop = newAsmop (AOP_LIT);
         newop->size = 1;
         newop->aopu.aop_lit = constCharVal(value);
         return newop;
@@ -1127,6 +1132,10 @@ asmop *aop_byte_of(asmop *aop, unsigned index) {
         newop->aopu.immd = aop->aopu.immd;
         newop->aopu.immd_off = aop->aopu.immd_off + (aop->size - index - 1);
         return newop;
+    }
+
+    if (aop->size == 1) {
+        return aop;
     }
 
     ABO_DEBUG;
@@ -1395,7 +1404,7 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
                 emit_mov("stack", a2->aopu.bytes[0].byteu.reg->name);
                 emit_mov(a1->aopu.bytes[1].byteu.reg->name, a2->aopu.bytes[1].byteu.reg->name);
                 emit_mov(a1->aopu.bytes[0].byteu.reg->name, "stack");
-                
+
             } else {
                 for (int i = 0; i < a2->size; ++i) {
                     if (strcmp(a1->aopu.bytes[i].byteu.reg->name, a2->aopu.bytes[i].byteu.reg->name)) {
@@ -1490,6 +1499,8 @@ static bool aop_move_immediate(asmop *a1, asmop *a2) {
     } else {
         AOP_MOVE_DEBUG;
     }
+
+    return false;
 }
 
 static bool aop_move(asmop *a1, asmop *a2) {
@@ -1621,7 +1632,7 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                 }
             } else if (AOP_IS_SPILL(a2)) {
                 TRACE;
-                load_address_16o(a2->aopu.immd, a2->aopu.immd_off + index);
+                load_address_16o(a2->aopu.immd, a2->aopu.immd_off + (a2->size - index - 1));
                 aop_move(a1, ASMOP_MEM);
             } else {
                 AOP_MOVE_DEBUG;
@@ -1633,15 +1644,9 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
         if (a1->size == 1) {
             if (AOP_IS_DIRECT(a2) || AOP_IS_CODE(a2)) {
                 if (a2->size == 2) {
-                    if (index == 0) {
-                        load_address_16o(a2->aopu.aop_dir, 1);
-                        aop_move(a1, ASMOP_MEM);
-                    } else if (index == 1) {
-                        load_address_16o(a2->aopu.aop_dir, 0);
-                        aop_move(a1, ASMOP_MEM);
-                    } else {
-                        AOP_MOVE_DEBUG;
-                    }
+                    // Offset is reverse of index, because index=0 is LSB but offset=0 is MSB.
+                    load_address_16o(a2->aopu.aop_dir, a2->size - index - 1);
+                    aop_move(a1, ASMOP_MEM);
                 } else if (a2->size == 1) {
                     load_address_16(a2->aopu.aop_dir);
                     // aop->aopu.bytes[i].byteu.reg = sym->regs[i];
@@ -1675,7 +1680,7 @@ void aop_move_byte(asmop *a1, asmop *a2, int index) {
                 /* aop_move(a1, ASMOP_MEM); */
             } else if (AOP_IS_SPILL(a2)) {
                 TRACE;
-                load_address_16o(a2->aopu.immd, a2->aopu.immd_off + index);
+                load_address_16o(a2->aopu.immd, a2->aopu.immd_off + (a2->size - index - 1));
                 aop_move(a1, ASMOP_MEM);
             } else {
                 AOP_MOVE_DEBUG;
@@ -1710,7 +1715,6 @@ static void genIpush       (iCode *ic)                   { if (!regalloc_dry_run
 static void genJumpTab     (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genJumpTab      = ", ic); } emit2(";; genJumpTab     ", ""); }
 static void genMult        (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genMult         = ", ic); } emit2(";; genMult        ", ""); }
 static void genNot         (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genNot          = ", ic); } emit2(";; genNot         ", ""); }
-static void genOr          (iCode *ic)                   { if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genOr           = ", ic); } emit2(";; genOr          ", ""); }
 
 static void genGetByte(iCode *ic) {
     if (!regalloc_dry_run) { DEBUG_GEN_FUNC("genGetByte      = ", ic); }
@@ -2990,7 +2994,7 @@ static void genIfx_impl(iCode *ic, int invert) {
                 invert = 1 - invert;
 
             } else if (cond->aop->size == 2) {
-                aop_cmp(ic->op, cond->aop, ASMOP_ZERO, IC_TRUE(ic), IC_FALSE(ic), false);
+                aop_cmp(ic->op, cond->aop, ASMOP_ZERO, NULL, IC_TRUE(ic), IC_FALSE(ic), false);
                 do_gen_ifx = false;
             } else {
                 emit2(";", "implement me");
@@ -3034,7 +3038,7 @@ bool aop_alu_move_result(asmop *result, asmop *value, bool needs_restore, iCode 
             symbol *set_true = new_label(NULL);
             symbol *set_false = new_label(NULL);
 
-            aop_cmp(EQ_OP, ASMOP_ZERO, value, set_true, set_false, false);
+            aop_cmp(EQ_OP, ASMOP_ZERO, value, NULL, set_true, set_false, false);
 
             int polarity = 1;
             if (IC_TRUE(ifx)) {
@@ -3064,7 +3068,7 @@ bool aop_alu_move_result(asmop *result, asmop *value, bool needs_restore, iCode 
             }
 
         } else {
-            aop_cmp(EQ_OP, ASMOP_ZERO, value, IC_TRUE(ifx), IC_FALSE(ifx), false);
+            aop_cmp(EQ_OP, ASMOP_ZERO, value, NULL, IC_TRUE(ifx), IC_FALSE(ifx), false);
             return true;
         }
         return true;
@@ -3088,6 +3092,43 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
 
     bool move_aluc_to_result = true;
 
+              /* case TARN_ALU_MODE_AND: */
+              /*     src_value = cpu.dregs[TARN_DREG_ALUA] & cpu.dregs[TARN_DREG_ALUB]; */
+              /*     break; */
+              /* case TARN_ALU_MODE_OR: */
+              /*     src_value = cpu.dregs[TARN_DREG_ALUA] | cpu.dregs[TARN_DREG_ALUB]; */
+              /*     break; */
+              /* case TARN_ALU_MODE_XOR: */
+              /*     src_value = cpu.dregs[TARN_DREG_ALUA] ^ cpu.dregs[TARN_DREG_ALUB]; */
+              /*     break; */
+
+    if (op == ALUS_AND || op == ALUS_OR || op == ALUS_XOR) {
+        int size = size_left;
+        if (size_right < size) {
+            size = size_right;
+        }
+        emit2(";", "begin bitwise ALU operation");
+
+        emit2("mov", "alus il ,%d\t; %s ", op, alu_operations[op]);
+        cost(1);
+        if (size > 0) {
+        } else {
+            /* MOVE_AOP_DEBUG; */
+            /* emit2(";", "size is zero !? (right=%d, left=%d, result=%d)", size_right, size_left, result->size); */
+        }
+
+        for (int i = 0; i < size; ++i) {
+            aop_move(ASMOP_ALUA, aop_byte_of(left, i));
+            aop_move(ASMOP_ALUB, aop_byte_of(right, i));
+            if (result->size) {
+                aop_move(aop_byte_of(result, i), ASMOP_ALUC);
+            }
+        }
+
+        emit2(";", "end bitwise ALU operation");
+
+        return;
+    }
 
     if (size_left == 1 && size_right < 2) {
         if (op == ALUS_MINUS) {
@@ -3379,9 +3420,10 @@ static void genALUOp(int op, iCode *ic, iCode *ifx)
 /* genAnd - code for and                                           */
 /*-----------------------------------------------------------------*/
 static void genAnd   (iCode *ic, iCode *ifx) { genALUOp(ALUS_AND,   ic, ifx ); }
+static void genMinus (iCode *ic, iCode *ifx) { genALUOp(ALUS_MINUS, ic, ifx); }
+static void genOr    (iCode *ic)             { genALUOp(ALUS_OR,  ic, NULL); }
 static void genPlus  (iCode *ic)             { genALUOp(ALUS_PLUS,  ic, NULL); }
 static void genXor   (iCode *ic)             { genALUOp(ALUS_XOR,   ic, NULL); }
-static void genMinus (iCode *ic, iCode *ifx) { genALUOp(ALUS_MINUS, ic, ifx); }
 
 /*-----------------------------------------------------------------*/
 /* genLeftShift - generates code for right shifting                */
@@ -3509,7 +3551,7 @@ int alus_from_ic_op(unsigned int op) {
     }
 }
 
-void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, symbol *false_branch, bool invert) {
+void aop_cmp(unsigned int op, asmop *left, asmop *right, asmop *result, symbol *true_branch, symbol *false_branch, bool invert) {
     #define AOP_CMP_DEBUG { emit2("", "; aop_cmp debug (%s:%d)", __FILE__, __LINE__); emit_asmop("left ", left); emit_asmop("right", right); }
 #undef D2
 #define D2(x) /*do { x; } while (0)*/
@@ -3528,8 +3570,10 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
     bool true_and_false = true_branch && false_branch;
 
     if (true_and_false) {
-        wassertl (0, "has TRUE and FALSE ifx");
+        emit2(";", "has TRUE and FALSE branch");
     }
+
+    bool store_result = !(true_branch || false_branch);
 
     /* if (op == IFX) { */
     /*     emit2(";", "is IFX"); */
@@ -3570,7 +3614,7 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
             /* read_reg("aluc", IC_RESULT(ic)); */
             emit_mov("test", "aluc");
             D2(emit2(";", "end single-byte comparison"));
-        } else if (op == ALUS_EQ) {
+        } else if (alus_op == ALUS_EQ) {
             symbol *next_comparison = new_label(NULL);
             symbol *end_of_comparison = new_label(NULL);
             emit2("mov", "alus il ,%d\t; %s ", alus_op, alu_operations[alus_op]);
@@ -3581,13 +3625,13 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
             bool alua_was_nonzero = true;
             bool alub_was_nonzero = true;
 
-            emit2(";", "begin multibyte (%d) comparison", left->size);
+            emit2(";", "begin multibyte (%d) equality check", left->size);
             for (int i = 0; i < max_size; ++i) {
                 /* aop_alu(ALUS_NOT, left, NULL, ASMOP_ALUC, NULL); */
                 D2(emit2(";", "compare byte %d", i));
 
                 if (i < right->size) {
-                    aop_move_byte(ASMOP_ALUA, right, i);
+                    aop_move_byte(ASMOP_ALUA, right, right->size - i - 1);
                 } else {
                     if (alua_was_nonzero) {
                         aop_move(ASMOP_ALUA, ASMOP_ZERO);
@@ -3596,7 +3640,7 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
                 }
 
                 if (i < left->size) {
-                    aop_move_byte(ASMOP_ALUB, left, i);
+                    aop_move_byte(ASMOP_ALUB, left, left->size - i - 1);
                 } else {
                     if (alub_was_nonzero) {
                         aop_move(ASMOP_ALUB, ASMOP_ZERO);
@@ -3629,7 +3673,7 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
                             emit_jump_to_label(true_branch, 1);
                             D2(emit2(";", "Otherwise fall through"));
                         }
-                    } else {
+                    } else if (false_branch) {
                         if (op == IFX) {
                             D2(emit2(";", "If comparison is true, skip statement body."));
                             emit_jump_to_label(false_branch, 1);
@@ -3640,6 +3684,9 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
                             D2(emit2(";", "Otherwise jump to the false branch."));
                             emit_jump_to_label(false_branch, 0);
                         }
+                    } else {
+                        D2(emit2(";", "Jump to the end so we can store the result."));
+                        emit_jump_to_label(end_of_comparison, 0);
                     }
                 }
 
@@ -3653,7 +3700,10 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
 
             emit2(";", "emit end of comparison sequence label");
             tarn_emit_label(end_of_comparison);
-            emit2(";", "end multibyte comparison");
+            if (store_result) {
+                aop_move(result, ASMOP_ALUC);
+            }
+            emit2(";", "end multibyte equality check");
         } else {
             emit2(";", "begin multibyte (%d) comparison", left->size);
 
@@ -3702,12 +3752,12 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
             D2(emit2(";", "Jump to compare low byte if upper bytes are equal."));
             emit_jump_to_label(compare_low_byte, 1);
 
-            
+
             D2(emit2(";", "Okay, they're not equal; check the real comparison and jump to ??? if true"));
             emit_mov("test", "aluc");
             emit_jump_to_label(return_label, 0);
 
-            
+
             D2(emit2(";", "compare low byte"));
             tarn_emit_label(compare_low_byte);
             /* if (AOP_IS_REG(left)) { */
@@ -3731,7 +3781,7 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
                     emit_jump_to_label(true_branch, 1);
                     D2(emit2(";", "Otherwise fall through"));
                 }
-            } else {
+            } else if (false_branch) {
                 if (op == IFX) {
                     D2(emit2(";", "If comparison is true, skip statement body."));
                     emit_jump_to_label(false_branch, 1);
@@ -3742,9 +3792,16 @@ void aop_cmp(unsigned int op, asmop *left, asmop *right, symbol *true_branch, sy
                     D2(emit2(";", "Otherwise jump to the false branch."));
                     emit_jump_to_label(false_branch, 0);
                 }
+            } else {
+                D2(emit2(";", "Jump to the end so we can store the result."));
+                emit_mov("stack", "aluc");
+                emit_jump_to_label(end_of_comparison, 0);
             }
-            
+
             tarn_emit_label(end_of_comparison);
+            if (store_result) {
+                aop_move(result, ASMOP_STACK);
+            }
             D2(emit2(";", "end multibyte comparison"));
         }
     } else {
@@ -3773,9 +3830,9 @@ static void genCmpEQorNE   (iCode *ic, iCode *ifx)       {
     aopOp(result);
 
     if (ifx) {
-        aop_cmp(ic->op, left->aop, right->aop, IC_TRUE(ifx), IC_FALSE(ifx), false);
+        aop_cmp(ic->op, left->aop, right->aop, result->aop, IC_TRUE(ifx), IC_FALSE(ifx), false);
     } else {
-        aop_cmp(ic->op, left->aop, right->aop, NULL, NULL, false);
+        aop_cmp(ic->op, left->aop, right->aop, result->aop, NULL, NULL, false);
     }
 
     if (ifx && left->aop->size == right->aop->size && left->aop->size == 1) {
@@ -3803,9 +3860,9 @@ static void genCmp   (iCode *ic, iCode *ifx)       {
     /* emit_asmop("result", result->aop); */
 
     if (ifx) {
-        aop_cmp(ic->op, left->aop, right->aop, IC_TRUE(ifx), IC_FALSE(ifx), false);
+        aop_cmp(ic->op, left->aop, right->aop, NULL, IC_TRUE(ifx), IC_FALSE(ifx), false);
     } else {
-        aop_cmp(ic->op, left->aop, right->aop, NULL, NULL, false);
+        aop_cmp(ic->op, left->aop, right->aop, result->aop, NULL, NULL, false);
     }
 
     /* if (OP_SYMBOL(IC_RESULT(ic))->regType == REG_CND) { */

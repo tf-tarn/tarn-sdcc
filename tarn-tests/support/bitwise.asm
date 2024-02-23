@@ -173,12 +173,12 @@ __sdcc_program_startup:
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 1
 	mov	alub mem
-	mov	r aluc
+	mov	x aluc
 	lad	_test_int_a_65536_2 + 0
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 0
 	mov	alub mem
-	mov	x aluc
+	mov	r aluc
 ;	end bitwise ALU operation
 ;; genGetByte      = 
 ;	offset = 1, 0
@@ -209,12 +209,12 @@ __sdcc_program_startup:
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 1
 	mov	alub mem
-	mov	r aluc
+	mov	x aluc
 	lad	_test_int_a_65536_2 + 0
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 0
 	mov	alub mem
-	mov	x aluc
+	mov	r aluc
 ;	end bitwise ALU operation
 ;; genGetByte      = 
 ;	offset = 1, 0
@@ -245,12 +245,12 @@ __sdcc_program_startup:
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 1
 	mov	alub mem
-	mov	r aluc
+	mov	x aluc
 	lad	_test_int_a_65536_2 + 0
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 0
 	mov	alub mem
-	mov	x aluc
+	mov	r aluc
 ;	end bitwise ALU operation
 ;; genGetByte      = 
 ;	offset = 1, 0
@@ -310,7 +310,7 @@ __sdcc_program_startup:
 	mov	mem il ,187
 	lad	_test_long_b_65536_3 + 3
 	mov	mem il ,32
-;	src/bitwise.c: 30: long r = a & b;
+;	src/bitwise.c: 32: long r = a & b;
 ;; genALUOp
 ;;	ALU and (0)
 ;;	ALU operand size 4 4 4
@@ -341,26 +341,26 @@ __sdcc_program_startup:
 	lad	_test_long_sloc1_1_0 + 0
 	mov	mem aluc
 ;	end bitwise ALU operation
-;	src/bitwise.c: 32: pic = r >> 24;
+;	src/bitwise.c: 34: pic = r >> 24;
 ;; genGetByte      = 
 ;	offset = 3, 0
 	lad	_test_long_sloc1_1_0 + 0
 	mov	pic mem
-;	src/bitwise.c: 33: pic = r >> 16;
+;	src/bitwise.c: 35: pic = r >> 16;
 ;; genGetByte      = 
 ;	offset = 2, 1
 	lad	_test_long_sloc1_1_0 + 1
 	mov	pic mem
-;	src/bitwise.c: 34: pic = r >> 8;
+;	src/bitwise.c: 36: pic = r >> 8;
 ;; genGetByte      = 
 ;	offset = 1, 2
 	lad	_test_long_sloc1_1_0 + 2
 	mov	pic mem
-;	src/bitwise.c: 35: pic = r;
+;	src/bitwise.c: 37: pic = r;
 ;; genCast
 	lad	_test_long_sloc1_1_0 + 3
 	mov	pic mem
-;	src/bitwise.c: 37: r = a | b;
+;	src/bitwise.c: 39: r = a | b;
 ;; genALUOp
 ;;	ALU or (1)
 ;;	ALU operand size 4 4 4
@@ -391,26 +391,26 @@ __sdcc_program_startup:
 	lad	_test_long_sloc2_1_0 + 0
 	mov	mem aluc
 ;	end bitwise ALU operation
-;	src/bitwise.c: 39: pic = r >> 24;
+;	src/bitwise.c: 41: pic = r >> 24;
 ;; genGetByte      = 
 ;	offset = 3, 0
 	lad	_test_long_sloc2_1_0 + 0
 	mov	pic mem
-;	src/bitwise.c: 40: pic = r >> 16;
+;	src/bitwise.c: 42: pic = r >> 16;
 ;; genGetByte      = 
 ;	offset = 2, 1
 	lad	_test_long_sloc2_1_0 + 1
 	mov	pic mem
-;	src/bitwise.c: 41: pic = r >> 8;
+;	src/bitwise.c: 43: pic = r >> 8;
 ;; genGetByte      = 
 ;	offset = 1, 2
 	lad	_test_long_sloc2_1_0 + 2
 	mov	pic mem
-;	src/bitwise.c: 42: pic = r;
+;	src/bitwise.c: 44: pic = r;
 ;; genCast
 	lad	_test_long_sloc2_1_0 + 3
 	mov	pic mem
-;	src/bitwise.c: 44: r = a ^ b;
+;	src/bitwise.c: 46: r = a ^ b;
 ;; genALUOp
 ;;	ALU xor (2)
 ;;	ALU operand size 4 4 4
@@ -441,68 +441,68 @@ __sdcc_program_startup:
 	lad	_test_long_sloc3_1_0 + 0
 	mov	mem aluc
 ;	end bitwise ALU operation
-;	src/bitwise.c: 46: pic = r >> 24;
+;	src/bitwise.c: 48: pic = r >> 24;
 ;; genGetByte      = 
 ;	offset = 3, 0
 	lad	_test_long_sloc3_1_0 + 0
 	mov	pic mem
-;	src/bitwise.c: 47: pic = r >> 16;
+;	src/bitwise.c: 49: pic = r >> 16;
 ;; genGetByte      = 
 ;	offset = 2, 1
 	lad	_test_long_sloc3_1_0 + 1
 	mov	pic mem
-;	src/bitwise.c: 48: pic = r >> 8;
+;	src/bitwise.c: 50: pic = r >> 8;
 ;; genGetByte      = 
 ;	offset = 1, 2
 	lad	_test_long_sloc3_1_0 + 2
 	mov	pic mem
-;	src/bitwise.c: 49: pic = r;
+;	src/bitwise.c: 51: pic = r;
 ;; genCast
 	lad	_test_long_sloc3_1_0 + 3
 	mov	pic mem
 ;; genLabel
-;	src/bitwise.c: 51: }
+;	src/bitwise.c: 53: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack
 	jump
-;	src/bitwise.c: 94: int main(int argc, char **argv) {
+;	src/bitwise.c: 96: int main(int argc, char **argv) {
 ;; genLabel
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 	_main:
-;	src/bitwise.c: 96: pic = 0xff;
+;	src/bitwise.c: 98: pic = 0xff;
 ;; genAssign
 	mov	pic il ,255
-;	src/bitwise.c: 97: test_char();
+;	src/bitwise.c: 99: test_char();
 ;; genCall
 	mov	stack il ,hi8(L_main00103)
 	mov	stack il ,lo8(L_main00103)
 	goto	_test_char
 L_main00103:
 	; function returns nothing
-;	src/bitwise.c: 99: test_int();
+;	src/bitwise.c: 101: test_int();
 ;; genCall
 	mov	stack il ,hi8(L_main00104)
 	mov	stack il ,lo8(L_main00104)
 	goto	_test_int
 L_main00104:
 	; function returns nothing
-;	src/bitwise.c: 101: test_long();
+;	src/bitwise.c: 103: test_long();
 ;; genCall
 	mov	stack il ,hi8(L_main00105)
 	mov	stack il ,lo8(L_main00105)
 	goto	_test_long
 L_main00105:
 	; function returns nothing
-;	src/bitwise.c: 103: pic = 0xff;
+;	src/bitwise.c: 105: pic = 0xff;
 ;; genAssign
 	mov	pic il ,255
-;	src/bitwise.c: 107: __endasm;
+;	src/bitwise.c: 109: __endasm;
 	halt
 ;; genLabel
-;	src/bitwise.c: 108: }
+;	src/bitwise.c: 110: }
 ;; genEndFunction
 	mov	jmpl stack
 	mov	jmph stack

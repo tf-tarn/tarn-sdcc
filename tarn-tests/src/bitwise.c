@@ -27,6 +27,8 @@ void test_long() {
     volatile long a = 0x0e03ee30;
     volatile long b = 0x020bbb20;
 
+    // BYTE ORDER IS BACKWARDS
+    
     long r = a & b;
     
     pic = r >> 24;

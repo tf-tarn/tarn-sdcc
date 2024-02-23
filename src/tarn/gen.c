@@ -130,6 +130,8 @@ const char *alu_operations[] = {
     "UNDEFINED"
 };
 
+void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 static void
@@ -1112,7 +1114,7 @@ asmop *aop_byte_of(asmop *aop, unsigned index) {
     }
 
     if (AOP_IS_LIT(aop)) {
-        char value = byteOfVal(aop->aopu.aop_lit, index);
+        char value = byteOfVal(aop->aopu.aop_lit, aop->size - index - 1);
         if (value == 0) {
             return ASMOP_ZERO;
         }
@@ -1130,7 +1132,7 @@ asmop *aop_byte_of(asmop *aop, unsigned index) {
         asmop *newop = newAsmop (AOP_IMMD);
         newop->size = 1;
         newop->aopu.immd = aop->aopu.immd;
-        newop->aopu.immd_off = aop->aopu.immd_off + (aop->size - index - 1);
+        newop->aopu.immd_off = aop->aopu.immd_off + (index);
         return newop;
     }
 
@@ -1260,6 +1262,7 @@ static bool aop_move_direct(asmop *a1, asmop *a2) {
                 AOP_MOVE_DEBUG;
             }
         } else if (AOP_IS_SPILL(a2)) {
+        AOP_MOVE_DEBUG;
             for (int i = 0; i < a1->size; ++i) {
                 load_address_16o(a2->aopu.immd, a2->aopu.immd_off + i);
                 aop_move(ASMOP_STACK, ASMOP_MEM);
@@ -1373,6 +1376,7 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
                 }
             }
         } else if (AOP_IS_IMMEDIATE(a2)) {
+
             if (a1 == ASMOP_ADHL) {
                 for (int i = 0; i < a2->size; ++i) {
                     load_address_16o(a2->aopu.immd, i + a2->aopu.immd_off);
@@ -1450,6 +1454,7 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
         }
         return true;
     } else if (a1->size > a2->size) {
+        AOP_MOVE_DEBUG;
         for (int i = a2->size; i < a1->size; ++i) {
             aop_move(aop_byte_of(a1, i), ASMOP_ZERO);
         }
@@ -2758,6 +2763,7 @@ genAssign (iCode *ic)
                     emit2("mov", "stack mem");
                     cost(1);
                 } else if (is_mem(right)) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                 } else if (is_reg(right)) {
                     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                     load_address_16(op_get_mem_label(result));
@@ -2792,6 +2798,7 @@ genAssign (iCode *ic)
                     emit2("mov", "%s mem", op_get_register_name_i(result, 0));
                     cost(2+8+8);
                 } else if (is_mem(right)) {
+                    emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                 } else if (is_reg(right)) {
                     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__);
                 } else if (IS_OP_LITERAL(right)) {
@@ -3117,11 +3124,27 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
             /* emit2(";", "size is zero !? (right=%d, left=%d, result=%d)", size_right, size_left, result->size); */
         }
 
-        for (int i = 0; i < size; ++i) {
-            aop_move(ASMOP_ALUA, aop_byte_of(left, i));
-            aop_move(ASMOP_ALUB, aop_byte_of(right, i));
-            if (result->size) {
+        if (AOP_IS_CND(result)) {
+            // We are going to zero-test the result, so we only need to test the lower byte.
+            // Actually this is incorrect but let it be for now.
+
+            for (int i = size - 1; i >= 0; --i) {
+                aop_move(ASMOP_ALUA, aop_byte_of(left, i));
+                /* if (AOP_IS_LIT(right)) { */
+                /*     aop_move(ASMOP_ALUB, aop_byte_of(right, size - i - 1)); */
+                /* } else { */
+                    aop_move(ASMOP_ALUB, aop_byte_of(right, i));
+                /* } */
+            }
+            /* aop_move(ASMOP_ALUA, aop_byte_of(left, size - 1)); */
+            /* aop_move(ASMOP_ALUB, aop_byte_of(right, size - 1)); */
+        } else {
+            for (int i = 0; i < size; ++i) {
+                aop_move(ASMOP_ALUA, aop_byte_of(left, i));
+                aop_move(ASMOP_ALUB, aop_byte_of(right, i));
+                /* if (result->size) { */
                 aop_move(aop_byte_of(result, i), ASMOP_ALUC);
+                /* } */
             }
         }
 
@@ -3384,7 +3407,8 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
     aopOp(right);
     aop_alu(op, left->aop, right->aop, result->aop, ifx);
 
-    if ((size_result == 1 || result_is_cond) && size_left == 1 && size_right == 1) {
+    /* if ((size_result == 1 || result_is_cond) && size_left == 1 && size_right == 1) { */
+    if ((size_result == 1 || result_is_cond)) {
         if (ifx) {
             // TODO: optimize?
 
@@ -3401,6 +3425,9 @@ static void genALUOp_impl(int op, operand *left, operand *right, operand *result
             genIfx_impl(ifx, 1);
         }
     }
+    /* } else { */
+    /*     emit2("", "; implement me (%s:%d)", __FILE__, __LINE__); */
+    /* } */
 
 }
 

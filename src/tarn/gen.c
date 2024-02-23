@@ -1114,7 +1114,7 @@ asmop *aop_byte_of(asmop *aop, unsigned index) {
     }
 
     if (AOP_IS_LIT(aop)) {
-        char value = byteOfVal(aop->aopu.aop_lit, aop->size - index - 1);
+        char value = byteOfVal(aop->aopu.aop_lit, index);
         if (value == 0) {
             return ASMOP_ZERO;
         }
@@ -1132,7 +1132,7 @@ asmop *aop_byte_of(asmop *aop, unsigned index) {
         asmop *newop = newAsmop (AOP_IMMD);
         newop->size = 1;
         newop->aopu.immd = aop->aopu.immd;
-        newop->aopu.immd_off = aop->aopu.immd_off + (index);
+        newop->aopu.immd_off = aop->aopu.immd_off + (aop->size - index - 1);
         return newop;
     }
 
@@ -1454,7 +1454,6 @@ static bool aop_move_reg(asmop *a1, asmop *a2) {
         }
         return true;
     } else if (a1->size > a2->size) {
-        AOP_MOVE_DEBUG;
         for (int i = a2->size; i < a1->size; ++i) {
             aop_move(aop_byte_of(a1, i), ASMOP_ZERO);
         }
@@ -2529,7 +2528,11 @@ genCall (const iCode *ic)
                     if (OP_SYMBOL(result)->isspilt) {
                         // pop it largest-byte first (???)
                         for (int i = 0; i < OP_SYMBOL(result)->nRegs; ++i) {
-                            load_address_16o(op_get_mem_label(result), OP_SYMBOL(result)->nRegs - i - 1);
+                            if (AOP_IS_LIT(result)) {
+                                load_address_16o(op_get_mem_label(result), i);
+                            } else {
+                                load_address_16o(op_get_mem_label(result), OP_SYMBOL(result)->nRegs - i - 1);
+                            }
                             emit_mov("mem", "stack");
                         }
                     } else if (is_reg(result)) {
@@ -3141,10 +3144,12 @@ void aop_alu(int op, asmop *left, asmop *right, asmop *result, iCode *ifx) {
         } else {
             for (int i = 0; i < size; ++i) {
                 aop_move(ASMOP_ALUA, aop_byte_of(left, i));
-                aop_move(ASMOP_ALUB, aop_byte_of(right, i));
-                /* if (result->size) { */
+                if (AOP_IS_LIT(right)) {
+                    aop_move(ASMOP_ALUB, aop_byte_of(right, right->size - i - 1));
+                } else {
+                    aop_move(ASMOP_ALUB, aop_byte_of(right, i));
+                }
                 aop_move(aop_byte_of(result, i), ASMOP_ALUC);
-                /* } */
             }
         }
 

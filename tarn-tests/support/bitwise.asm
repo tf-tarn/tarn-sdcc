@@ -173,12 +173,12 @@ __sdcc_program_startup:
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 1
 	mov	alub mem
-	mov	x aluc
+	mov	r aluc
 	lad	_test_int_a_65536_2 + 0
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 0
 	mov	alub mem
-	mov	r aluc
+	mov	x aluc
 ;	end bitwise ALU operation
 ;; genGetByte      = 
 ;	offset = 1, 0
@@ -209,12 +209,12 @@ __sdcc_program_startup:
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 1
 	mov	alub mem
-	mov	x aluc
+	mov	r aluc
 	lad	_test_int_a_65536_2 + 0
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 0
 	mov	alub mem
-	mov	r aluc
+	mov	x aluc
 ;	end bitwise ALU operation
 ;; genGetByte      = 
 ;	offset = 1, 0
@@ -245,12 +245,12 @@ __sdcc_program_startup:
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 1
 	mov	alub mem
-	mov	x aluc
+	mov	r aluc
 	lad	_test_int_a_65536_2 + 0
 	mov	alua mem
 	lad	_test_int_b_65536_2 + 0
 	mov	alub mem
-	mov	r aluc
+	mov	x aluc
 ;	end bitwise ALU operation
 ;; genGetByte      = 
 ;	offset = 1, 0
